@@ -132,6 +132,13 @@ const doc = new Document({
             bodyRun("Baku, Azerbaijan", { size: 18, color: C.sec }),
           ],
         }),
+        new Paragraph({
+          spacing: { before: 10, after: 60 },
+          children: [
+            bodyRun("github.com/ZamirJamalov/ba-practice", { size: 17, color: C.accent }),
+            bodyRun("  \u2014  Practical BA samples: FRD, BPMN, Swagger, SQL, UAT", { size: 17, color: C.sec }),
+          ],
+        }),
 
         // ─── PROFILE SUMMARY ───
         sectionHeading("Profile Summary"),

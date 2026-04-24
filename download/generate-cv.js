@@ -144,7 +144,7 @@ children.push(new Paragraph({
   spacing: { before: 16, after: 16, line: 260 },
   alignment: AlignmentType.JUSTIFIED,
   children: [new TextRun({
-    text: "Business Analyst with 2+ years across banking and fintech, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Uniquely combines BA methodology with a software engineering background \u2014 enabling precise translation of business needs into technical specifications and seamless collaboration with development teams. Delivered production systems spanning credit scoring, B2C sales channels, operational dashboards, and end-to-end credit lifecycle management.",
+    text: "Business Analyst with 2+ years across fintech and e-commerce, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Uniquely combines BA methodology with a software engineering background \u2014 enabling precise translation of business needs into technical specifications and seamless collaboration with development teams. Delivered production systems spanning credit scoring, B2C sales channels, operational dashboards, and end-to-end credit lifecycle management.",
     font: FONT, size: 18, color: C.body,
   })],
 }));
@@ -213,28 +213,15 @@ children.push(bullet(
   "Data-Driven Decision Making: Leveraged SQL data analysis to resolve conflicting stakeholder priorities, presenting evidence-based recommendations to drive consensus"
 ));
 
-// Birbank — Role progression: Dev → L2 → BA
-children.push(experienceHeader("IT Business Analyst", "Birbank", "2022 \u2013 2025"));
-
-children.push(new Paragraph({
-  spacing: { before: 20, after: 10, line: 260 },
-  indent: { left: 160 },
-  children: [
-    new TextRun({ text: "IT Business Analyst (2024\u20132025)", font: FONT, size: 17, bold: true, italics: true, color: C.accent }),
-  ],
-}));
+// Birbonus — BA role
+children.push(experienceHeader("IT Business Analyst", "Birbonus", "2024 \u2013 2025"));
 
 children.push(bullet(
   "Designed a customer loyalty bonus system enabling shoppers to earn rewards on purchases and redeem across participating partner merchants, conducting stakeholder sessions to define earning rules, eligibility criteria, and partner settlement workflows"
 ));
 
-children.push(new Paragraph({
-  spacing: { before: 20, after: 10, line: 260 },
-  indent: { left: 160 },
-  children: [
-    new TextRun({ text: "PostgreSQL Developer & L2 Production Support (2022\u20132024)", font: FONT, size: 17, bold: true, italics: true, color: C.accent }),
-  ],
-}));
+// Umico — Developer & L2 role
+children.push(experienceHeader("PostgreSQL Developer & L2 Support", "Umico", "2022 \u2013 2024"));
 
 children.push(bullet(
   "Built backend features using PostgreSQL, resolved L2 production incidents using ELK Stack log analysis and source code investigation, and coordinated back-to-back technical integration testing for new partner system onboarding"

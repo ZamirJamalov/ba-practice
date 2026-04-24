@@ -144,7 +144,7 @@ children.push(new Paragraph({
   spacing: { before: 16, after: 16, line: 260 },
   alignment: AlignmentType.JUSTIFIED,
   children: [new TextRun({
-    text: "Business Analyst with 4 years across e-commerce and fintech, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Uniquely combines BA methodology with a software engineering background \u2014 enabling precise translation of business needs into technical specifications and seamless collaboration with development teams. Delivered production systems spanning credit scoring, B2C sales channels, and operational dashboards.",
+    text: "Business Analyst with 4 years across e-commerce and fintech, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Uniquely combines BA methodology with a software engineering background \u2014 enabling precise translation of business needs into technical specifications and seamless collaboration with development teams. Delivered production systems spanning credit scoring, B2C sales channels, operational dashboards, and end-to-end credit lifecycle management.",
     font: FONT, size: 18, color: C.body,
   })],
 }));
@@ -198,7 +198,7 @@ children.push(bullet(
   "Discovery & Process Modeling: Conducted structured stakeholder sessions with risk, sales, and operations teams to map As-Is workflows, identify pain points, and design To-Be BPMN process models"
 ));
 children.push(bullet(
-  "Requirements Documentation: Authored detailed FRDs with REQ-101 numbered requirements, wrote User Stories with Gherkin Acceptance Criteria, and maintained traceability across sprints"
+  "Requirements Documentation: Authored detailed BRDs, FRDs, and SRS documents with REQ-101 numbered requirements, wrote User Stories with Gherkin Acceptance Criteria, and maintained traceability across sprints"
 ));
 children.push(bullet(
   "Technical Specification: Defined REST API specifications in Swagger/OpenAPI 3.0 and created data mapping documents for seamless developer handoff"

@@ -194,19 +194,22 @@ children.push(projectBullet(
   "(End-to-End Workflow, Full Documentation)"
 ));
 
-// Layer 2: Delivery Methodology
+// Layer 2: Delivery Methodology (5-step BA lifecycle)
 children.push(subHeading("Delivery Methodology"));
 children.push(bullet(
-  "Conducted structured discovery sessions with risk, sales, and operations stakeholders to map As-Is workflows, design To-Be BPMN process models, and align on scope"
+  "Discovery & Process Modeling: Conducted structured stakeholder sessions with risk, sales, and operations teams to map As-Is workflows, identify pain points, and design To-Be BPMN process models"
 ));
 children.push(bullet(
-  "Authored detailed FRDs with numbered requirements (REQ-101 format) and designed REST API specifications using Swagger/OpenAPI 3.0 for seamless handoff to development teams"
+  "Requirements Documentation: Authored detailed FRDs with numbered requirements (REQ-101 format), wrote User Stories with Gherkin Acceptance Criteria, and maintained traceability across sprints"
 ));
 children.push(bullet(
-  "Wrote User Stories with Gherkin Acceptance Criteria, coordinated UAT execution, and led bug triage meetings \u2014 achieving on-time sign-off across multiple release cycles"
+  "Technical Specification: Defined REST API specifications using Swagger/OpenAPI 3.0 and created data mapping documents for seamless handoff to development teams"
 ));
 children.push(bullet(
-  "Leveraged SQL data analysis to resolve conflicting stakeholder priorities, presenting evidence-based recommendations to drive consensus"
+  "UAT & Delivery Coordination: Coordinated UAT execution with business stakeholders, led bug triage meetings with QA and developers, and achieved on-time sign-off across multiple release cycles"
+));
+children.push(bullet(
+  "Data-Driven Decision Making: Leveraged SQL data analysis to resolve conflicting stakeholder priorities, presenting evidence-based recommendations to drive consensus"
 ));
 
 // BirMarket (Umico) — 3 bullets

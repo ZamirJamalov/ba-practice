@@ -100,7 +100,7 @@ const children = [];
 // ── NAME ──
 children.push(new Paragraph({
   alignment: AlignmentType.LEFT, spacing: { before: 160, after: 30, line: 276 },
-  children: [new TextRun({ text: "ZAMIR CAMALOV", font: FONT, size: 34, bold: true, color: C.name, characterSpacing: 120 })],
+  children: [new TextRun({ text: "ZAMIR JAMALOV", font: FONT, size: 34, bold: true, color: C.name, characterSpacing: 120 })],
 }));
 
 // ── TARGET POSITION ──

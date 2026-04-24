@@ -157,7 +157,7 @@ children.push(spacer(50));
 children.push(sectionHeading("Core Skills"));
 children.push(spacer(30));
 
-children.push(skillRow("Business Analysis", "BRD / FRD / SRS  |  User Stories & Acceptance Criteria (Gherkin)  |  BPMN (As-Is / To-Be)  |  Gap Analysis  |  Stakeholder Interviews  |  Backlog Prioritization (RICE)"));
+children.push(skillRow("Business Analysis", "BRD / FRD / SRS  |  User Stories & Acceptance Criteria (Gherkin)  |  BPMN (As-Is / To-Be) | UML | Sequence Diagrams  |  Gap Analysis  |  Stakeholder Interviews  |  Backlog Prioritization (RICE)"));
 children.push(skillRow("Technical", "REST API & JSON  |  Swagger / OpenAPI 3.0  |  Postman (API Testing)  |  SQL (JOIN, GROUP BY, Subqueries)  |  SDLC"));
 children.push(skillRow("Process & Tools", "Agile / Scrum  |  Jira  |  Confluence  |  UAT Planning & Coordination  |  L2 Production Support (ELK Stack)"));
 children.push(skillRow("Languages", "Azerbaijani (Native)  |  Russian (Fluent)  |  English (Professional / Technical Documentation)"));
@@ -195,13 +195,13 @@ children.push(projectBullet(
 // Layer 2: Delivery Methodology (5-step BA lifecycle)
 children.push(subHeading("Delivery Methodology"));
 children.push(bullet(
-  "Discovery & Process Modeling: Conducted structured stakeholder sessions with risk, sales, and operations teams to map As-Is workflows, identify pain points, and design To-Be BPMN process models"
+  "Discovery & Process Modeling: Conducted structured stakeholder sessions with risk, sales, and operations teams to map As-Is workflows, identify pain points, and design To-Be BPMN process models and sequence diagrams for system interaction flows"
 ));
 children.push(bullet(
   "Requirements Documentation: Authored detailed BRDs, FRDs, and SRS documents with REQ-101 numbered requirements, wrote User Stories with Gherkin Acceptance Criteria, and maintained traceability across sprints"
 ));
 children.push(bullet(
-  "Technical Specification: Defined REST API specifications in Swagger/OpenAPI 3.0 and created data mapping documents for seamless developer handoff"
+  "Technical Specification: Defined REST API specifications in Swagger/OpenAPI 3.0, created sequence diagrams for integration flows, and prepared data mapping documents for seamless developer handoff"
 ));
 children.push(bullet(
   "UAT & Delivery Coordination: Coordinated UAT execution with business stakeholders, led bug triage meetings with QA and developers, and achieved on-time sign-off across multiple release cycles"

@@ -198,10 +198,10 @@ children.push(bullet(
   "Discovery & Process Modeling: Conducted structured stakeholder sessions with risk, sales, and operations teams to map As-Is workflows, identify pain points, and design To-Be BPMN process models"
 ));
 children.push(bullet(
-  "Requirements Documentation: Authored detailed FRDs with numbered requirements (REQ-101 format), wrote User Stories with Gherkin Acceptance Criteria, and maintained traceability across sprints"
+  "Requirements Documentation: Authored detailed FRDs with REQ-101 numbered requirements, wrote User Stories with Gherkin Acceptance Criteria, and maintained traceability across sprints"
 ));
 children.push(bullet(
-  "Technical Specification: Defined REST API specifications using Swagger/OpenAPI 3.0 and created data mapping documents for seamless handoff to development teams"
+  "Technical Specification: Defined REST API specifications in Swagger/OpenAPI 3.0 and created data mapping documents for seamless developer handoff"
 ));
 children.push(bullet(
   "UAT & Delivery Coordination: Coordinated UAT execution with business stakeholders, led bug triage meetings with QA and developers, and achieved on-time sign-off across multiple release cycles"

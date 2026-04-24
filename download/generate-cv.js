@@ -213,8 +213,8 @@ children.push(bullet(
   "Data-Driven Decision Making: Leveraged SQL data analysis to resolve conflicting stakeholder priorities, presenting evidence-based recommendations to drive consensus"
 ));
 
-// BirMarket (Umico) — 3 bullets
-children.push(experienceHeader("Business Analyst", "BirMarket (Umico)", "2022 \u2013 2025"));
+// Birbank — 3 bullets
+children.push(experienceHeader("Business Analyst", "Birbank", "2022 \u2013 2025"));
 
 children.push(bullet(
   "Designed and documented the end-to-end seller onboarding process from scratch, conducting stakeholder interviews with operations, logistics, and warehouse teams to capture all edge cases and define measurable Acceptance Criteria"

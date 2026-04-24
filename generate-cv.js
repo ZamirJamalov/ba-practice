@@ -157,7 +157,7 @@ children.push(spacer(50));
 children.push(sectionHeading("Core Skills"));
 children.push(spacer(30));
 
-children.push(skillRow("Business Analysis", "BRD / FRD / SRS  |  User Stories & Acceptance Criteria (Gherkin)  |  BPMN (As-Is / To-Be)  |  Gap Analysis  |  Stakeholder Interviews  |  Backlog Prioritization (WSJF / RICE)"));
+children.push(skillRow("Business Analysis", "BRD / FRD / SRS  |  User Stories & Acceptance Criteria (Gherkin)  |  BPMN (As-Is / To-Be)  |  Gap Analysis  |  Stakeholder Interviews  |  Backlog Prioritization (RICE)"));
 children.push(skillRow("Technical", "REST API & JSON  |  Swagger / OpenAPI 3.0  |  Postman (API Testing)  |  SQL (JOIN, GROUP BY, Subqueries)  |  SDLC"));
 children.push(skillRow("Process & Tools", "Agile / Scrum  |  Jira  |  Confluence  |  UAT Planning & Coordination  |  L2 Production Support (ELK Stack)"));
 children.push(skillRow("Languages", "Azerbaijani (Native)  |  Russian (Fluent)  |  English (Professional / Technical Documentation)"));
@@ -207,7 +207,7 @@ children.push(bullet(
   "UAT & Delivery Coordination: Coordinated UAT execution with business stakeholders, led bug triage meetings with QA and developers, and achieved on-time sign-off across multiple release cycles"
 ));
 children.push(bullet(
-  "Backlog Prioritization: Ranked requirements and user stories using structured frameworks (RICE, WSJF) to align sprint planning with business value and stakeholder priorities"
+  "Backlog Prioritization: Ranked requirements and user stories using RICE framework to align sprint planning with business value and stakeholder priorities"
 ));
 children.push(bullet(
   "Data-Driven Decision Making: Leveraged SQL data analysis to resolve conflicting stakeholder priorities, presenting evidence-based recommendations to drive consensus"

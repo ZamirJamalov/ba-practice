@@ -1,0 +1,480 @@
+openapi: 3.0.3
+info:
+  title: Product Return Management API
+  description: |
+    REST API specification for the Product Return Process Digitization.
+    This API enables customers to submit return requests, track status,
+    and allows internal staff to process returns through the workflow.
+  version: 1.0.0
+  contact:
+    name: BA Team
+    email: ba-team@company.com
+
+servers:
+  - url: https://api.company.com/api/v1
+    description: Production server
+  - url: https://sandbox-api.company.com/api/v1
+    description: Sandbox environment
+
+tags:
+  - name: Returns
+    description: Return request lifecycle management
+  - name: Products
+    description: Product lookup for return eligibility
+
+paths:
+  /returns:
+    post:
+      tags: [Returns]
+      summary: Submit a new return request
+      description: |
+        Customer submits a return request for an order item.
+        System validates eligibility (14-day window, return policy) and
+        creates a return record with PENDING_REVIEW status.
+      operationId: createReturnRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReturnRequest'
+            examples:
+              smartphone_return:
+                summary: Samsung Galaxy A54 return
+                value:
+                  order_id: "ORD-2026-78432"
+                  customer_name: "Aynur Mammadova"
+                  customer_phone: "+994501234567"
+                  customer_email: "aynur@mail.com"
+                  items:
+                    - product_id: "PROD-301"
+                      product_name: "Samsung Galaxy A54"
+                      quantity: 1
+                      reason: "DEFECTIVE"
+                      condition_notes: "Screen flickering after 3 days of use"
+                  store_id: "STR-005"
+      responses:
+        '201':
+          description: Return request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnResponse'
+              example:
+                return_id: "RET-2026-00489"
+                status: "PENDING_REVIEW"
+                estimated_completion_days: 5
+                message: "Your return request has been received. You will receive SMS updates."
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error_code: "INVALID_RETURN_WINDOW"
+                message: "Return window of 14 days has expired for this order."
+        '409':
+          description: Duplicate return request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags: [Returns]
+      summary: List return requests
+      description: |
+        Retrieve a paginated list of return requests.
+        Supports filtering by status, date range, and store.
+        Used by support agents and store managers.
+      operationId: listReturnRequests
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING_REVIEW, APPROVED, PRODUCT_RECEIVED, INSPECTION_PASSED, REFUNDED, REJECTED]
+          description: Filter by return status
+        - name: store_id
+          in: query
+          schema:
+            type: string
+          description: Filter by store ID
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter from date (inclusive)
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter to date (inclusive)
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: List of return requests
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReturnSummary'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /returns/{return_id}:
+    get:
+      tags: [Returns]
+      summary: Get return request details
+      description: Retrieve full details of a specific return request including status history and item inspection results.
+      operationId: getReturnById
+      parameters:
+        - $ref: '#/components/parameters/ReturnId'
+      responses:
+        '200':
+          description: Return request details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnDetail'
+        '404':
+          description: Return not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags: [Returns]
+      summary: Update return status
+      description: |
+        Advance the return request through the workflow.
+        Only authorized roles (support_agent, warehouse, finance) can
+        transition specific statuses based on their role.
+      operationId: updateReturnStatus
+      parameters:
+        - $ref: '#/components/parameters/ReturnId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatusRequest'
+            examples:
+              approve_return:
+                summary: Approve return request
+                value:
+                  status: "APPROVED"
+                  notes: "Customer confirmed defect via phone call. Return authorized."
+                  updated_by: "Rashad"
+                  role: "support_agent"
+      responses:
+        '200':
+          description: Status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnResponse'
+        '400':
+          description: Invalid status transition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error_code: "INVALID_TRANSITION"
+                message: "Cannot transition from PENDING_REVIEW directly to REFUNDED."
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /returns/{return_id}/history:
+    get:
+      tags: [Returns]
+      summary: Get return status history
+      description: Retrieve the complete audit trail of status changes for a return request.
+      operationId: getReturnHistory
+      parameters:
+        - $ref: '#/components/parameters/ReturnId'
+      responses:
+        '200':
+          description: Status history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StatusHistoryEntry'
+
+  /products/{product_id}/return-eligibility:
+    get:
+      tags: [Products]
+      summary: Check product return eligibility
+      description: |
+        Check if a specific product from an order is eligible for return
+        based on return policy rules (14-day window, product category, condition).
+      operationId: checkReturnEligibility
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: order_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Eligibility check result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EligibilityResponse'
+
+components:
+  parameters:
+    ReturnId:
+      name: return_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^RET-\\d{4}-\\d{5}$'
+      description: Unique return identifier (format: RET-YYYY-NNNNN)
+
+  schemas:
+    CreateReturnRequest:
+      type: object
+      required: [order_id, customer_name, customer_phone, items]
+      properties:
+        order_id:
+          type: string
+          pattern: '^ORD-\\d{4}-\\d{5}$'
+          example: "ORD-2026-78432"
+        customer_name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: "Aynur Mammadova"
+        customer_phone:
+          type: string
+          pattern: '^\\+994\\d{9}$'
+          example: "+994501234567"
+        customer_email:
+          type: string
+          format: email
+          example: "aynur@mail.com"
+        items:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/ReturnItem'
+        store_id:
+          type: string
+          example: "STR-005"
+
+    ReturnItem:
+      type: object
+      required: [product_id, product_name, quantity, reason]
+      properties:
+        product_id:
+          type: string
+          example: "PROD-301"
+        product_name:
+          type: string
+          example: "Samsung Galaxy A54"
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 10
+          example: 1
+        reason:
+          type: string
+          enum: [DEFECTIVE, WRONG_ITEM_DELIVERED, NOT_AS_DESCRIBED, CHANGED_MIND, DAMAGED_DELIVERY, WARRANTY_CLAIM]
+          example: "DEFECTIVE"
+        condition_notes:
+          type: string
+          maxLength: 500
+          example: "Screen flickering after 3 days of use"
+
+    ReturnResponse:
+      type: object
+      properties:
+        return_id:
+          type: string
+          example: "RET-2026-00489"
+        status:
+          type: string
+          enum: [PENDING_REVIEW, APPROVED, PRODUCT_RECEIVED, INSPECTION_PASSED, REFUNDED, REJECTED]
+          example: "PENDING_REVIEW"
+        estimated_completion_days:
+          type: integer
+          example: 5
+        message:
+          type: string
+
+    ReturnSummary:
+      type: object
+      properties:
+        return_id:
+          type: string
+        order_id:
+          type: string
+        customer_name:
+          type: string
+        product_name:
+          type: string
+        category:
+          type: string
+        return_reason:
+          type: string
+        status:
+          type: string
+        request_date:
+          type: string
+          format: date
+        refund_amount:
+          type: number
+          format: decimal
+
+    ReturnDetail:
+      type: object
+      properties:
+        return_id:
+          type: string
+        order_id:
+          type: string
+        customer_name:
+          type: string
+        customer_phone:
+          type: string
+        customer_email:
+          type: string
+        items:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/ReturnItem'
+              - type: object
+                properties:
+                  inspection_result:
+                    type: string
+                    enum: [PASS, FAIL, PENDING]
+        status:
+          type: string
+        request_date:
+          type: string
+          format: date
+        completed_date:
+          type: string
+          format: date
+        refund_amount:
+          type: number
+          format: decimal
+        store_id:
+          type: string
+        store_location:
+          type: string
+        status_history:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusHistoryEntry'
+
+    UpdateStatusRequest:
+      type: object
+      required: [status, updated_by, role]
+      properties:
+        status:
+          type: string
+          enum: [APPROVED, PRODUCT_RECEIVED, INSPECTION_PASSED, REFUNDED, REJECTED]
+        notes:
+          type: string
+          maxLength: 1000
+        updated_by:
+          type: string
+          example: "Rashad"
+        role:
+          type: string
+          enum: [support_agent, warehouse_staff, finance]
+          example: "support_agent"
+
+    StatusHistoryEntry:
+      type: object
+      properties:
+        status:
+          type: string
+        previous_status:
+          type: string
+        updated_by:
+          type: string
+        role:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        notes:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error_code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        total_pages:
+          type: integer
+
+    EligibilityResponse:
+      type: object
+      properties:
+        product_id:
+          type: string
+        order_id:
+          type: string
+        eligible:
+          type: boolean
+        reason:
+          type: string
+          description: Explanation if not eligible
+        return_deadline:
+          type: string
+          format: date
+          description: Last date eligible for return

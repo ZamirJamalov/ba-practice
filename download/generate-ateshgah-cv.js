@@ -265,7 +265,7 @@ children.push(
     alignment: AlignmentType.JUSTIFIED,
     children: [
       new TextRun({
-        text: "Business Analyst with 3+ years of experience in requirements engineering, process modeling (BPMN 2.0), and UAT coordination, backed by a 15-year career in software development (C#/.NET). This dual perspective enables rapid translation of business needs into actionable specifications and accelerates adoption of no-code/low-code platforms such as Creatio. Proven ability to bridge the gap between technical teams and business stakeholders through structured documentation, data-driven analysis, and cross-functional collaboration.",
+        text: "Business Analyst with 3+ years of experience in requirements engineering, process modeling (BPMN 2.0), and UAT coordination across fintech and e-commerce sectors, backed by a 15-year career in software development (C#/.NET, PostgreSQL). This dual perspective enables rapid translation of business needs into actionable specifications and accelerates adoption of no-code/low-code platforms such as Creatio. Proven ability to bridge the gap between technical teams and business stakeholders through structured documentation, data-driven analysis, and cross-functional collaboration.",
         font: FONT,
         size: 19,
         color: C.body,
@@ -283,9 +283,9 @@ children.push(sectionHeading("Core Skills"));
 children.push(spacer(60));
 
 children.push(skillRow("Business Analysis", "BPMN 2.0  |  FRD / BRD  |  User Stories (Gherkin)  |  Gap Analysis  |  UAT  |  Stakeholder Discovery"));
-children.push(skillRow("Technical Foundation", "REST API  |  OpenAPI 3.0 / Swagger  |  SQL (MS SQL, PostgreSQL)  |  C# / .NET  |  OOP & Design Patterns"));
+children.push(skillRow("Technical Foundation", "REST API  |  OpenAPI 3.0 / Swagger  |  PostgreSQL  |  MS SQL Server  |  C# / .NET  |  OOP & Design Patterns"));
 children.push(skillRow("No-Code Readiness", "Process Automation Mindset  |  Dashboard & Reporting Design  |  Creatio Platform (eager to master)"));
-children.push(skillRow("Tools", "Jira  |  Confluence  |  Postman  |  draw.io / Visio  |  SQL Server Management Studio  |  Git"));
+children.push(skillRow("Tools", "Jira  |  Confluence  |  Postman  |  pgAdmin  |  draw.io / Visio  |  SSMS  |  Git"));
 
 children.push(spacer(120));
 
@@ -295,8 +295,8 @@ children.push(spacer(120));
 children.push(sectionHeading("Work Experience"));
 children.push(spacer(60));
 
-// BA Experience
-children.push(experienceHeader("Business Analyst", "【Company Name】, Baku", "2022 \u2013 Present"));
+// BA Experience - Embafinans (current)
+children.push(experienceHeader("Business Analyst", "Embafinans, Baku", "2023 \u2013 Present"));
 
 children.push(bullet(
   "Conducted SME discovery sessions across 5+ departments to map As-Is/To-Be business processes in BPMN 2.0, identifying automation opportunities that reduced manual processing time by an estimated 30%"
@@ -311,7 +311,17 @@ children.push(bullet(
   "Built UAT test plans with 14+ test cases including edge scenarios, managed bug triage using severity/priority matrices, and coordinated sign-off with business stakeholders"
 ));
 children.push(bullet(
-  "Created SQL analytics queries (JOIN, GROUP BY, Subqueries) for return process analysis, delivering data-driven recommendations that informed strategic decisions by leadership"
+  "Created SQL analytics queries (JOIN, GROUP BY, Subqueries) for process analysis, delivering data-driven recommendations that informed strategic decisions by leadership"
+));
+
+// BA Experience - Umico (previous)
+children.push(experienceHeader("Business Analyst", "Umico, Baku", "2022 \u2013 2023"));
+
+children.push(bullet(
+  "Analyzed e-commerce business workflows and translated requirements into user stories with Gherkin acceptance criteria for the product development team"
+));
+children.push(bullet(
+  "Performed gap analysis between current system capabilities and target business needs, producing prioritized recommendations for platform enhancement"
 ));
 children.push(bullet(
   "Resolved stakeholder conflicts by presenting quantitative cost-benefit analysis, aligning divergent priorities between operations and IT departments"
@@ -324,7 +334,7 @@ children.push(bullet(
   "Designed and developed enterprise applications using C#/.NET, applying OOP principles, SOLID architecture, and design patterns across 10+ projects in fintech and government sectors"
 ));
 children.push(bullet(
-  "Architected relational database schemas (MS SQL Server, PostgreSQL) and optimized complex SQL queries for high-volume transactional reporting and analytics dashboards"
+  "Developed and maintained PostgreSQL databases including schema design, stored procedures, functions, and query performance tuning for high-volume transactional systems"
 ));
 children.push(bullet(
   "Built and consumed RESTful APIs, integrating third-party systems including payment gateways, state registries, and insurance platforms \u2014 directly relevant to no-code integration workflows"

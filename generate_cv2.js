@@ -158,7 +158,7 @@ const doc = new Document({
         // --- Embafinans ---
         subHeading("Embafinans", "IT Business Analyst", "2025 \u2013 Present"),
         bullet("Conducted structured discovery sessions with credit risk experts and finance teams to map the As-Is BNPL credit scoring workflow, identified 3 bottleneck stages, and designed To-Be BPMN process models with exclusive gateways \u2014 reducing credit decision time by 50%."),
-        bullet("Authored detailed FRDs with numbered requirements (REQ-101 format) and developed Swagger/OpenAPI 3.0 specifications for partner onboarding endpoints (POST /api/v1/partners, GET /api/v1/applications/{id}), ensuring zero-ambiguity handoff to the development team."),
+        bullet("Authored detailed FRDs with numbered requirements (REQ-101 format) and designed REST API specifications with Swagger/OpenAPI 3.0 documentation for 8+ endpoints covering partner onboarding, application management, and payment processing \u2014 ensuring zero-ambiguity handoff to the development team."),
         bullet("Wrote User Stories with Given/When/Then Acceptance Criteria in Jira/Confluence, coordinated UAT execution with business stakeholders, and led bug triage meetings with QA and developers \u2014 achieving on-time sign-off for 3 release cycles."),
         bullet("Resolved conflicting priorities between Risk and Sales departments by presenting SQL-based data analysis (conversion funnel metrics) to both stakeholders, facilitating agreement on a unified partner onboarding workflow."),
         bullet("Managed PayTabs and payment provider integrations by creating REST API specifications, building Postman test collections for end-to-end validation, and coordinating cross-team testing with QA and vendor technical leads."),

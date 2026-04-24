@@ -126,8 +126,6 @@ children.push(new Table({
           new TextRun({ text: "jamalov.zamir@gmail.com", font: FONT, size: 16, color: C.sec }),
           new TextRun({ text: "   |   ", font: FONT, size: 16, color: C.line }),
           new TextRun({ text: "Baku, Azerbaijan", font: FONT, size: 16, color: C.sec }),
-          new TextRun({ text: "   |   ", font: FONT, size: 16, color: C.line }),
-          new TextRun({ text: "github.com/ZamirJamalov/ba-practice", font: FONT, size: 16, color: C.accent, underline: { type: "single", color: C.accent } }),
         ],
       })],
     })],
@@ -146,11 +144,7 @@ children.push(new Paragraph({
   spacing: { before: 16, after: 16, line: 260 },
   alignment: AlignmentType.JUSTIFIED,
   children: [new TextRun({
-<<<<<<< HEAD
     text: "Business Analyst with 4 years across e-commerce and fintech, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Uniquely combines BA methodology with a software engineering background \u2014 enabling precise translation of business needs into technical specifications and seamless collaboration with development teams. Delivered production systems spanning credit scoring, B2C sales channels, and operational dashboards.",
-=======
-    text: "Business Analyst who transforms manual processes into automated systems \u2014 freed 10 employees from manual calls, doubled credit decision throughput, enabled 300\u2013500 daily loan applications through a new B2C channel, and reduced error rates by half. 4 years across e-commerce and fintech.",
->>>>>>> 6e2e40902469c31a9df3fbdeecf6884dc9cabc9c
     font: FONT, size: 18, color: C.body,
   })],
 }));
@@ -194,13 +188,8 @@ children.push(projectBullet(
   "(Real-Time Monitoring, 2x Fewer Errors, Digital E-Signature)"
 ));
 children.push(projectBullet(
-<<<<<<< HEAD
   "End-to-End Credit Lifecycle",
   "(Application, Disbursement, Collection, Cross-Functional)"
-=======
-  "Partner Onboarding & Loan Application Management",
-  "(Automated Onboarding, Manual Calls Eliminated)"
->>>>>>> 6e2e40902469c31a9df3fbdeecf6884dc9cabc9c
 ));
 
 // Layer 2: Delivery Methodology (5-step BA lifecycle)

@@ -146,7 +146,7 @@ children.push(new Paragraph({
   spacing: { before: 16, after: 16, line: 260 },
   alignment: AlignmentType.JUSTIFIED,
   children: [new TextRun({
-    text: "Business Analyst who transforms manual processes into automated systems \u2014 freed 10 employees from manual calls, doubled credit decision throughput, enabled 300\u2013500 daily loan applications through a new B2C channel, and reduced error rates by half. 4 years across e-commerce and fintech.",
+    text: "Business Analyst with 4 years across e-commerce and fintech, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Uniquely combines BA methodology with a software engineering background \u2014 enabling precise translation of business needs into technical specifications and seamless collaboration with development teams. Delivered production systems spanning credit scoring, B2C sales channels, and operational dashboards.",
     font: FONT, size: 18, color: C.body,
   })],
 }));

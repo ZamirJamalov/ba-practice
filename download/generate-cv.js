@@ -44,6 +44,27 @@ function bullet(text) {
   });
 }
 
+function subHeading(text) {
+  return new Paragraph({
+    spacing: { before: 100, after: 20, line: 260 },
+    children: [
+      new TextRun({ text: text, font: FONT, size: 18, bold: true, italics: true, color: C.title, characterSpacing: 40 }),
+    ],
+  });
+}
+
+function projectBullet(name, keywords) {
+  return new Paragraph({
+    spacing: { before: 10, after: 10, line: 250 },
+    indent: { left: 200, hanging: 200 },
+    children: [
+      new TextRun({ text: "\u2022", font: FONT, size: 17, color: C.accent }),
+      new TextRun({ text: "  " + name + "  ", font: FONT, size: 17, bold: true, color: C.title }),
+      new TextRun({ text: keywords, font: FONT, size: 16, color: C.sec }),
+    ],
+  });
+}
+
 function experienceHeader(title, company, dateRange) {
   return new Paragraph({
     spacing: { before: 120, after: 16, line: 260 },
@@ -151,26 +172,41 @@ children.push(spacer(50));
 children.push(sectionHeading("Professional Experience"));
 children.push(spacer(30));
 
-// Embafinans — 6 bullets (2 merged + 3 original + 1 new)
+// Embafinans — Two-Layer Structure: Projects + Methodology
 children.push(experienceHeader("IT Business Analyst", "Embafinans", "2025 \u2013 Present"));
 
+// Layer 1: Projects Delivered
+children.push(subHeading("Projects Delivered"));
+children.push(projectBullet(
+  "BNPL Credit Scoring & Pre-Screen Risk Assessment",
+  "(AKB, ASANfinance, BPMN)"
+));
+children.push(projectBullet(
+  "Sales Channel & Payment Integration",
+  "(3rd-Party Credit Applications, PayTabs)"
+));
+children.push(projectBullet(
+  "Goods Loan Delivery Dashboard",
+  "(Risk Monitoring, SIMA e-Signature, SMS)"
+));
+children.push(projectBullet(
+  "Partner Onboarding & Application Management",
+  "(FRD, 8+ REST API Endpoints)"
+));
+
+// Layer 2: Delivery Methodology
+children.push(subHeading("Delivery Methodology"));
 children.push(bullet(
-  "Conducted structured discovery sessions with risk teams to map the As-Is BNPL credit scoring workflow, designed a pre-screen scoring model by integrating external data sources (AKB, ASANfinance) for multi-factor risk assessment, and created To-Be BPMN process models with exclusive gateways \u2014 reducing credit decision time by 50%"
+  "Conducted structured discovery sessions with risk, sales, and operations stakeholders to map As-Is workflows, design To-Be BPMN process models, and align on scope"
 ));
 children.push(bullet(
-  "Authored detailed FRDs with numbered requirements (REQ-101 format) and designed REST API specifications with Swagger/OpenAPI 3.0 documentation for 8+ endpoints covering partner onboarding, application management, and payment processing \u2014 ensuring zero-ambiguity handoff to the development team"
+  "Authored detailed FRDs with numbered requirements (REQ-101 format) and designed REST API specifications using Swagger/OpenAPI 3.0 for seamless handoff to development teams"
 ));
 children.push(bullet(
-  "Wrote User Stories with Given/When/Then Acceptance Criteria in Jira/Confluence, coordinated UAT execution with business stakeholders, and led bug triage meetings with QA and developers \u2014 achieving on-time sign-off for 3 release cycles"
+  "Wrote User Stories with Gherkin Acceptance Criteria, coordinated UAT execution, and led bug triage meetings \u2014 achieving on-time sign-off across multiple release cycles"
 ));
 children.push(bullet(
-  "Resolved conflicting priorities between Risk and Sales departments by presenting SQL-based data analysis (conversion funnel metrics) to both stakeholders, facilitating agreement on a unified partner onboarding workflow"
-));
-children.push(bullet(
-  "Managed multiple third-party integrations including PayTabs payment processing and a new sales channel within the loan management system, conducting stakeholder sessions with vendors and internal teams to define API specifications and data mapping, and coordinating end-to-end delivery through UAT sign-off"
-));
-children.push(bullet(
-  "Led the digitization of goods loan delivery monitoring for the risk department by conducting stakeholder sessions to map manual tracking workflows to an automated web-oriented dashboard, and defining API specifications for SIMA e-signature and SMS provider integrations, coordinating end-to-end delivery through UAT sign-off"
+  "Leveraged SQL data analysis to resolve conflicting stakeholder priorities, presenting evidence-based recommendations to drive consensus"
 ));
 
 // BirMarket (Umico) — 3 bullets

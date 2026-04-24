@@ -144,7 +144,7 @@ children.push(new Paragraph({
   spacing: { before: 16, after: 16, line: 260 },
   alignment: AlignmentType.JUSTIFIED,
   children: [new TextRun({
-    text: "Business Analyst with 2+ years across fintech and e-commerce, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Uniquely combines BA methodology with a software engineering background \u2014 enabling precise translation of business needs into technical specifications and seamless collaboration with development teams. Delivered production systems spanning credit scoring, B2C sales channels, operational dashboards, and end-to-end credit lifecycle management.",
+    text: "Business Analyst with 2+ years across fintech and e-commerce, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Engineering background enables precise translation of business needs into technical specifications. Having delivered production systems in financial services, now looking to bring the same analytical approach to retail process optimization.",
     font: FONT, size: 18, color: C.body,
   })],
 }));

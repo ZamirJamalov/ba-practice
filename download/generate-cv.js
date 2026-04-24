@@ -207,6 +207,9 @@ children.push(bullet(
   "UAT & Delivery Coordination: Coordinated UAT execution with business stakeholders, led bug triage meetings with QA and developers, and achieved on-time sign-off across multiple release cycles"
 ));
 children.push(bullet(
+  "Backlog Prioritization: Ranked requirements and user stories using structured frameworks (RICE, WSJF) to align sprint planning with business value and stakeholder priorities"
+));
+children.push(bullet(
   "Data-Driven Decision Making: Leveraged SQL data analysis to resolve conflicting stakeholder priorities, presenting evidence-based recommendations to drive consensus"
 ));
 

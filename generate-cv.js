@@ -179,15 +179,15 @@ children.push(experienceHeader("IT Business Analyst", "Embafinans", "2025 \u2013
 children.push(subHeading("Projects Delivered"));
 children.push(projectBullet(
   "BNPL Credit Scoring & Pre-Screen Risk Assessment",
-  "(Automated Decision Engine, External Data Integration)"
+  "(2x Faster Credit Decisions, Automated Multi-Factor Assessment)"
 ));
 children.push(projectBullet(
-  "Sales Channel & Payment Gateway Integration",
-  "(Multi-Channel Loan Processing, Online Payments)"
+  "B2C Sales Channel & Payment Gateway Integration",
+  "(In-App Loan Applications, Online Payment Processing)"
 ));
 children.push(projectBullet(
   "Goods Loan Delivery Tracking Dashboard",
-  "(Web Dashboard, Digital Signatures, Automated Notifications)"
+  "(Real-Time Monitoring, 10+ Active Users, Digital E-Signature)"
 ));
 children.push(projectBullet(
   "Partner Onboarding & Loan Application Management",

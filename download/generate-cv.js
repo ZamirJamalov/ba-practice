@@ -191,7 +191,7 @@ children.push(projectBullet(
 ));
 children.push(projectBullet(
   "Partner Onboarding & Loan Application Management",
-  "(Full Requirements Documentation, 8+ REST API Endpoints)"
+  "(Requirements Documentation, REST API Design)"
 ));
 
 // Layer 2: Delivery Methodology

@@ -146,7 +146,7 @@ children.push(new Paragraph({
   spacing: { before: 16, after: 16, line: 260 },
   alignment: AlignmentType.JUSTIFIED,
   children: [new TextRun({
-    text: "IT Business Analyst with 3+ years of experience in E-Commerce and Fintech, skilled in stakeholder discovery, BRD/FRD authoring, BPMN process modeling, REST API documentation (Swagger), SQL analytics, and end-to-end delivery coordination through UAT sign-off. Software engineering background enables precise technical translation of business requirements and efficient collaboration with development teams.",
+    text: "Business Analyst who transforms manual processes into automated systems \u2014 freed 10 employees from manual calls, doubled credit decision throughput, enabled 300\u2013500 daily loan applications through a new B2C channel, and reduced error rates by half. 4 years across e-commerce and fintech.",
     font: FONT, size: 18, color: C.body,
   })],
 }));
@@ -183,11 +183,11 @@ children.push(projectBullet(
 ));
 children.push(projectBullet(
   "B2C Sales Channel & Payment Gateway Integration",
-  "(In-App Loan Applications, Online Payment Processing)"
+  "(300\u2013500 Daily Applications, Online Payment Processing)"
 ));
 children.push(projectBullet(
   "Goods Loan Delivery Tracking Dashboard",
-  "(Real-Time Monitoring, 10+ Active Users, Digital E-Signature)"
+  "(Real-Time Monitoring, 2x Fewer Errors, Digital E-Signature)"
 ));
 children.push(projectBullet(
   "Partner Onboarding & Loan Application Management",

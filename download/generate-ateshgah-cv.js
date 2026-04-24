@@ -265,7 +265,7 @@ children.push(
     alignment: AlignmentType.JUSTIFIED,
     children: [
       new TextRun({
-        text: "Business Analyst with 3+ years of experience in requirements engineering, process modeling (BPMN 2.0), and UAT coordination across fintech and e-commerce sectors, backed by a 15-year career in software development (C#/.NET, PostgreSQL). This dual perspective enables rapid translation of business needs into actionable specifications and accelerates adoption of no-code/low-code platforms such as Creatio. Proven ability to bridge the gap between technical teams and business stakeholders through structured documentation, data-driven analysis, and cross-functional collaboration.",
+        text: "Business Analyst with 3+ years of experience in requirements engineering, process modeling (BPMN 2.0), and UAT coordination across fintech and e-commerce sectors, backed by a 15-year career in software development (C#/.NET, PostgreSQL). This dual perspective enables rapid translation of business needs into actionable specifications and accelerates adoption of no-code/low-code platforms. Proven ability to bridge the gap between technical teams and business stakeholders through structured documentation, data-driven analysis, and cross-functional collaboration.",
         font: FONT,
         size: 19,
         color: C.body,
@@ -284,7 +284,7 @@ children.push(spacer(60));
 
 children.push(skillRow("Business Analysis", "BPMN 2.0  |  FRD / BRD  |  User Stories (Gherkin)  |  Gap Analysis  |  UAT  |  Stakeholder Discovery"));
 children.push(skillRow("Technical Foundation", "REST API  |  OpenAPI 3.0 / Swagger  |  PostgreSQL  |  MS SQL Server  |  C# / .NET  |  OOP & Design Patterns"));
-children.push(skillRow("No-Code Readiness", "Process Automation Mindset  |  Dashboard & Reporting Design  |  Creatio Platform (eager to master)"));
+children.push(skillRow("No-Code Readiness", "Process Automation Mindset  |  Dashboard & Reporting Design  |  Rapid Platform Adaptation"));
 children.push(skillRow("Tools", "Jira  |  Confluence  |  Postman  |  pgAdmin  |  draw.io / Visio  |  SSMS  |  Git"));
 
 children.push(spacer(120));

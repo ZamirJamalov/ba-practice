@@ -144,7 +144,7 @@ children.push(new Paragraph({
   spacing: { before: 16, after: 16, line: 260 },
   alignment: AlignmentType.JUSTIFIED,
   children: [new TextRun({
-    text: "Business Analyst with 4 years across e-commerce and fintech, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Uniquely combines BA methodology with a software engineering background \u2014 enabling precise translation of business needs into technical specifications and seamless collaboration with development teams. Delivered production systems spanning credit scoring, B2C sales channels, operational dashboards, and end-to-end credit lifecycle management.",
+    text: "Business Analyst with 2+ years across banking and fintech, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Uniquely combines BA methodology with a software engineering background \u2014 enabling precise translation of business needs into technical specifications and seamless collaboration with development teams. Delivered production systems spanning credit scoring, B2C sales channels, operational dashboards, and end-to-end credit lifecycle management.",
     font: FONT, size: 18, color: C.body,
   })],
 }));
@@ -213,17 +213,31 @@ children.push(bullet(
   "Data-Driven Decision Making: Leveraged SQL data analysis to resolve conflicting stakeholder priorities, presenting evidence-based recommendations to drive consensus"
 ));
 
-// BirMarket (Umico) — 3 bullets
-children.push(experienceHeader("Business Analyst", "BirMarket (Umico)", "2022 \u2013 2025"));
+// Birbank — Role progression: Dev → L2 → BA
+children.push(experienceHeader("IT Business Analyst", "Birbank", "2022 \u2013 2025"));
+
+children.push(new Paragraph({
+  spacing: { before: 20, after: 10, line: 260 },
+  indent: { left: 160 },
+  children: [
+    new TextRun({ text: "IT Business Analyst (2024\u20132025)", font: FONT, size: 17, bold: true, italics: true, color: C.accent }),
+  ],
+}));
 
 children.push(bullet(
-  "Designed and documented the end-to-end seller onboarding process from scratch, conducting stakeholder interviews with operations, logistics, and warehouse teams to capture all edge cases and define measurable Acceptance Criteria"
+  "Designed a customer loyalty bonus system enabling shoppers to earn rewards on purchases and redeem across participating partner merchants, conducting stakeholder sessions to define earning rules, eligibility criteria, and partner settlement workflows"
 ));
+
+children.push(new Paragraph({
+  spacing: { before: 20, after: 10, line: 260 },
+  indent: { left: 160 },
+  children: [
+    new TextRun({ text: "PostgreSQL Developer & L2 Production Support (2022\u20132024)", font: FONT, size: 17, bold: true, italics: true, color: C.accent }),
+  ],
+}));
+
 children.push(bullet(
-  "Analyzed seller performance and inventory data using SQL queries (complex JOINs, GROUP BY aggregations), identified fulfillment bottlenecks, and presented prioritized improvement recommendations to the product team with supporting data"
-));
-children.push(bullet(
-  "Collaborated with marketing and product teams on CMS-driven content changes and promotional campaigns, ensuring business copy requirements were accurately documented and delivered within sprint cycles without scope creep"
+  "Built backend features using PostgreSQL, resolved L2 production incidents using ELK Stack log analysis and source code investigation, and coordinated back-to-back technical integration testing for new partner system onboarding"
 ));
 
 children.push(spacer(50));

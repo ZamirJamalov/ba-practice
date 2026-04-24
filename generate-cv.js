@@ -191,7 +191,7 @@ children.push(projectBullet(
 ));
 children.push(projectBullet(
   "Partner Onboarding & Loan Application Management",
-  "(End-to-End Workflow, Full Documentation)"
+  "(Automated Onboarding, Manual Calls Eliminated)"
 ));
 
 // Layer 2: Delivery Methodology (5-step BA lifecycle)

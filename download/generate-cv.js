@@ -1,403 +1,287 @@
 const {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
   AlignmentType, BorderStyle, ShadingType, WidthType, TabStopType,
+  VerticalAlign,
 } = require("docx");
 const fs = require("fs");
 
-// ── Color Palette: Tech / Internet (Template A) ──
-const S = {
-  bg: "1A1F36",       // sidebar background (deep blue-purple)
-  text: "E0E4EC",     // sidebar text
-  label: "8B95A8",    // sidebar secondary text
-  accent: "667eea",   // accent color (amethyst)
-  title: "1A2D38",    // body heading
-  body: "2C3E4A",     // body content
-  sec: "6B8592",      // secondary info (dates etc.)
+const C = {
+  name: "1A1A1A", accent: "2A6496", title: "1A1A1A", body: "333333",
+  sec: "777777", line: "CCCCCC",
 };
 
+const FONT = { ascii: "Calibri", eastAsia: "Microsoft YaHei" };
 const NB = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
-const noBorders = { top: NB, bottom: NB, left: NB, right: NB };
 const allNoBorders = { top: NB, bottom: NB, left: NB, right: NB, insideHorizontal: NB, insideVertical: NB };
 
-// ── Sidebar elements ──
-function photoPlaceholder() {
-  return new Paragraph({
-    alignment: AlignmentType.CENTER,
-    spacing: { after: 120 },
-    children: [
-      new TextRun({ text: "\u25A1", size: 72, color: S.label, font: "Calibri" }),
-    ],
-  });
-}
-
-function sidebarName(name) {
-  return new Paragraph({
-    alignment: AlignmentType.CENTER,
-    spacing: { before: 80, after: 40 },
-    children: [
-      new TextRun({ text: name, size: 32, bold: true, color: "FFFFFF", font: "Calibri" }),
-    ],
-  });
-}
-
-function sidebarTitle(title) {
-  return new Paragraph({
-    alignment: AlignmentType.CENTER,
-    spacing: { after: 200 },
-    children: [
-      new TextRun({ text: title, size: 18, color: S.accent, font: "Calibri" }),
-    ],
-  });
-}
-
-function sidebarDivider() {
-  return new Paragraph({
-    spacing: { before: 80, after: 80 },
-    border: { bottom: { style: BorderStyle.SINGLE, size: 1, color: "3A4565", space: 4 } },
-    children: [],
-  });
-}
-
-function sidebarSectionLabel(label) {
-  return new Paragraph({
-    spacing: { before: 160, after: 60 },
-    children: [
-      new TextRun({ text: label.toUpperCase(), size: 15, bold: true, color: S.accent, font: "Calibri", characterSpacing: 60 }),
-    ],
-  });
-}
-
-function sidebarInfoLine(label, value) {
-  return new Paragraph({
-    spacing: { before: 30, after: 30 },
-    children: [
-      new TextRun({ text: label + " ", size: 17, color: S.label, font: "Calibri" }),
-      new TextRun({ text: value, size: 17, color: S.text, font: "Calibri" }),
-    ],
-  });
-}
-
-function sidebarSkillLine(name, level) {
-  const filled = "\u25CF".repeat(level);
-  const empty = "\u25CB".repeat(5 - level);
-  return new Paragraph({
-    spacing: { before: 30, after: 30 },
-    children: [
-      new TextRun({ text: name + "  ", size: 16, color: S.text, font: "Calibri" }),
-      new TextRun({ text: filled, size: 13, color: S.accent, font: "Calibri" }),
-      new TextRun({ text: empty, size: 13, color: "3A4565", font: "Calibri" }),
-    ],
-  });
-}
-
-function sidebarLangLine(lang, level) {
-  return new Paragraph({
-    spacing: { before: 20, after: 20 },
-    children: [
-      new TextRun({ text: lang + " ", size: 16, color: S.text, font: "Calibri" }),
-      new TextRun({ text: "\u2014 ", size: 16, color: S.label, font: "Calibri" }),
-      new TextRun({ text: level, size: 16, color: S.label, font: "Calibri" }),
-    ],
-  });
-}
-
-// ── Right-side section heading (color bar) ──
-function sectionHeading(cnText, enText) {
+function sectionHeading(text) {
   return new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    width: { size: 100, type: WidthType.PERCENTAGE }, columnWidths: [9906],
     borders: allNoBorders,
-    rows: [
-      new TableRow({
-        height: { value: 340, rule: "exact" },
-        children: [
-          new TableCell({
-            shading: { fill: S.accent, type: ShadingType.CLEAR },
-            borders: allNoBorders,
-            margins: { top: 40, bottom: 40, left: 160, right: 80 },
-            verticalAlign: "center",
-            children: [
-              new Paragraph({
-                spacing: { line: 276 },
-                children: [
-                  new TextRun({ text: cnText, size: 21, bold: true, color: "FFFFFF", font: "Calibri" }),
-                  new TextRun({ text: "  " + enText, size: 16, color: "C8D8F0", font: "Calibri", italics: true }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
+    rows: [new TableRow({
+      height: { value: 320, rule: "exact" },
+      children: [new TableCell({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: { top: NB, bottom: { style: BorderStyle.SINGLE, size: 6, color: C.accent }, left: NB, right: NB },
+        verticalAlign: VerticalAlign.BOTTOM,
+        children: [new Paragraph({
+          spacing: { before: 60, after: 30 },
+          children: [new TextRun({ text: text.toUpperCase(), font: FONT, size: 19, bold: true, color: C.accent, characterSpacing: 80 })],
+        })],
+      })],
+    })],
+  });
+}
+
+function bullet(text) {
+  return new Paragraph({
+    spacing: { before: 16, after: 16, line: 260 },
+    indent: { left: 160, hanging: 160 },
+    children: [
+      new TextRun({ text: "\u2022", font: FONT, size: 17, color: C.accent }),
+      new TextRun({ text: "  " + text, font: FONT, size: 17, color: C.body }),
     ],
   });
 }
 
-// ── Experience entry ──
-function experienceEntry(company, role, date, bullets) {
-  const children = [
-    new Paragraph({
-      spacing: { before: 120, after: 30 },
-      tabStops: [{ type: TabStopType.RIGHT, position: 7200 }],
-      children: [
-        new TextRun({ text: company, size: 21, bold: true, color: S.title, font: "Calibri" }),
-        new TextRun({ text: "    " + role, size: 18, color: S.accent, font: "Calibri" }),
-        new TextRun({ text: "\t" + date, size: 16, color: S.sec, font: "Calibri" }),
-      ],
-    }),
-  ];
-  for (const b of bullets) {
-    children.push(
-      new Paragraph({
-        spacing: { before: 20, after: 20, line: 276 },
+function subHeading(text) {
+  return new Paragraph({
+    spacing: { before: 100, after: 20, line: 260 },
+    children: [
+      new TextRun({ text: text, font: FONT, size: 18, bold: true, italics: true, color: C.title, characterSpacing: 40 }),
+    ],
+  });
+}
+
+function projectBullet(name, keywords) {
+  return new Paragraph({
+    spacing: { before: 10, after: 10, line: 250 },
+    indent: { left: 200, hanging: 200 },
+    children: [
+      new TextRun({ text: "\u2022", font: FONT, size: 17, color: C.accent }),
+      new TextRun({ text: "  " + name + "  ", font: FONT, size: 17, bold: true, color: C.title }),
+      new TextRun({ text: keywords, font: FONT, size: 16, color: C.sec }),
+    ],
+  });
+}
+
+function experienceHeader(title, company, dateRange) {
+  return new Paragraph({
+    spacing: { before: 120, after: 16, line: 260 },
+    tabStops: [{ type: TabStopType.RIGHT, position: 9906 }],
+    children: [
+      new TextRun({ text: company, font: FONT, size: 20, bold: true, color: C.title }),
+      new TextRun({ text: "  |  ", font: FONT, size: 18, color: C.sec }),
+      new TextRun({ text: title, font: FONT, size: 18, color: C.body, italics: true }),
+      new TextRun({ text: "\t", font: FONT }),
+      new TextRun({ text: dateRange, font: FONT, size: 16, color: C.sec }),
+    ],
+  });
+}
+
+function skillRow(category, skills) {
+  return new Paragraph({
+    spacing: { before: 30, after: 30, line: 260 },
+    children: [
+      new TextRun({ text: category, font: FONT, size: 18, bold: true, color: C.title }),
+      new TextRun({ text: "   ", font: FONT, size: 18 }),
+      new TextRun({ text: skills, font: FONT, size: 18, color: C.body }),
+    ],
+  });
+}
+
+function spacer(twips = 60) {
+  return new Paragraph({ spacing: { before: twips, after: 0 }, children: [] });
+}
+
+// ══════════════════════════════════════
+const children = [];
+
+// ── NAME ──
+children.push(new Paragraph({
+  alignment: AlignmentType.LEFT, spacing: { before: 160, after: 30, line: 276 },
+  children: [new TextRun({ text: "ZAMIR CAMALOV", font: FONT, size: 34, bold: true, color: C.name, characterSpacing: 120 })],
+}));
+
+// ── TARGET POSITION ──
+children.push(new Paragraph({
+  spacing: { before: 0, after: 50, line: 276 },
+  children: [new TextRun({ text: "IT Business Analyst  |  E-Commerce & Fintech", font: FONT, size: 21, color: C.accent })],
+}));
+
+// ── CONTACT LINE ──
+children.push(new Table({
+  width: { size: 100, type: WidthType.PERCENTAGE }, columnWidths: [9906], borders: allNoBorders,
+  rows: [new TableRow({
+    height: { value: 260, rule: "atLeast" },
+    children: [new TableCell({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: { ...allNoBorders, bottom: { style: BorderStyle.SINGLE, size: 2, color: C.line } },
+      verticalAlign: VerticalAlign.CENTER,
+      children: [new Paragraph({
+        spacing: { before: 30, after: 30 },
         children: [
-          new TextRun({ text: "\u25B8 ", size: 14, color: S.accent, font: "Calibri" }),
-          new TextRun({ text: b, size: 18, color: S.body, font: "Calibri" }),
+          new TextRun({ text: "+994 55 207 7228", font: FONT, size: 16, color: C.sec }),
+          new TextRun({ text: "   |   ", font: FONT, size: 16, color: C.line }),
+          new TextRun({ text: "jamalov.zamir@gmail.com", font: FONT, size: 16, color: C.sec }),
+          new TextRun({ text: "   |   ", font: FONT, size: 16, color: C.line }),
+          new TextRun({ text: "Baku, Azerbaijan", font: FONT, size: 16, color: C.sec }),
+          new TextRun({ text: "   |   ", font: FONT, size: 16, color: C.line }),
+          new TextRun({ text: "github.com/ZamirJamalov/ba-practice", font: FONT, size: 16, color: C.accent, underline: { type: "single", color: C.accent } }),
         ],
-      })
-    );
-  }
-  return children;
-}
+      })],
+    })],
+  })],
+}));
 
-// ── Project entry ──
-function projectEntry(name, tech, bullets) {
-  const children = [
-    new Paragraph({
-      spacing: { before: 80, after: 20 },
-      children: [
-        new TextRun({ text: name, size: 20, bold: true, color: S.title, font: "Calibri" }),
-        new TextRun({ text: "  |  " + tech, size: 16, color: S.sec, font: "Calibri", italics: true }),
-      ],
-    }),
-  ];
-  for (const b of bullets) {
-    children.push(
-      new Paragraph({
-        spacing: { before: 15, after: 15, line: 276 },
-        children: [
-          new TextRun({ text: "\u25B8 ", size: 14, color: S.accent, font: "Calibri" }),
-          new TextRun({ text: b, size: 17, color: S.body, font: "Calibri" }),
-        ],
-      })
-    );
-  }
-  return children;
-}
+children.push(spacer(50));
 
-// ── Education entry ──
-function educationEntry(school, degree, date) {
-  return [
-    new Paragraph({
-      spacing: { before: 60, after: 20 },
-      tabStops: [{ type: TabStopType.RIGHT, position: 7200 }],
-      children: [
-        new TextRun({ text: school, size: 20, bold: true, color: S.title, font: "Calibri" }),
-        new TextRun({ text: "\t" + date, size: 16, color: S.sec, font: "Calibri" }),
-      ],
-    }),
-    new Paragraph({
-      spacing: { before: 10, after: 40 },
-      children: [
-        new TextRun({ text: degree, size: 17, color: S.body, font: "Calibri" }),
-      ],
-    }),
-  ];
-}
+// ══════════════════════════════════════
+// PROFILE SUMMARY
+// ══════════════════════════════════════
+children.push(sectionHeading("Profile Summary"));
+children.push(spacer(30));
 
-// ── Sidebar Content ──
-const sidebarChildren = [
-  photoPlaceholder(),
-  sidebarName("Aynur Mammadova"),
-  sidebarTitle("IT Business Analyst"),
-  sidebarDivider(),
-  sidebarSectionLabel("Contact"),
-  sidebarInfoLine("Phone:", "+994 50 XXX XX XX"),
-  sidebarInfoLine("Email:", "aynur.m@mail.com"),
-  sidebarInfoLine("LinkedIn:", "linkedin.com/in/aynurm"),
-  sidebarInfoLine("Location:", "Baku, Azerbaijan"),
-  sidebarDivider(),
-  sidebarSectionLabel("Skills"),
-  sidebarSkillLine("BPMN / UML", 4),
-  sidebarSkillLine("REST API / JSON", 4),
-  sidebarSkillLine("SQL (JOIN, GROUP BY)", 4),
-  sidebarSkillLine("BRD / FRD", 5),
-  sidebarSkillLine("Jira / Confluence", 5),
-  sidebarSkillLine("Agile / Scrum", 4),
-  sidebarSkillLine("Postman / Swagger", 4),
-  sidebarSkillLine("Visio / Draw.io", 4),
-  sidebarSkillLine("ER Diagrams", 3),
-  sidebarSkillLine("MS Office", 4),
-  sidebarDivider(),
-  sidebarSectionLabel("Languages"),
-  sidebarLangLine("Azerbaijani", "Native"),
-  sidebarLangLine("Russian", "Fluent"),
-  sidebarLangLine("English", "B2 (Upper-Int)"),
-  sidebarDivider(),
-  sidebarSectionLabel("Education"),
-  new Paragraph({
-    spacing: { before: 30, after: 10 },
-    children: [new TextRun({ text: "BSc, Information Technologies", size: 16, color: S.text, font: "Calibri" })],
-  }),
-  new Paragraph({
-    spacing: { before: 10, after: 10 },
-    children: [new TextRun({ text: "ADA University, Baku", size: 15, color: S.label, font: "Calibri" })],
-  }),
-  new Paragraph({
-    spacing: { before: 10, after: 10 },
-    children: [new TextRun({ text: "2019 - 2023", size: 15, color: S.label, font: "Calibri" })],
-  }),
-  sidebarDivider(),
-  sidebarSectionLabel("Certifications"),
-  new Paragraph({
-    spacing: { before: 20, after: 10 },
-    children: [new TextRun({ text: "ECBA - IIBA", size: 16, color: S.text, font: "Calibri" })],
-  }),
-  new Paragraph({
-    spacing: { before: 10, after: 10 },
-    children: [new TextRun({ text: "CSPO - Scrum Alliance", size: 16, color: S.text, font: "Calibri" })],
-  }),
-];
+children.push(new Paragraph({
+  spacing: { before: 16, after: 16, line: 260 },
+  alignment: AlignmentType.JUSTIFIED,
+  children: [new TextRun({
+    text: "Business Analyst with 4 years across e-commerce and fintech, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Uniquely combines BA methodology with a software engineering background \u2014 enabling precise translation of business needs into technical specifications and seamless collaboration with development teams. Delivered production systems spanning credit scoring, B2C sales channels, and operational dashboards.",
+    font: FONT, size: 18, color: C.body,
+  })],
+}));
 
-// ── Right Body Content ──
-const bodyChildren = [
-  // Profile Summary
-  sectionHeading("Professional Summary", "Profile"),
-  new Paragraph({
-    spacing: { before: 80, after: 40, line: 276 },
-    children: [
-      new TextRun({
-        text: "Results-driven IT Business Analyst with 2+ years of experience bridging business requirements and technical solutions in Agile environments. Skilled in gathering and documenting requirements (BRD/FRD), process modelling (BPMN), API specification, and SQL data analysis. Proven ability to collaborate cross-functionally with product, engineering, and marketing teams to deliver features aligned with business value. Strong communicator in Azerbaijani and Russian, comfortable working in fast-paced, international settings.",
-        size: 18, color: S.body, font: "Calibri",
-      }),
-    ],
-  }),
+children.push(spacer(50));
 
-  // Work Experience
-  sectionHeading("Work Experience", "Experience"),
-  ...experienceEntry("Digital Solutions Ltd.", "IT Business Analyst", "Mar 2023 \u2014 Present", [
-    "Gathered and analysed business requirements from stakeholders, producing structured BRD and FRD documents that reduced scope ambiguity by 30% across 4 major projects.",
-    "Conducted as-is/to-be process analysis for order management and customer onboarding workflows, identifying 12 bottlenecks and proposing optimisation solutions adopted by operations team.",
-    "Designed BPMN process models, use case diagrams, and sequence diagrams; authored user stories with detailed acceptance criteria for the development team.",
-    "Evaluated business value of backlog items using ROI and impact-effort prioritisation framework, facilitating sprint planning with Product Owner.",
-    "Collaborated with frontend, backend, and DB engineers on architecture decisions; prepared technical specifications for REST API endpoints (JSON) documented in Swagger/OpenAPI.",
-    "Wrote and optimised SQL queries (JOIN, GROUP BY, subqueries) for data validation and analytical reporting, supporting quarterly business reviews.",
-    "Participated in UAT by designing test scenarios, executing acceptance criteria validation, and coordinating defect resolution with QA team.",
-    "Maintained comprehensive documentation in Confluence, including API guides, ER diagrams, and process flow references for cross-team alignment.",
-  ]),
+// ══════════════════════════════════════
+// CORE SKILLS
+// ══════════════════════════════════════
+children.push(sectionHeading("Core Skills"));
+children.push(spacer(30));
 
-  ...experienceEntry("TechBridge LLC", "Junior Business Analyst", "Sep 2022 \u2014 Feb 2023", [
-    "Assisted senior BA in requirements elicitation through stakeholder interviews and workshops, documenting findings in Jira tickets and Confluence pages.",
-    "Created BPMN diagrams for internal HR and finance workflows, identifying automation opportunities that saved 15+ hours per week in manual processing.",
-    "Tested REST API endpoints using Postman, verified response schemas against Swagger specifications, and logged discrepancies for developer resolution.",
-    "Supported sprint ceremonies (daily stand-ups, planning, retrospectives) in a Scrum environment, tracking progress via Jira boards.",
-  ]),
+children.push(skillRow("Business Analysis", "BRD / FRD / SRS  |  User Stories & Acceptance Criteria (Gherkin)  |  BPMN (As-Is / To-Be)  |  Gap Analysis  |  Stakeholder Interviews  |  Backlog Prioritization (WSJF / RICE)"));
+children.push(skillRow("Technical", "REST API & JSON  |  Swagger / OpenAPI 3.0  |  Postman (API Testing)  |  SQL (JOIN, GROUP BY, Subqueries)  |  SDLC"));
+children.push(skillRow("Process & Tools", "Agile / Scrum  |  Jira  |  Confluence  |  UAT Planning & Coordination  |  L2 Production Support (ELK Stack)"));
+children.push(skillRow("Languages", "Azerbaijani (Native)  |  Russian (Fluent)  |  English (Professional / Technical Documentation)"));
 
-  // Key Projects
-  sectionHeading("Key Projects", "Projects"),
-  ...projectEntry("E-Commerce Platform Redesign", "REST API, PostgreSQL, BPMN, Jira", [
-    "Led requirements analysis for the checkout and payment module, producing 25+ user stories with acceptance criteria aligned to PCI-DSS compliance standards.",
-    "Designed sequence diagrams for payment gateway integration flows (3rd-party API), enabling smooth handoff to the backend team with zero rework requests.",
-    "Built an ER diagram for the order management database schema, collaborating with DB architects to optimise query performance for reporting.",
-    "Prioritised features using MoSCoW + business value scoring, resulting in a 20% faster time-to-market for the MVP launch.",
-  ]),
-  ...projectEntry("CRM System Migration", "Salesforce, SQL, Confluence, Swagger", [
-    "Documented as-is CRM workflows across sales and support teams (BPMN), then designed to-be processes incorporating Salesforce automation features.",
-    "Wrote SQL queries to extract and validate legacy customer data before migration, ensuring 99.5% data integrity across 50,000+ records.",
-    "Created Swagger API specifications for 15 custom Salesforce integration endpoints used by internal BI dashboards.",
-  ]),
+children.push(spacer(50));
 
-  // Technical Tools
-  sectionHeading("Tools & Technologies", "Tech Stack"),
-  new Paragraph({
-    spacing: { before: 60, after: 40, line: 276 },
-    children: [
-      new TextRun({ text: "BA Tools: ", size: 18, bold: true, color: S.title, font: "Calibri" }),
-      new TextRun({ text: "Jira, Confluence, Trello, Miro, Draw.io, Lucidchart, Microsoft Visio", size: 17, color: S.body, font: "Calibri" }),
-    ],
-  }),
-  new Paragraph({
-    spacing: { before: 20, after: 20, line: 276 },
-    children: [
-      new TextRun({ text: "API & Testing: ", size: 18, bold: true, color: S.title, font: "Calibri" }),
-      new TextRun({ text: "Postman, Swagger / OpenAPI, Insomnia, SoapUI", size: 17, color: S.body, font: "Calibri" }),
-    ],
-  }),
-  new Paragraph({
-    spacing: { before: 20, after: 20, line: 276 },
-    children: [
-      new TextRun({ text: "Database: ", size: 18, bold: true, color: S.title, font: "Calibri" }),
-      new TextRun({ text: "SQL (PostgreSQL, MySQL), DBeaver", size: 17, color: S.body, font: "Calibri" }),
-    ],
-  }),
-  new Paragraph({
-    spacing: { before: 20, after: 20, line: 276 },
-    children: [
-      new TextRun({ text: "Other: ", size: 18, bold: true, color: S.title, font: "Calibri" }),
-      new TextRun({ text: "Microsoft Office Suite, Google Workspace, Figma (basic), Git (basic)", size: 17, color: S.body, font: "Calibri" }),
-    ],
-  }),
-];
+// ══════════════════════════════════════
+// PROFESSIONAL EXPERIENCE
+// ══════════════════════════════════════
+children.push(sectionHeading("Professional Experience"));
+children.push(spacer(30));
 
-// ── Build the document ──
+// Embafinans — Two-Layer Structure: Projects + Methodology
+children.push(experienceHeader("IT Business Analyst", "Embafinans", "2025 \u2013 Present"));
+
+// Layer 1: Projects Delivered
+children.push(subHeading("Projects Delivered"));
+children.push(projectBullet(
+  "BNPL Credit Scoring & Pre-Screen Risk Assessment",
+  "(2x Faster Credit Decisions, Automated Multi-Factor Assessment)"
+));
+children.push(projectBullet(
+  "B2C Sales Channel & Payment Gateway Integration",
+  "(300\u2013500 Daily Applications, Online Payment Processing)"
+));
+children.push(projectBullet(
+  "Goods Loan Delivery Tracking Dashboard",
+  "(Real-Time Monitoring, 2x Fewer Errors, Digital E-Signature)"
+));
+children.push(projectBullet(
+  "End-to-End Credit Lifecycle",
+  "(Application, Disbursement, Collection, Cross-Functional)"
+));
+
+// Layer 2: Delivery Methodology (5-step BA lifecycle)
+children.push(subHeading("Delivery Methodology"));
+children.push(bullet(
+  "Discovery & Process Modeling: Conducted structured stakeholder sessions with risk, sales, and operations teams to map As-Is workflows, identify pain points, and design To-Be BPMN process models"
+));
+children.push(bullet(
+  "Requirements Documentation: Authored detailed FRDs with numbered requirements (REQ-101 format), wrote User Stories with Gherkin Acceptance Criteria, and maintained traceability across sprints"
+));
+children.push(bullet(
+  "Technical Specification: Defined REST API specifications using Swagger/OpenAPI 3.0 and created data mapping documents for seamless handoff to development teams"
+));
+children.push(bullet(
+  "UAT & Delivery Coordination: Coordinated UAT execution with business stakeholders, led bug triage meetings with QA and developers, and achieved on-time sign-off across multiple release cycles"
+));
+children.push(bullet(
+  "Data-Driven Decision Making: Leveraged SQL data analysis to resolve conflicting stakeholder priorities, presenting evidence-based recommendations to drive consensus"
+));
+
+// BirMarket (Umico) — 3 bullets
+children.push(experienceHeader("Business Analyst", "BirMarket (Umico)", "2022 \u2013 2025"));
+
+children.push(bullet(
+  "Designed and documented the end-to-end seller onboarding process from scratch, conducting stakeholder interviews with operations, logistics, and warehouse teams to capture all edge cases and define measurable Acceptance Criteria"
+));
+children.push(bullet(
+  "Analyzed seller performance and inventory data using SQL queries (complex JOINs, GROUP BY aggregations), identified fulfillment bottlenecks, and presented prioritized improvement recommendations to the product team with supporting data"
+));
+children.push(bullet(
+  "Collaborated with marketing and product teams on CMS-driven content changes and promotional campaigns, ensuring business copy requirements were accurately documented and delivered within sprint cycles without scope creep"
+));
+
+children.push(spacer(50));
+
+// ══════════════════════════════════════
+// TECHNICAL FOUNDATION
+// ══════════════════════════════════════
+children.push(sectionHeading("Technical Foundation"));
+children.push(spacer(30));
+
+children.push(new Paragraph({
+  spacing: { before: 16, after: 16, line: 260 },
+  alignment: AlignmentType.JUSTIFIED,
+  children: [new TextRun({
+    text: "15+ years in software engineering (Central Bank of Azerbaijan, Unibank, ASAN Service) covering backend development (C#, T-SQL), database architecture (Oracle, MSSQL, PostgreSQL), and system integration. Enables precise requirement-to-code translation and rapid root cause analysis during production incidents.",
+    font: FONT, size: 18, color: C.body,
+  })],
+}));
+
+children.push(spacer(50));
+
+// ══════════════════════════════════════
+// EDUCATION
+// ══════════════════════════════════════
+children.push(sectionHeading("Education"));
+children.push(spacer(30));
+
+children.push(new Paragraph({
+  spacing: { before: 16, after: 16, line: 260 },
+  children: [
+    new TextRun({ text: "Baku State University", font: FONT, size: 19, bold: true, color: C.title }),
+    new TextRun({ text: "  \u2014  ", font: FONT, size: 18, color: C.sec }),
+    new TextRun({ text: "Bachelor of Science in Applied Mathematics", font: FONT, size: 18, color: C.body }),
+  ],
+}));
+
+// ══════════════════════════════════════
 const doc = new Document({
   styles: {
     default: {
       document: {
-        run: {
-          font: { ascii: "Calibri", eastAsia: "Microsoft YaHei" },
-          size: 18,
-        },
-        paragraph: {
-          spacing: { line: 276 },
-        },
+        run: { font: FONT, size: 18, color: C.body },
+        paragraph: { spacing: { line: 260 } },
       },
     },
   },
-  sections: [
-    {
-      properties: {
-        page: {
-          size: { width: 11906, height: 16838, orientation: 0 },
-          margin: { top: 0, bottom: 0, left: 0, right: 0 },
-        },
+  sections: [{
+    properties: {
+      page: {
+        size: { width: 11906, height: 16838 },
+        margin: { top: 550, bottom: 450, left: 950, right: 950 },
       },
-      children: [
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          columnWidths: [3400, 8506],
-          borders: allNoBorders,
-          rows: [
-            new TableRow({
-              height: { value: 16038, rule: "exact" },
-              cantSplit: true,
-              children: [
-                // Sidebar
-                new TableCell({
-                  width: { size: 3400, type: WidthType.DXA },
-                  shading: { fill: S.bg, type: ShadingType.CLEAR },
-                  borders: allNoBorders,
-                  margins: { top: 300, bottom: 200, left: 200, right: 200 },
-                  verticalAlign: "top",
-                  children: sidebarChildren,
-                }),
-                // Body
-                new TableCell({
-                  width: { size: 8506, type: WidthType.DXA },
-                  borders: allNoBorders,
-                  margins: { top: 300, bottom: 200, left: 300, right: 300 },
-                  verticalAlign: "top",
-                  children: bodyChildren,
-                }),
-              ],
-            }),
-          ],
-        }),
-      ],
     },
-  ],
+    children: children,
+  }],
 });
 
-// ── Export ──
+const OUTPUT = "/home/z/my-project/download/Zamir_Camalov_BA_CV_EN.docx";
 Packer.toBuffer(doc).then((buffer) => {
-  fs.writeFileSync("/home/z/my-project/download/Business_Analyst_CV_Sample.docx", buffer);
-  console.log("CV generated: /home/z/my-project/download/Business_Analyst_CV_Sample.docx");
+  fs.writeFileSync(OUTPUT, buffer);
+  console.log("CV generated: " + OUTPUT);
 });

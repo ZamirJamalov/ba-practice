@@ -239,7 +239,7 @@ children.push(new Paragraph({
   spacing: { before: 16, after: 16, line: 260 },
   alignment: AlignmentType.JUSTIFIED,
   children: [new TextRun({
-    text: "15+ years in software engineering (Central Bank of Azerbaijan, Unibank, ASAN Service) covering backend development (C#, T-SQL), database architecture (Oracle, MSSQL, PostgreSQL), and system integration. Enables precise requirement-to-code translation and rapid root cause analysis during production incidents.",
+    text: "15+ years in software engineering (Central Bank of Azerbaijan, Unibank, ASAN Service) covering backend development (C#), relational and NoSQL databases (Oracle, MSSQL, PostgreSQL, MongoDB), system integration, version control with Git, and CI/CD pipelines. Enables precise requirement-to-code translation and rapid root cause analysis during production incidents.",
     font: FONT, size: 18, color: C.body,
   })],
 }));

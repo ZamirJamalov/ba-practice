@@ -224,7 +224,7 @@ children.push(bullet(
 children.push(experienceHeader("PostgreSQL Developer & L2 Support", "Umico", "2022 \u2013 2024"));
 
 children.push(bullet(
-  "Built backend features using PostgreSQL, resolved L2 production incidents using ELK Stack log analysis and source code investigation, and coordinated back-to-back technical integration testing for new partner system onboarding"
+  "Built backend features using PostgreSQL, resolved L2 production incidents using ELK Stack log analysis and source code investigation, and supported partner development teams with API integration onboarding"
 ));
 
 children.push(spacer(50));

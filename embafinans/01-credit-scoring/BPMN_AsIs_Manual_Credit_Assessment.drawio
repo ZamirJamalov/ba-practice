@@ -1,0 +1,186 @@
+<mxfile host="app.diagrams.net" modified="2026-04-25" agent="Business Analyst" version="21.0.0">
+  <diagram id="bpmn-asis-credit" name="BPMN As-Is Manual Credit Assessment">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Swimlane: Customer -->
+        <mxCell id="sw1" value="Customer" style="swimlane;startSize=30;html=1;fillColor=#f5f5f5;horizontal=1;collapsible=0;swimlaneLine=1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="30" width="1530" height="140" as="geometry"/>
+        </mxCell>
+
+        <!-- Swimlane: Sales Agent -->
+        <mxCell id="sw2" value="Sales Agent" style="swimlane;startSize=30;html=1;fillColor=#f5f5f5;horizontal=1;collapsible=0;swimlaneLine=1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="170" width="1530" height="150" as="geometry"/>
+        </mxCell>
+
+        <!-- Swimlane: Risk Department -->
+        <mxCell id="sw3" value="Risk Department" style="swimlane;startSize=30;html=1;fillColor=#f5f5f5;horizontal=1;collapsible=0;swimlaneLine=1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="320" width="1530" height="150" as="geometry"/>
+        </mxCell>
+
+        <!-- Swimlane: Credit Committee -->
+        <mxCell id="sw4" value="Credit Committee" style="swimlane;startSize=30;html=1;fillColor=#f5f5f5;horizontal=1;collapsible=0;swimlaneLine=1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="470" width="1530" height="150" as="geometry"/>
+        </mxCell>
+
+        <!-- Start Event -->
+        <mxCell id="start1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=50;aspect=fixed;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="70" y="80" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Customer: Submit Application -->
+        <mxCell id="t1" value="Submit Credit&#xa;Application" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="160" y="72" width="120" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Sales Agent: Collect Documents -->
+        <mxCell id="t2" value="Collect Documents&#xa;Manually" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="210" width="130" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Sales Agent: Verify Identity -->
+        <mxCell id="t3" value="Verify Customer&#xa;Identity" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="530" y="210" width="130" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Sales Agent: Enter Data to System -->
+        <mxCell id="t4" value="Enter Data into&#xa;Internal System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="730" y="210" width="130" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Risk Department: Credit Review -->
+        <mxCell id="t5" value="Perform Credit&#xa;Review" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="730" y="360" width="130" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Risk Department: Assess Collateral -->
+        <mxCell id="t6" value="Assess Collateral&#xa;&amp; Guarantees" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="940" y="360" width="130" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Timer Event: Waiting for Committee -->
+        <mxCell id="timer1" value="⏱" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;arcSize=50;aspect=fixed;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="960" y="210" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Credit Committee: Review Application -->
+        <mxCell id="t7" value="Review &amp; Discuss&#xa;Application" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="510" width="130" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Exclusive Gateway: Approve/Reject -->
+        <mxCell id="gw1" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="505" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="gw1_label" value="X" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="1261" y="515" width="30" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Sales Agent: Inform Customer Approved -->
+        <mxCell id="t8" value="Inform Customer&#xa;(Approved)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="210" width="130" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Sales Agent: Inform Customer Rejected -->
+        <mxCell id="t9" value="Inform Customer&#xa;(Rejected)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="370" width="130" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- End Event: Approved -->
+        <mxCell id="end1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=50;aspect=fixed;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="80" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- End Event: Rejected -->
+        <mxCell id="end2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;arcSize=50;aspect=fixed;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="380" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Annotation: Average Processing Time -->
+        <mxCell id="ann1" value="Average 5-7 days processing time&#xa;due to manual handoffs and&#xa;committee scheduling delays" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="500" y="480" width="220" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Annotation: Pain Point -->
+        <mxCell id="ann2" value="Pain Point: Documents often&#xa;incomplete requiring multiple visits" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="310" y="270" width="220" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Annotation: Manual Data Entry -->
+        <mxCell id="ann3" value="Manual data entry leads to&#xa;errors and data inconsistencies" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="720" y="130" width="220" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="endArrow=block;endFill=1;" edge="1" parent="1" source="start1" target="t1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" style="endArrow=block;endFill=1;" edge="1" parent="1" source="t1" target="t2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" style="endArrow=block;endFill=1;" edge="1" parent="1" source="t2" target="t3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" style="endArrow=block;endFill=1;" edge="1" parent="1" source="t3" target="t4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" style="endArrow=block;endFill=1;" edge="1" parent="1" source="t4" target="t5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" style="endArrow=block;endFill=1;" edge="1" parent="1" source="t5" target="t6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" style="endArrow=block;endFill=1;" edge="1" parent="1" source="t6" target="t7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" style="endArrow=block;endFill=1;" edge="1" parent="1" source="t4" target="timer1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" style="endArrow=block;endFill=1;" edge="1" parent="1" source="timer1" target="t7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="535"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" style="endArrow=block;endFill=1;" edge="1" parent="1" source="t7" target="gw1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" value="Approved" style="endArrow=block;endFill=1;fontStyle=1;" edge="1" parent="1" source="gw1" target="t8">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1415" y="310"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" value="Rejected" style="endArrow=block;endFill=1;fontStyle=1;" edge="1" parent="1" source="gw1" target="t9">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1415" y="395"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e13" style="endArrow=block;endFill=1;" edge="1" parent="1" source="t8" target="end1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e14" style="endArrow=block;endFill=1;" edge="1" parent="1" source="t9" target="end2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1540" y="395"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Annotation connectors -->
+        <mxCell id="ea1" style="endArrow=none;dashed=1;" edge="1" parent="1" source="ann2" target="t2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ea2" style="endArrow=none;dashed=1;" edge="1" parent="1" source="ann3" target="t4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

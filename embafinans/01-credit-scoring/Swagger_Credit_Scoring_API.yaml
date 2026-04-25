@@ -1,0 +1,300 @@
+openapi: 3.0.3
+info:
+  title: Embafinans Credit Scoring API
+  description: REST API for credit scoring and pre-screen risk assessment system
+  version: 1.0.0
+  contact:
+    name: Zamir Jamalov
+    email: jamalov.zamir@gmail.com
+
+servers:
+  - url: https://api.embafinans.az/v1
+    description: Production server
+
+tags:
+  - name: Credit Scoring
+    description: Credit scoring endpoints
+  - name: Risk Assessment
+    description: Pre-screen risk assessment endpoints
+  - name: Applications
+    description: Credit application management
+
+paths:
+  /scoring/submit:
+    post:
+      tags: [Credit Scoring]
+      summary: Submit credit application for scoring
+      description: Submits a new credit application to the scoring engine for automated multi-factor risk assessment
+      operationId: submitScoring
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoringRequest'
+      responses:
+        '200':
+          description: Scoring result returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoringResponse'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Scoring engine error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /scoring/{applicationId}/result:
+    get:
+      tags: [Credit Scoring]
+      summary: Get scoring result by application ID
+      description: Retrieves the credit scoring result for a previously submitted application
+      operationId: getScoringResult
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Scoring result found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoringResponse'
+        '404':
+          description: Application not found
+
+  /risk/prescreen:
+    post:
+      tags: [Risk Assessment]
+      summary: Pre-screen risk assessment
+      description: Performs quick pre-screen assessment before full scoring to filter obvious rejections
+      operationId: prescreenRisk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrescreenRequest'
+      responses:
+        '200':
+          description: Pre-screen result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrescreenResponse'
+
+  /applications:
+    get:
+      tags: [Applications]
+      summary: List credit applications
+      description: Retrieves a paginated list of credit applications with optional filters
+      operationId: listApplications
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING, APPROVED, REJECTED, MANUAL_REVIEW]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of applications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationListResponse'
+
+components:
+  schemas:
+    ScoringRequest:
+      type: object
+      required: [applicant, creditProduct, requestedAmount]
+      properties:
+        applicant:
+          $ref: '#/components/schemas/Applicant'
+        creditProduct:
+          type: string
+          enum: [BNPL, GOODS_LOAN, CONSUMER_LOAN]
+          example: BNPL
+        requestedAmount:
+          type: number
+          format: double
+          example: 2500.00
+          description: Requested loan amount in AZN
+        term:
+          type: integer
+          example: 12
+          description: Loan term in months
+        partnerStoreId:
+          type: string
+          example: "STR-001"
+
+    Applicant:
+      type: object
+      required: [fullName, pin, dateOfBirth, mobilePhone, monthlyIncome]
+      properties:
+        fullName:
+          type: string
+          example: "Ali Mammadov"
+        pin:
+          type: string
+          pattern: '^[A-Z0-9]{7}$'
+          example: "A1234567"
+        dateOfBirth:
+          type: string
+          format: date
+          example: "1990-05-15"
+        mobilePhone:
+          type: string
+          pattern: '^\\+994[0-9]{9}$'
+          example: "+994551234567"
+        monthlyIncome:
+          type: number
+          format: double
+          example: 1500.00
+        employmentType:
+          type: string
+          enum: [EMPLOYED, SELF_EMPLOYED, UNEMPLOYED, RETIRED]
+          example: EMPLOYED
+        employerName:
+          type: string
+          example: "ABC Company"
+        existingLoans:
+          type: integer
+          example: 1
+          description: Number of active loans
+
+    ScoringResponse:
+      type: object
+      properties:
+        applicationId:
+          type: string
+          format: uuid
+        scoringDate:
+          type: string
+          format: date-time
+        overallScore:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          example: 85
+        decision:
+          type: string
+          enum: [AUTO_APPROVED, MANUAL_REVIEW, AUTO_REJECTED]
+          example: AUTO_APPROVED
+        factors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScoringFactor'
+        riskLevel:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, VERY_HIGH]
+          example: LOW
+        recommendedLimit:
+          type: number
+          format: double
+          example: 3000.00
+
+    ScoringFactor:
+      type: object
+      properties:
+        factorName:
+          type: string
+          example: "Credit Bureau Score"
+        weight:
+          type: number
+          example: 0.30
+        value:
+          type: string
+          example: "720/1000"
+        contribution:
+          type: string
+          example: "Positive"
+
+    PrescreenRequest:
+      type: object
+      required: [pin, creditProduct, requestedAmount]
+      properties:
+        pin:
+          type: string
+        creditProduct:
+          type: string
+        requestedAmount:
+          type: number
+
+    PrescreenResponse:
+      type: object
+      properties:
+        eligible:
+          type: boolean
+        prescreenScore:
+          type: number
+        rejectionReasons:
+          type: array
+          items:
+            type: string
+
+    ApplicationListResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationSummary'
+
+    ApplicationSummary:
+      type: object
+      properties:
+        applicationId:
+          type: string
+        applicantName:
+          type: string
+        creditProduct:
+          type: string
+        requestedAmount:
+          type: number
+        score:
+          type: number
+        decision:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: string

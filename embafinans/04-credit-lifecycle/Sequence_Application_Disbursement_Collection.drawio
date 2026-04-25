@@ -1,0 +1,221 @@
+<mxfile host="app.diagrams.net" modified="2026-04-25" agent="Business Analyst" version="21.0.0">
+  <diagram id="seq-app-disb-col" name="Sequence - Application Disbursement Collection">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Participants -->
+        <mxCell id="p1" value="Customer App" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="40" width="130" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p2" value="Credit Service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="260" y="40" width="130" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p3" value="Scoring Engine" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="40" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p4" value="Bank Integration" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="690" y="40" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p5" value="Collection Service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="910" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p6" value="SMS Service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="40" width="130" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p7" value="Database" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="40" width="120" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Activation boxes -->
+        <mxCell id="a1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="118" y="110" width="14" height="930" as="geometry"/>
+        </mxCell>
+        <mxCell id="a2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="318" y="130" width="14" height="900" as="geometry"/>
+        </mxCell>
+        <mxCell id="a3" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="533" y="210" width="14" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="a4" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="753" y="470" width="14" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="a5" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="983" y="730" width="14" height="250" as="geometry"/>
+        </mxCell>
+        <mxCell id="a6" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1213" y="840" width="14" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="a7" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1413" y="160" width="14" height="800" as="geometry"/>
+        </mxCell>
+
+        <!-- 1. Customer submits application -->
+        <mxCell id="m1" value="1: Submit credit application" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="132" y="130" as="sourcePoint"/>
+            <mxPoint x="318" y="130" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. Save application -->
+        <mxCell id="m2" value="2: Save application (status: PENDING)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="332" y="160" as="sourcePoint"/>
+            <mxPoint x="1413" y="160" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. Request scoring -->
+        <mxCell id="m3" value="3: Request credit score" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="332" y="210" as="sourcePoint"/>
+            <mxPoint x="533" y="210" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. Scoring engine calculates -->
+        <mxCell id="m4" value="4: Run scoring model (income, debt, history)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="547" y="260" as="sourcePoint"/>
+            <mxPoint x="1413" y="260" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. Return score -->
+        <mxCell id="m5" value="5: Return score + recommendation" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="533" y="320" as="sourcePoint"/>
+            <mxPoint x="332" y="320" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6. Update status to approved -->
+        <mxCell id="m6" value="6: Update status → APPROVED" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="332" y="380" as="sourcePoint"/>
+            <mxPoint x="1413" y="380" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 7. Notify customer approved -->
+        <mxCell id="m7" value="7: Notify customer (APPROVED)" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="318" y="430" as="sourcePoint"/>
+            <mxPoint x="132" y="430" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 8. Customer signs contract -->
+        <mxCell id="m8" value="8: Sign digital contract" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="132" y="470" as="sourcePoint"/>
+            <mxPoint x="318" y="470" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 9. Initiate disbursement -->
+        <mxCell id="m9" value="9: Initiate disbursement (amount, bank account)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="332" y="500" as="sourcePoint"/>
+            <mxPoint x="753" y="500" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 10. Bank processes transfer -->
+        <mxCell id="m10" value="10: Execute bank transfer" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="767" y="550" as="sourcePoint"/>
+            <mxPoint x="1413" y="550" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 11. Bank confirms -->
+        <mxCell id="m11" value="11: Confirm transfer (transaction_ref)" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="753" y="610" as="sourcePoint"/>
+            <mxPoint x="332" y="610" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 12. Create repayment schedule -->
+        <mxCell id="m12" value="12: Create repayment schedule (installments)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="332" y="670" as="sourcePoint"/>
+            <mxPoint x="1413" y="670" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 13. Notify customer disbursement complete -->
+        <mxCell id="m13" value="13: Notify (DISBURSED + schedule)" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="318" y="730" as="sourcePoint"/>
+            <mxPoint x="132" y="730" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 14. Collection service monitors -->
+        <mxCell id="m14" value="14: Monitor repayment schedule (daily cron)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="332" y="790" as="sourcePoint"/>
+            <mxPoint x="983" y="790" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 15. Collection identifies upcoming -->
+        <mxCell id="m15" value="15: Query upcoming due payments" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="997" y="840" as="sourcePoint"/>
+            <mxPoint x="1413" y="840" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 16. Send SMS reminders -->
+        <mxCell id="m16" value="16: Send SMS reminder (D-3, D-1, D-day)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="997" y="890" as="sourcePoint"/>
+            <mxPoint x="1213" y="890" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 17. SMS to customer -->
+        <mxCell id="m17" value="17: SMS → Customer phone" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1213" y="930" as="sourcePoint"/>
+            <mxPoint x="132" y="980" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 18. Customer makes payment -->
+        <mxCell id="m18" value="18: Customer makes repayment" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="132" y="1020" as="sourcePoint"/>
+            <mxPoint x="318" y="1020" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 19. Update status -->
+        <mxCell id="m19" value="19: Update status → REPAID" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="332" y="1060" as="sourcePoint"/>
+            <mxPoint x="1413" y="1060" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Notes -->
+        <mxCell id="n1" value="Scoring takes 2-5 seconds&#xa;Includes: credit bureau, income&#xa;verification, debt ratio analysis" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="470" y="350" width="210" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="n2" value="Bank disbursement via API&#xa;Same-day settlement for&#xa;partner banks" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="690" y="630" width="190" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="n3" value="SMS reminders: D-3 (3 days before),&#xa;D-1 (1 day before), D-day (due date)&#xa;Overdue: daily reminders starting D+1" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="940" width="240" height="70" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

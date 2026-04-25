@@ -1,0 +1,175 @@
+<mxfile host="app.diagrams.net" modified="2026-04-25" agent="Business Analyst" version="21.0.0">
+  <diagram id="seq-payment-flow" name="Sequence - Payment Flow">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1050" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Participants -->
+        <mxCell id="p1" value="Customer App" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="40" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p2" value="B2C Portal" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="40" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p3" value="Payment Gateway" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="40" width="150" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p4" value="Bank API" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="750" y="40" width="120" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p5" value="Notification Service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="960" y="40" width="170" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p6" value="Database" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="40" width="120" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Activation boxes -->
+        <mxCell id="a1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="143" y="110" width="14" height="830" as="geometry"/>
+        </mxCell>
+        <mxCell id="a2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="363" y="140" width="14" height="790" as="geometry"/>
+        </mxCell>
+        <mxCell id="a3" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="588" y="230" width="14" height="520" as="geometry"/>
+        </mxCell>
+        <mxCell id="a4" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="803" y="310" width="14" height="360" as="geometry"/>
+        </mxCell>
+        <mxCell id="a5" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1043" y="720" width="14" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="a6" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1273" y="180" width="14" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- 1. Customer selects product -->
+        <mxCell id="m1" value="1: Select product &amp; add to cart" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="157" y="140" as="sourcePoint"/>
+            <mxPoint x="363" y="140" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. Portal validates cart -->
+        <mxCell id="m1b" value="2: Validate product availability &amp; pricing" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="377" y="180" as="sourcePoint"/>
+            <mxPoint x="1273" y="180" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. Create order -->
+        <mxCell id="m2" value="3: Create order (status: PENDING_PAYMENT)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="377" y="230" as="sourcePoint"/>
+            <mxPoint x="588" y="230" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. Payment request -->
+        <mxCell id="m3" value="4: Initiate payment (amount, currency, method)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="602" y="310" as="sourcePoint"/>
+            <mxPoint x="803" y="310" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. Bank validates card/account -->
+        <mxCell id="m4" value="5: Validate payment method" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="817" y="360" as="sourcePoint"/>
+            <mxPoint x="1043" y="360" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6. 3D Secure check -->
+        <mxCell id="m5" value="6: 3D Secure authentication request" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="817" y="410" as="sourcePoint"/>
+            <mxPoint x="1043" y="410" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 7. Process transaction -->
+        <mxCell id="m6" value="7: Process transaction (debit/credit)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="817" y="460" as="sourcePoint"/>
+            <mxPoint x="1043" y="460" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 8. Bank returns result -->
+        <mxCell id="m7" value="8: Return transaction result (SUCCESS/FAILED)" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="817" y="510" as="sourcePoint"/>
+            <mxPoint x="602" y="510" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 9. Payment Gateway confirms -->
+        <mxCell id="m8" value="9: Payment confirmation + transaction ID" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="588" y="570" as="sourcePoint"/>
+            <mxPoint x="377" y="570" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 10. Update order status -->
+        <mxCell id="m9" value="10: Update order status (PAID/FAILED)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="377" y="630" as="sourcePoint"/>
+            <mxPoint x="588" y="630" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 11. Send confirmation notification -->
+        <mxCell id="m10" value="11: Send payment confirmation (email + SMS)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="377" y="720" as="sourcePoint"/>
+            <mxPoint x="1043" y="720" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 12. Save transaction record -->
+        <mxCell id="m11" value="12: Save transaction record" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="377" y="790" as="sourcePoint"/>
+            <mxPoint x="1273" y="790" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 13. Return to customer -->
+        <mxCell id="m12" value="13: Display payment result to customer" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="363" y="860" as="sourcePoint"/>
+            <mxPoint x="157" y="860" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 14. Notification sent to customer -->
+        <mxCell id="m13" value="14: Send confirmation to customer" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1043" y="850" as="sourcePoint"/>
+            <mxPoint x="157" y="900" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Notes -->
+        <mxCell id="n1" value="Payment methods supported:&#xa;• Credit/Debit Card (Visa, Mastercard)&#xa;• Bank Transfer (InstaPay)&#xa;• Mobile Wallet" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="530" y="100" width="230" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="n2" value="PCI DSS compliant&#xa;3D Secure v2 for card payments&#xa;Idempotency key per transaction" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="800" y="540" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="n3" value="Timeout: 30s for bank response&#xa;Auto-cancel if no response&#xa;Webhook for async status updates" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="80" y="940" width="240" height="60" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,190 @@
+<mxfile host="app.diagrams.net" modified="2026-04-25" agent="Business Analyst" version="21.0.0">
+  <diagram id="seq-app-scoring" name="Sequence - Application Scoring Decision">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Participants -->
+        <mxCell id="p1" value="Customer App" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="40" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p2" value="API Gateway" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="40" width="130" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p3" value="Credit Scoring Service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p4" value="External Scoring Bureau" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="750" y="40" width="170" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p5" value="Risk Rules Engine" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="40" width="150" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p6" value="Notification Service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="40" width="160" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="p7" value="Database" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;outlineConnect=0;size=40;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="40" width="120" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Activation boxes -->
+        <mxCell id="a1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="143" y="110" width="14" height="850" as="geometry"/>
+        </mxCell>
+        <mxCell id="a2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="359" y="130" width="14" height="810" as="geometry"/>
+        </mxCell>
+        <mxCell id="a3" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="583" y="180" width="14" height="720" as="geometry"/>
+        </mxCell>
+        <mxCell id="a4" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="828" y="230" width="14" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="a5" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1068" y="480" width="14" height="250" as="geometry"/>
+        </mxCell>
+        <mxCell id="a6" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1303" y="790" width="14" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="a7" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1513" y="740" width="14" height="130" as="geometry"/>
+        </mxCell>
+
+        <!-- Messages -->
+        <!-- 1. Customer submits application -->
+        <mxCell id="m1" value="1: Submit Credit Application" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="157" y="130" as="sourcePoint"/>
+            <mxPoint x="359" y="130" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. API Gateway authenticates and routes -->
+        <mxCell id="m2" value="2: POST /api/v1/scoring/request (authenticated)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="373" y="180" as="sourcePoint"/>
+            <mxPoint x="583" y="180" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. Scoring Service validates input -->
+        <mxCell id="m3" value="3: Validate application data" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="597" y="230" as="sourcePoint"/>
+            <mxPoint x="828" y="230" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. Request score from Bureau -->
+        <mxCell id="m4" value="4: Request credit score (TC/KBH)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="597" y="280" as="sourcePoint"/>
+            <mxPoint x="828" y="280" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. Bureau returns score -->
+        <mxCell id="m5" value="5: Return credit score (350-850)" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="828" y="330" as="sourcePoint"/>
+            <mxPoint x="597" y="330" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6. Bureau returns credit report -->
+        <mxCell id="m6" value="6: Return detailed credit report" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="828" y="380" as="sourcePoint"/>
+            <mxPoint x="597" y="380" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 7. Bureau return error -->
+        <mxCell id="m6b" value="7: Return (timeout/error handling)" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="828" y="420" as="sourcePoint"/>
+            <mxPoint x="597" y="420" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 8. Scoring to Risk Rules Engine -->
+        <mxCell id="m7" value="8: Evaluate risk rules (debt ratio, income, history)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="597" y="480" as="sourcePoint"/>
+            <mxPoint x="1068" y="480" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 9. Rules Engine returns decision factors -->
+        <mxCell id="m8" value="9: Return risk assessment + factors" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1068" y="540" as="sourcePoint"/>
+            <mxPoint x="597" y="540" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 10. Scoring calculates final score -->
+        <mxCell id="m9" value="10: Calculate composite score (weighted model)" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="597" y="590" as="sourcePoint"/>
+            <mxPoint x="1068" y="590" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 11. Decision result -->
+        <mxCell id="m10" value="11: Return decision (APPROVE/REVIEW/REJECT) + score" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1068" y="650" as="sourcePoint"/>
+            <mxPoint x="597" y="650" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 12. Scoring Service returns to API Gateway -->
+        <mxCell id="m11" value="12: Return scoring result + recommendation" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="583" y="740" as="sourcePoint"/>
+            <mxPoint x="373" y="740" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 13. API Gateway saves to DB -->
+        <mxCell id="m12" value="13: Save application result to DB" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="373" y="790" as="sourcePoint"/>
+            <mxPoint x="1513" y="790" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 14. API triggers notification -->
+        <mxCell id="m13" value="14: Trigger customer notification" style="endArrow=block;endFill=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="373" y="850" as="sourcePoint"/>
+            <mxPoint x="1303" y="850" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 15. Return to customer -->
+        <mxCell id="m14" value="15: Return decision to customer" style="endArrow=open;endFill=0;dashed=1;curved=0;rounded=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="359" y="920" as="sourcePoint"/>
+            <mxPoint x="157" y="920" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Notes -->
+        <mxCell id="n1" value="API uses JWT Bearer token for authentication&#xa;Rate limiting: 100 req/min per client" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="210" y="85" width="220" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="n2" value="External Bureau timeout: 5s&#xa;Retry: 2 attempts with backoff" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="840" y="430" width="210" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="n3" value="Risk rules include:&#xa;• Max debt-to-income ratio: 40%&#xa;• Min credit history: 12 months&#xa;• Max open loans: 3" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="670" width="220" height="80" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -26,7 +26,7 @@ function sectionHeading(text) {
         verticalAlign: VerticalAlign.BOTTOM,
         children: [new Paragraph({
           spacing: { before: 60, after: 30 },
-          children: [new TextRun({ text: text.toUpperCase(), font: FONT, size: 19, bold: true, color: C.accent, characterSpacing: 80 })],
+          children: [new TextRun({ text: text.toUpperCase(), font: FONT, size: 22, bold: true, color: C.accent, characterSpacing: 80 })],
         })],
       })],
     })],
@@ -35,57 +35,57 @@ function sectionHeading(text) {
 
 function bullet(text) {
   return new Paragraph({
-    spacing: { before: 16, after: 16, line: 260 },
+    spacing: { before: 12, after: 12, line: 245 },
     indent: { left: 160, hanging: 160 },
     children: [
-      new TextRun({ text: "\u2022", font: FONT, size: 17, color: C.accent }),
-      new TextRun({ text: "  " + text, font: FONT, size: 17, color: C.body }),
+      new TextRun({ text: "\u2022", font: FONT, size: 19, color: C.accent }),
+      new TextRun({ text: "  " + text, font: FONT, size: 19, color: C.body }),
     ],
   });
 }
 
 function subHeading(text) {
   return new Paragraph({
-    spacing: { before: 100, after: 20, line: 260 },
+    spacing: { before: 80, after: 16, line: 250 },
     children: [
-      new TextRun({ text: text, font: FONT, size: 18, bold: true, italics: true, color: C.title, characterSpacing: 40 }),
+      new TextRun({ text: text, font: FONT, size: 19, bold: true, italics: true, color: C.title, characterSpacing: 40 }),
     ],
   });
 }
 
 function projectBullet(name, keywords) {
   return new Paragraph({
-    spacing: { before: 10, after: 10, line: 250 },
+    spacing: { before: 8, after: 8, line: 245 },
     indent: { left: 200, hanging: 200 },
     children: [
-      new TextRun({ text: "\u2022", font: FONT, size: 17, color: C.accent }),
-      new TextRun({ text: "  " + name + "  ", font: FONT, size: 17, bold: true, color: C.title }),
-      new TextRun({ text: keywords, font: FONT, size: 16, color: C.sec }),
+      new TextRun({ text: "\u2022", font: FONT, size: 19, color: C.accent }),
+      new TextRun({ text: "  " + name + "  ", font: FONT, size: 19, bold: true, color: C.title }),
+      new TextRun({ text: keywords, font: FONT, size: 18, color: C.sec }),
     ],
   });
 }
 
 function experienceHeader(title, company, dateRange) {
   return new Paragraph({
-    spacing: { before: 120, after: 16, line: 260 },
+    spacing: { before: 100, after: 12, line: 250 },
     tabStops: [{ type: TabStopType.RIGHT, position: 9906 }],
     children: [
       new TextRun({ text: company, font: FONT, size: 20, bold: true, color: C.title }),
-      new TextRun({ text: "  |  ", font: FONT, size: 18, color: C.sec }),
-      new TextRun({ text: title, font: FONT, size: 18, color: C.body, italics: true }),
+      new TextRun({ text: "  |  ", font: FONT, size: 19, color: C.sec }),
+      new TextRun({ text: title, font: FONT, size: 19, color: C.body, italics: true }),
       new TextRun({ text: "\t", font: FONT }),
-      new TextRun({ text: dateRange, font: FONT, size: 16, color: C.sec }),
+      new TextRun({ text: dateRange, font: FONT, size: 17, color: C.sec }),
     ],
   });
 }
 
 function skillRow(category, skills) {
   return new Paragraph({
-    spacing: { before: 30, after: 30, line: 260 },
+    spacing: { before: 24, after: 24, line: 245 },
     children: [
-      new TextRun({ text: category, font: FONT, size: 18, bold: true, color: C.title }),
-      new TextRun({ text: "   ", font: FONT, size: 18 }),
-      new TextRun({ text: skills, font: FONT, size: 18, color: C.body }),
+      new TextRun({ text: category, font: FONT, size: 20, bold: true, color: C.title }),
+      new TextRun({ text: "   ", font: FONT, size: 20 }),
+      new TextRun({ text: skills, font: FONT, size: 20, color: C.body }),
     ],
   });
 }
@@ -121,54 +121,54 @@ children.push(new Table({
       children: [new Paragraph({
         spacing: { before: 30, after: 30 },
         children: [
-          new TextRun({ text: "+994 55 207 7228", font: FONT, size: 16, color: C.sec }),
-          new TextRun({ text: "   |   ", font: FONT, size: 16, color: C.line }),
-          new TextRun({ text: "jamalov.zamir@gmail.com", font: FONT, size: 16, color: C.sec }),
-          new TextRun({ text: "   |   ", font: FONT, size: 16, color: C.line }),
-          new TextRun({ text: "Baku, Azerbaijan", font: FONT, size: 16, color: C.sec }),
+          new TextRun({ text: "+994 55 207 7228", font: FONT, size: 18, color: C.sec }),
+          new TextRun({ text: "   |   ", font: FONT, size: 18, color: C.line }),
+          new TextRun({ text: "jamalov.zamir@gmail.com", font: FONT, size: 18, color: C.sec }),
+          new TextRun({ text: "   |   ", font: FONT, size: 18, color: C.line }),
+          new TextRun({ text: "Baku, Azerbaijan", font: FONT, size: 18, color: C.sec }),
         ],
       })],
     })],
   })],
 }));
 
-children.push(spacer(50));
+children.push(spacer(40));
 
 // ══════════════════════════════════════
 // PROFILE SUMMARY
 // ══════════════════════════════════════
 children.push(sectionHeading("Profile Summary"));
-children.push(spacer(30));
+children.push(spacer(24));
 
 children.push(new Paragraph({
-  spacing: { before: 16, after: 16, line: 260 },
+  spacing: { before: 12, after: 12, line: 240 },
   alignment: AlignmentType.JUSTIFIED,
   children: [new TextRun({
     text: "Business Analyst with 2+ years across fintech and e-commerce, specializing in process digitization, requirements documentation, and end-to-end delivery coordination. Engineering background enables precise translation of business needs into technical specifications. Having delivered production systems in financial services, now looking to bring the same analytical approach to retail process optimization.",
-    font: FONT, size: 18, color: C.body,
+    font: FONT, size: 20, color: C.body,
   })],
 }));
 
-children.push(spacer(50));
+children.push(spacer(40));
 
 // ══════════════════════════════════════
 // CORE SKILLS
 // ══════════════════════════════════════
 children.push(sectionHeading("Core Skills"));
-children.push(spacer(30));
+children.push(spacer(24));
 
 children.push(skillRow("Business Analysis", "BRD / FRD / SRS  |  User Stories & Acceptance Criteria (Gherkin)  |  BPMN (As-Is / To-Be) | UML | Sequence Diagrams  |  Gap Analysis  |  Stakeholder Interviews  |  Backlog Prioritization (RICE)"));
 children.push(skillRow("Technical", "REST API & JSON  |  Swagger / OpenAPI 3.0  |  Postman (API Testing)  |  SQL (JOIN, GROUP BY, Subqueries)  |  SDLC"));
 children.push(skillRow("Process & Tools", "Agile / Scrum  |  Jira  |  Confluence  |  UAT Planning & Coordination  |  L2 Production Support (ELK Stack)"));
 children.push(skillRow("Languages", "Azerbaijani (Native)  |  Russian (Fluent)  |  English (Professional / Technical Documentation)"));
 
-children.push(spacer(50));
+children.push(spacer(40));
 
 // ══════════════════════════════════════
 // PROFESSIONAL EXPERIENCE
 // ══════════════════════════════════════
 children.push(sectionHeading("Professional Experience"));
-children.push(spacer(30));
+children.push(spacer(24));
 
 // Embafinans — Two-Layer Structure: Projects + Methodology
 children.push(experienceHeader("IT Business Analyst", "Embafinans", "2025 \u2013 Present"));
@@ -227,37 +227,37 @@ children.push(bullet(
   "Built backend features using PostgreSQL, resolved L2 production incidents using ELK Stack log analysis and source code investigation, and supported partner development teams with API integration onboarding"
 ));
 
-children.push(spacer(50));
+children.push(spacer(40));
 
 // ══════════════════════════════════════
 // TECHNICAL FOUNDATION
 // ══════════════════════════════════════
 children.push(sectionHeading("Technical Foundation"));
-children.push(spacer(30));
+children.push(spacer(24));
 
 children.push(new Paragraph({
-  spacing: { before: 16, after: 16, line: 260 },
+  spacing: { before: 12, after: 12, line: 240 },
   alignment: AlignmentType.JUSTIFIED,
   children: [new TextRun({
     text: "15+ years in software engineering (Central Bank of Azerbaijan, Unibank, ASAN Service) \u2014 C# backend development, relational databases (Oracle, MSSQL, PostgreSQL) and NoSQL (MongoDB), system integration, Git, and CI/CD pipelines. Enables precise requirement-to-code translation and rapid root cause analysis during production incidents.",
-    font: FONT, size: 18, color: C.body,
+    font: FONT, size: 20, color: C.body,
   })],
 }));
 
-children.push(spacer(50));
+children.push(spacer(40));
 
 // ══════════════════════════════════════
 // EDUCATION
 // ══════════════════════════════════════
 children.push(sectionHeading("Education"));
-children.push(spacer(30));
+children.push(spacer(24));
 
 children.push(new Paragraph({
-  spacing: { before: 16, after: 16, line: 260 },
+  spacing: { before: 12, after: 12, line: 250 },
   children: [
-    new TextRun({ text: "Baku State University", font: FONT, size: 19, bold: true, color: C.title }),
-    new TextRun({ text: "  \u2014  ", font: FONT, size: 18, color: C.sec }),
-    new TextRun({ text: "Bachelor of Science in Applied Mathematics", font: FONT, size: 18, color: C.body }),
+    new TextRun({ text: "Baku State University", font: FONT, size: 20, bold: true, color: C.title }),
+    new TextRun({ text: "  \u2014  ", font: FONT, size: 19, color: C.sec }),
+    new TextRun({ text: "Bachelor of Science in Applied Mathematics", font: FONT, size: 19, color: C.body }),
   ],
 }));
 

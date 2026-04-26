@@ -22,17 +22,17 @@ c.push(empty());
 c.push(p("Dear HR Team,", { bold: true }));
 c.push(empty());
 
-// === PARAGRAPH 1: OPENING (attention-grabbing + position) ===
-c.push(p("As an IT Business Analyst with a track record of delivering four production systems at Embafinans and designing a multi-partner loyalty platform at Birbonus, I am writing to express my interest in the Business Analyst position at Kontakt Home. What draws me to your company is the scale of your operations across physical retail and e-commerce, and the complexity this creates for process optimization, cross-departmental coordination, and technology-driven decision-making. This is the type of challenge my background was built for."));
+// === PARAGRAPH 1: OPENING ===
+c.push(p("I am applying for the Business Analyst (E-Commerce) position at Kontakt Home. Over the past two years at Embafinans, I have been delivering production systems that follow the exact workflow your vacancy describes: gathering business requirements, documenting them in BRD and FRD format, analyzing As-Is processes, designing To-Be models in BPMN, and writing user stories with acceptance criteria through to UAT sign-off. This is the cycle I have repeated across four projects, each with measurable results."));
 
-// === PARAGRAPH 2: YOUR VALUE (evidence-based, measurable) ===
-c.push(p("At Embafinans, I was responsible for the full delivery cycle from stakeholder interviews through UAT sign-off. The results were measurable: a BNPL credit scoring engine that reduced decision time by 50%, a digital sales channel processing 300 to 500 daily applications, and a loan delivery tracking dashboard that cut operational errors by half. Each of these required structured process analysis, formal requirements documentation (BRD, FRD, SRS), API specification in OpenAPI 3.0, and backlog prioritization using the RICE framework. At Birbonus, I translated multi-stakeholder business rules into a working loyalty system across partner merchants. These experiences taught me how to operate in environments where business goals, customer experience, and technical constraints must be balanced simultaneously, a dynamic that is central to any large-scale retail operation."));
+// === PARAGRAPH 2: SPECIFIC RESULTS + VACANCY SKILLS ===
+c.push(p("The core of this role, as I understand it, is translating business needs into specifications that development teams can build without ambiguity. At Embafinans, I did precisely that: I defined REST API specifications in OpenAPI 3.0, created sequence and ER diagrams in Confluence, wrote SQL queries to validate data and resolve conflicting stakeholder priorities, and participated in architecture discussions where my engineering background allowed me to evaluate frontend, backend, and database options with the development team. These were not theoretical exercises; the BNPL credit scoring engine I documented reduced decision time by 50%, the digital sales channel I specified now processes 300 to 500 daily applications, and the delivery tracking dashboard I coordinated cut operational errors in half."));
 
-// === PARAGRAPH 3: FIT (why them specifically + differentiator) ===
-c.push(p("Kontakt Home is not just a retailer; it is a technology-enabled business where every process improvement directly affects customer satisfaction and operational cost. My fifteen-year engineering background at the Central Bank of Azerbaijan, Unibank, and ASAN Service gives me an additional advantage: I can assess technical feasibility during requirements workshops and write specifications that development teams implement without ambiguity. This reduces the cycle from idea to delivery and minimizes the rework that often results from unclear requirements."));
+// === PARAGRAPH 3: CROSS-FUNCTIONAL + RETAIL RELEVANCE ===
+c.push(p("Your vacancy also emphasizes collaboration with product, operations, and marketing teams. At Embafinans, my daily work involved coordinating across risk, sales, and operations departments to align requirements. At Birbonus, I designed a loyalty system that required managing requirements from multiple partner merchants simultaneously, defining earning rules, eligibility criteria, and settlement workflows. This experience of balancing diverse stakeholder interests and translating them into structured documentation is directly applicable to an e-commerce environment where product, operations, and marketing priorities frequently intersect."));
 
 // === PARAGRAPH 4: CALL TO ACTION ===
-c.push(p("I would welcome the opportunity to discuss how my experience can contribute to Kontakt Home. Please find my CV attached for detailed information. Thank you for your time and consideration."));
+c.push(p("I would welcome the opportunity to discuss how my skills and experience match your team's needs. Thank you for your consideration."));
 c.push(empty());
 
 // === SIGNATURE ===
@@ -51,7 +51,6 @@ async function main() {
   const buf = await docx.Packer.toBuffer(doc);
   const out = "/home/z/my-project/ba-practice/Zamir_Jamalov_Cover_Letter_Kontakt_Home.docx";
   fs.writeFileSync(out, buf);
-  const words = c.flatMap(x => x.root ? [] : []).length;
   console.log("OK: " + out + " (" + (buf.length / 1024).toFixed(1) + " KB)");
 }
 main().catch(e => { console.error(e); process.exit(1); });

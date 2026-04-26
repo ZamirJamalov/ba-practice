@@ -14,7 +14,7 @@ const para1 = "I am applying for the Business Analyst (E-Commerce) position at K
 
 const para2 = "As a Business Analyst, I worked at Embafinans for one year, delivering four production projects, and before that at Birbonus, where I designed the payment and refund flow with bonuses. In both roles, I worked closely with developers, testers, and business teams, managing the full project cycle from the first analysis to release and ongoing monitoring.";
 
-const para3 = "My software engineering background includes large projects like the Government Payment Portal at the Central Bank and the MobilBank application at Unibank, where I also built omnichannel solutions that let customers start on one channel and continue from another, as well as payment gateway integrations. This background helps me write requirements that developers understand without extra questions. Together with the teams at Embafinans, we achieved concrete results: the credit scoring system now makes lending decisions 50% faster, the digital sales channel handles 300 to 500 loan applications every day, and the delivery tracking dashboard cut operational mistakes by half.";
+const para3 = "Before becoming a BA, I worked as a software engineer on large projects like the Government Payment Portal and MobilBank. That experience gave me two things that help me now: first, I understand omnichannel systems and payment gateways from the inside, and second, I can write requirements that developers understand without extra questions. Together with the teams at Embafinans, this led to concrete results: the credit scoring system now makes lending decisions 50% faster, the digital sales channel handles 300 to 500 loan applications every day, and the delivery tracking dashboard cut operational mistakes by half."
 
 const para4 = "I would be happy to share more about my experience and skills in an interview.";
 
@@ -80,5 +80,5 @@ const doc = new Document({
 
 Packer.toBuffer(doc).then((buffer) => {
   fs.writeFileSync("/home/z/my-project/ba-practice/Zamir_Jamalov_Cover_Letter_Kontakt_Home.docx", buffer);
-  console.log("V13 cover letter generated!");
+  console.log("V14 cover letter generated!");
 });

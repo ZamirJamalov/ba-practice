@@ -10,7 +10,7 @@ const contact = "Baku, Azerbaijan  |  +994 55 207 7228  |  jamalov.zamir@gmail.c
 const date = "April 27, 2026";
 const salutation = "Dear HR Team,";
 
-const para1 = "I am applying for the Business Analyst (E-Commerce) position at Kontakt Home. The way you are growing your online sales and connecting the store experience with digital channels makes this role very interesting to me.";
+const para1 = "I am applying for the Business Analyst (E-Commerce) position at Kontakt Home. As the leading home appliance retailer in Azerbaijan, Kontakt Home is growing fast in digital, and I would like to be part of that growth.";
 
 const para2 = "As a Business Analyst, I worked at Embafinans for one year, delivering four production projects, and before that at Birbonus, where I designed the payment and refund flow with bonuses.";
 
@@ -80,5 +80,5 @@ const doc = new Document({
 
 Packer.toBuffer(doc).then((buffer) => {
   fs.writeFileSync("/home/z/my-project/ba-practice/Zamir_Jamalov_Cover_Letter_Kontakt_Home.docx", buffer);
-  console.log("V11 cover letter generated!");
+  console.log("V12 cover letter generated!");
 });

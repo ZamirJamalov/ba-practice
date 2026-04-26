@@ -10,11 +10,11 @@ const contact = "Baku, Azerbaijan  |  +994 55 207 7228  |  jamalov.zamir@gmail.c
 const date = "April 27, 2026";
 const salutation = "Dear HR Team,";
 
-const para1 = "I am applying for the Business Analyst (E-Commerce) position at Kontakt Home. As the leading home appliance retailer in Azerbaijan, Kontakt Home is growing fast in digital, and I would like to be part of that growth.";
+const para1 = "I am applying for the Business Analyst (E-Commerce) position at Kontakt Home. The way you are growing your online sales and connecting the store experience with digital channels makes this role very interesting to me.";
 
-const para2 = "The job of a Business Analyst is to understand business needs and turn them into clear documents for developers, and that is exactly what I have been doing for one year at Embafinans across four real projects. I believe these skills can be useful in any industry, including e-commerce.";
+const para2 = "For the past year at Embafinans, I have been working as a Business Analyst, turning business needs into clear requirements for developers. In my previous banking experience, I also worked with payment gateways and omnichannel solutions, where customers could start a process on one channel and continue on another. These experiences are directly connected to e-commerce.";
 
-const para3 = "Before becoming a BA, I worked as a software engineer for fifteen years in the banking and government sectors. This background helps me write requirements that developers understand without extra questions. At Embafinans, I reached some concrete results: one system became 50% faster after my documentation, another one handles 300 to 500 requests every day, and a third one cut mistakes by half. Also, at Birbonus I worked with many partner companies at the same time, and I believe this is very similar to e-commerce, where product, operations, and marketing teams need to work together closely.";
+const para3 = "My software engineering background helps me write requirements that developers understand without extra questions. At Embafinans, I reached concrete results: the credit scoring system I documented became 50% faster, the digital sales channel I specified handles 300 to 500 applications every day, and the delivery tracking dashboard I coordinated cut mistakes by half. At Birbonus, I managed requirements for many partner companies where customers, merchants, and payments all had to work together, and this is the same kind of coordination that e-commerce needs.";
 
 const para4 = "I would be happy to talk about how I can help Kontakt Home. Thank you for your time.";
 
@@ -80,5 +80,5 @@ const doc = new Document({
 
 Packer.toBuffer(doc).then((buffer) => {
   fs.writeFileSync("/home/z/my-project/ba-practice/Zamir_Jamalov_Cover_Letter_Kontakt_Home.docx", buffer);
-  console.log("V8 cover letter generated!");
+  console.log("V9 cover letter generated!");
 });

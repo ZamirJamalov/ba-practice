@@ -12,9 +12,9 @@ const salutation = "Dear HR Team,";
 
 const para1 = "I am applying for the Business Analyst (E-Commerce) position at Kontakt Home. The way you are growing your online sales and connecting the store experience with digital channels makes this role very interesting to me.";
 
-const para2 = "For the past year at Embafinans, I have been working as a Business Analyst, turning business needs into clear requirements for developers. In my previous banking experience, I also worked with payment gateways and omnichannel solutions, where customers could start a process on one channel and continue on another. These experiences are directly connected to e-commerce.";
+const para2 = "As a Business Analyst, I worked at Embafinans for one year, delivering four production projects, and before that at Birbonus, where I designed the payment and refund flow with bonuses.";
 
-const para3 = "My software engineering background helps me write requirements that developers understand without extra questions. At Embafinans, I reached concrete results: the credit scoring system I documented became 50% faster, the digital sales channel I specified handles 300 to 500 applications every day, and the delivery tracking dashboard I coordinated cut mistakes by half. At Birbonus, I managed requirements for many partner companies where customers, merchants, and payments all had to work together, and this is the same kind of coordination that e-commerce needs.";
+const para3 = "My software engineering background includes large projects like the Government Payment Portal at the Central Bank and the MobilBank application at Unibank, where I also built omnichannel solutions that let customers start on one channel and continue from another, as well as payment gateway integrations. This background helps me write requirements that developers understand without extra questions. At Embafinans, I reached concrete results: the credit scoring system I documented makes lending decisions 50% faster, the digital sales channel I specified handles 300 to 500 loan applications every day, and the delivery tracking dashboard I coordinated cut operational mistakes by half.";
 
 const para4 = "I would be happy to talk about how I can help Kontakt Home. Thank you for your time.";
 
@@ -80,5 +80,5 @@ const doc = new Document({
 
 Packer.toBuffer(doc).then((buffer) => {
   fs.writeFileSync("/home/z/my-project/ba-practice/Zamir_Jamalov_Cover_Letter_Kontakt_Home.docx", buffer);
-  console.log("V9 cover letter generated!");
+  console.log("V10 cover letter generated!");
 });

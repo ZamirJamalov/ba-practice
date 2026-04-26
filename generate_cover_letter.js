@@ -12,9 +12,9 @@ const salutation = "Dear HR Team,";
 
 const para1 = "I am applying for the Business Analyst (E-Commerce) position at Kontakt Home. As the leading home appliance retailer in Azerbaijan, Kontakt Home is growing fast in digital, and I would like to be part of that growth.";
 
-const para2 = "My background is in fintech, not e-commerce, and I want to be honest about that. But the job of a Business Analyst is to understand business needs and turn them into clear documents for developers, and that is exactly what I have been doing for two years at Embafinans across four real projects. The way of working does not change from one industry to another.";
+const para2 = "The job of a Business Analyst is to understand business needs and turn them into clear documents for developers, and that is exactly what I have been doing for one year at Embafinans across four real projects. I believe these skills can be useful in any industry, including e-commerce.";
 
-const para3 = "Before becoming a BA, I worked as a software engineer for fifteen years at the Central Bank of Azerbaijan, Unibank, and ASAN Service. This background helps me write requirements that developers understand without extra questions. Some results from my work: one system became 50% faster after my documentation, another one handles 300 to 500 requests every day, and a third one cut mistakes by half. Also, at Birbonus I worked with many partner companies at the same time, and I believe this is very similar to e-commerce, where product, operations, and marketing teams need to work together closely.";
+const para3 = "Before becoming a BA, I worked as a software engineer for fifteen years in the banking and government sectors. This background helps me write requirements that developers understand without extra questions. At Embafinans, I reached some concrete results: one system became 50% faster after my documentation, another one handles 300 to 500 requests every day, and a third one cut mistakes by half. Also, at Birbonus I worked with many partner companies at the same time, and I believe this is very similar to e-commerce, where product, operations, and marketing teams need to work together closely.";
 
 const para4 = "I would be happy to talk about how I can help Kontakt Home. Thank you for your time.";
 
@@ -80,5 +80,5 @@ const doc = new Document({
 
 Packer.toBuffer(doc).then((buffer) => {
   fs.writeFileSync("/home/z/my-project/ba-practice/Zamir_Jamalov_Cover_Letter_Kontakt_Home.docx", buffer);
-  console.log("V7 cover letter generated!");
+  console.log("V8 cover letter generated!");
 });

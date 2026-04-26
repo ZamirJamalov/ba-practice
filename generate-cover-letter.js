@@ -16,25 +16,29 @@ c.push(new docx.Paragraph({ children: [txt("Baku, Azerbaijan  |  +994 55 207 722
 // Date + Recipient
 c.push(p("April 26, 2026", { size: 20, color: C.gray }));
 c.push(empty());
-c.push(p("Hiring Manager", { size: 20 }));
+c.push(p("HR Department", { size: 20 }));
+c.push(p("Business Development Directorate", { bold: true, size: 20 }));
 c.push(p("Kontakt Home", { bold: true, size: 20 }));
 c.push(empty());
 
 // Greeting
-c.push(p("Dear Hiring Manager,", { bold: true }));
+c.push(p("Dear HR Team,", { bold: true }));
 c.push(empty());
 
-// Opening — specific, not generic
-c.push(p("I am applying for the Business Analyst position at Kontakt Home. With two years of focused BA experience in fintech and e-commerce, backed by fifteen years in software engineering across Azerbaijan's banking and public sector, I offer a strong mix of analytical skills and technical depth that fits well with the demands of a large-scale retail technology environment."));
+// Opening — directly states role + department
+c.push(p("I would like to submit my candidacy for the Business Analyst position within the Business Development department at Kontakt Home. I believe my professional background aligns well with the responsibilities of this role, and I would like to briefly outline why."));
 
-// Why You — facts from CV, impact-focused, not bullet copy
-c.push(p("At Embafinans, I delivered four production systems from requirements discovery through UAT sign-off: a BNPL credit scoring engine that cut decision time by half, a B2C sales channel processing 300 to 500 daily applications, a real-time loan delivery tracking dashboard, and an end-to-end credit lifecycle platform. In each case, my role covered the full spectrum: stakeholder interviews, As-Is/To-Be process mapping, BRD/FRD/SRS authoring, API specification in OpenAPI 3.0, backlog prioritization with RICE, and UAT coordination with business users. Prior to this, at Birbonus I designed a multi-partner loyalty system, which gave me direct experience with the kind of cross-merchant workflows and customer reward logic that retail platforms rely on. My earlier engineering career at the Central Bank of Azerbaijan, Unibank, and ASAN Service means I can evaluate technical feasibility during requirements workshops and write specifications that development teams can implement without ambiguity."));
+// Para 2 — Business Development context
+c.push(p("A Business Analyst in a Business Development department sits at the intersection of company strategy and operational execution. The role requires understanding business goals, analyzing processes, identifying inefficiencies, proposing solutions, and working with cross-functional teams to implement changes. Over the past two years at Embafinans, this is exactly what I have been doing in practice: conducting stakeholder interviews across risk, sales, and operations departments; mapping As-Is processes and designing To-Be workflows; authoring formal requirements documentation (BRD, FRD, SRS); defining API specifications for development teams; prioritizing work using the RICE framework; and coordinating UAT cycles with business users until sign-off. These are the core deliverables that a Business Development function relies on to make informed decisions and drive projects forward."));
 
-// Why Them — real knowledge, no fabricated stories
-c.push(p("Kontakt Home is Azerbaijan's leading electronics retailer with a significant physical and digital presence. Scaling operations across multiple stores while improving the online customer experience requires disciplined process analysis, clear technical documentation, and someone who can align business goals with delivery teams. My experience in both fintech process digitization and e-commerce platform development maps directly to these needs. I am confident I can add value from day one."));
+// Para 3 — Specific results + retail relevance
+c.push(p("The systems I delivered at Embafinans had measurable outcomes: a credit scoring engine that reduced decision time by 50%, a digital sales channel handling 300-500 daily applications, and a real-time delivery tracking dashboard that cut error rates in half. At Birbonus, I designed a customer loyalty system operating across multiple partner merchants, which required defining reward rules, eligibility criteria, and settlement workflows. This experience is directly relevant to a retail context where customer-facing processes, partner coordination, and operational efficiency are daily priorities."));
 
-// Call to action
-c.push(p("I would welcome the opportunity to discuss how my background and skills align with your team's priorities. Thank you for your consideration."));
+// Para 4 — Engineering edge as differentiator (short)
+c.push(p("Additionally, my fifteen-year background in software engineering at the Central Bank of Azerbaijan, Unibank, and ASAN Service allows me to evaluate technical feasibility during requirements discussions and produce specifications that development teams can implement without ambiguity. This reduces the communication gap between business and IT, which is a common source of project delays."));
+
+// Para 5 — Call to action
+c.push(p("I would be glad to discuss my candidacy in more detail at your convenience. Thank you for reviewing my application."));
 c.push(empty());
 
 // Signature

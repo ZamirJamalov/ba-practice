@@ -14,7 +14,7 @@ const para1 = "I am applying for the Business Analyst (E-Commerce) position at K
 
 const para2 = "As a Business Analyst, I worked at Embafinans for one year, delivering four production projects, and before that at Birbonus, where I designed the payment and refund flow with bonuses. In both roles, I worked closely with developers, testers, and business teams, managing the full project cycle from the first analysis to release and ongoing monitoring. Together with the team at Embafinans, we achieved concrete results: the credit scoring system now makes lending decisions 50% faster, the digital sales channel handles 300 to 500 loan applications every day, and the delivery tracking dashboard cut operational mistakes by half.";
 
-const para3 = "Before becoming a BA, I worked as a software engineer on large projects like the Government Payment Portal and MobilBank. That experience taught me how to build reliable systems, work with large teams, and document processes clearly, skills that I now use every day. It also gave me a deep understanding of omnichannel solutions and payment gateways from the inside.";
+const para3 = "Before becoming a BA, I worked as a software engineer at places like the Central Bank of Azerbaijan and Unibank, on large projects such as the Government Payment Portal and UMobilBank. That experience taught me how to build reliable systems, work with large teams, and document processes clearly, skills that I now use every day. It also gave me a deep understanding of omnichannel solutions and payment gateways from the inside.";
 
 const para4 = "I would be happy to share more about my experience and skills in an interview.";
 
@@ -80,5 +80,5 @@ const doc = new Document({
 
 Packer.toBuffer(doc).then((buffer) => {
   fs.writeFileSync("/home/z/my-project/ba-practice/Zamir_Jamalov_Cover_Letter_Kontakt_Home.docx", buffer);
-  console.log("V17 cover letter generated!");
+  console.log("V18 cover letter generated!");
 });

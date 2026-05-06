@@ -112,36 +112,12 @@ add_line(
     size=8, color=DARK, space_after=Pt(4))
 add_divider()
 
-# PROFESSIONAL EXPERIENCE - DMA FIRST (most relevant)
+# PROFESSIONAL EXPERIENCE - Reverse chronological (most recent first)
 add_line('PROFESSIONAL EXPERIENCE', bold=True, size=9.5, color=ACCENT, space_after=Pt(4))
 
-add_line('State Employment Agency  |  Innovation Department Lead & Business Analyst',
-         bold=True, size=9, color=DARK, space_after=Pt(1))
-add_line('2021 - 2022', size=8, color=LIGHT_GRAY, space_after=Pt(2))
-add_bullet(
-    'Led the digitization of the Labour and Employment Subsystem (LMAS): '
-    'analyzed the full citizen service journey from application to result, '
-    'designed the end-to-end process architecture, and authored requirements '
-    'documentation for the initial system development')
-add_bullet(
-    'Designed a new citizen service channel using Telegram bot for real-time '
-    'application submission and response processing, reducing the need for '
-    'physical office visits and improving service accessibility')
-add_bullet(
-    'Built a real-time service performance monitoring dashboard for the '
-    'management board, tracking citizen applications, response times (SLA), '
-    'and service quality indicators (KPI)')
-add_bullet(
-    'Coordinated a 15-member cross-functional project team, provided '
-    'methodology guidance, and managed multi-stakeholder communication across '
-    'government departments')
-add_bullet(
-    'Conducted stakeholder interviews and service gap analysis to identify '
-    'pain points in the existing employment service delivery process')
-
-# Embafinans
+# Embafinans (most recent)
 add_line('Embafinans  |  Lead IT Business Analyst',
-         bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
+         bold=True, size=9, color=DARK, space_after=Pt(1))
 add_line('2025 - Present', size=8, color=LIGHT_GRAY, space_after=Pt(2))
 add_bullet(
     'Leading business analysis for fintech products including BNPL credit scoring, '
@@ -177,6 +153,31 @@ add_bullet(
 add_bullet(
     'Developed backend features using PostgreSQL, resolved L2 production incidents, '
     'and supported partner development teams')
+
+# DMA (most relevant for this position)
+add_line('State Employment Agency  |  Innovation Department Lead & Business Analyst',
+         bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
+add_line('2021 - 2022', size=8, color=LIGHT_GRAY, space_after=Pt(2))
+add_bullet(
+    'Led the digitization of the Labour and Employment Subsystem (LMAS): '
+    'analyzed the full citizen service journey from application to result, '
+    'designed the end-to-end process architecture, and authored requirements '
+    'documentation for the initial system development')
+add_bullet(
+    'Designed a new citizen service channel using Telegram bot for real-time '
+    'application submission and response processing, reducing the need for '
+    'physical office visits and improving service accessibility')
+add_bullet(
+    'Built a real-time service performance monitoring dashboard for the '
+    'management board, tracking citizen applications, response times (SLA), '
+    'and service quality indicators (KPI)')
+add_bullet(
+    'Coordinated a 15-member cross-functional project team, provided '
+    'methodology guidance, and managed multi-stakeholder communication across '
+    'government departments')
+add_bullet(
+    'Conducted stakeholder interviews and service gap analysis to identify '
+    'pain points in the existing employment service delivery process')
 
 # Central Bank
 add_line('Central Bank of Azerbaijan  |  Integration Specialist',

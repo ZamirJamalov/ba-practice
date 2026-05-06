@@ -112,7 +112,7 @@ add_line(
     size=8, color=DARK, space_after=Pt(4))
 add_divider()
 
-# PROFESSIONAL EXPERIENCE - Reverse chronological (most recent first)
+# PROFESSIONAL EXPERIENCE - 5 entries + Additional Background
 add_line('PROFESSIONAL EXPERIENCE', bold=True, size=9.5, color=ACCENT, space_after=Pt(4))
 
 # 1. Embafinans (most recent)
@@ -169,23 +169,7 @@ add_bullet(
     'Coordinated a 15-member cross-functional project team and managed '
     'multi-stakeholder communication across government departments')
 
-# 5. Umico - Backend
-add_line('Umico  |  Backend Developer',
-         bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
-add_line('2019 - 2021', size=8, color=LIGHT_GRAY, space_after=Pt(2))
-add_bullet(
-    'Developed backend services and API endpoints using PostgreSQL; participated '
-    'in cross-functional feature development and production support')
-
-# 6. Rabita Bank
-add_line('Rabita Bank  |  Software Developer',
-         bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
-add_line('2018 - 2019', size=8, color=LIGHT_GRAY, space_after=Pt(2))
-add_bullet(
-    'Core banking system development and maintenance; participated in '
-    'software requirements analysis and system integration tasks')
-
-# 7. Central Bank
+# 5. Central Bank
 add_line('Central Bank of Azerbaijan  |  Integration Specialist',
          bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
 add_line('2007 - 2012', size=8, color=LIGHT_GRAY, space_after=Pt(2))
@@ -210,15 +194,14 @@ add_line(
     size=8.5, color=DARK, space_after=Pt(4))
 add_divider()
 
-# ADDITIONAL BACKGROUND
+# ADDITIONAL PROFESSIONAL BACKGROUND
 add_line('ADDITIONAL PROFESSIONAL BACKGROUND', bold=True, size=9.5, color=ACCENT, space_after=Pt(2))
 add_line(
-    'Additional software engineering and data analytics experience across '
-    "Azerbaijan's banking and public sectors, including core banking development "
-    '(Zaminbank, Unibank, Bank of Baku) and public services (ASAN Service). '
-    'This foundation provides deep understanding of enterprise systems, database '
-    'architectures (Oracle, MSSQL, PostgreSQL, MongoDB), and government service '
-    'delivery patterns.',
+    'Software engineering and data analytics experience (2018-2021) at Rabita Bank '
+    'and Umico in backend development and system integration; prior roles at '
+    'Zaminbank, Unibank, Bank of Baku, and ASAN Service. This foundation provides '
+    'deep understanding of enterprise systems, database architectures (Oracle, MSSQL, '
+    'PostgreSQL, MongoDB), and government service delivery patterns.',
     size=8.5, color=DARK, space_after=Pt(4))
 add_divider()
 

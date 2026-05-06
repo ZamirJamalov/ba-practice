@@ -74,8 +74,9 @@ add_line(
     'digitization, multi-agency coordination, and end-to-end process design. '
     'Practical experience in service journey analysis, citizen-centered digital '
     'service design, and requirements documentation (BRD, FRD, SRS, API '
-    'Specifications). Strong background in aligning cross-functional teams '
-    'across government organizations to deliver digital public services.',
+    'Specifications). Strong background in ensuring alignment between '
+    'process architecture and institutional requirements across government '
+    'organizations to deliver digital public services.',
     size=8.5, color=DARK, space_after=Pt(4))
 add_divider()
 
@@ -156,7 +157,8 @@ add_bullet(
     'Led the digitization of the Labour and Employment Subsystem (LMAS): '
     'analyzed the full citizen life-event service journey from application to '
     'result, defined the methodology and end-to-end process architecture, and '
-    'authored requirements documentation')
+    'authored requirements documentation; ensured alignment of new service '
+    'design with existing service portfolio and institutional structures')
 add_bullet(
     'Designed a citizen service channel using Telegram bot for real-time '
     'application submission, reducing physical office visits and improving accessibility')
@@ -176,8 +178,9 @@ add_bullet(
     'single-window Government Payment Portal (GPP): defined data exchange '
     'requirements and integration specifications for each agency')
 add_bullet(
-    'Designed cross-system data exchange middleware between government institutions, '
-    'enabling automated payment processing at national scale')
+    'Designed the process architecture for cross-system data exchange '
+    'between government institutions, enabling automated payment processing '
+    'at national scale')
 
 add_divider()
 

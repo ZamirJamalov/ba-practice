@@ -1,0 +1,230 @@
+#!/usr/bin/env python3
+"""Generate Innovation Agency CV v3 - English B1 with corrected LMAS and Applied Service Design strategy"""
+
+from docx import Document
+from docx.shared import Pt, Inches, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml.ns import qn
+
+doc = Document()
+
+for section in doc.sections:
+    section.top_margin = Inches(0.5)
+    section.bottom_margin = Inches(0.4)
+    section.left_margin = Inches(0.7)
+    section.right_margin = Inches(0.7)
+
+DARK = RGBColor(33, 37, 41)
+ACCENT = RGBColor(0, 90, 156)
+GRAY = RGBColor(89, 89, 89)
+LIGHT_GRAY = RGBColor(120, 120, 120)
+
+def add_line(text, bold=False, size=9.5, color=DARK, alignment=WD_ALIGN_PARAGRAPH.LEFT,
+             space_after=Pt(2), space_before=Pt(0)):
+    p = doc.add_paragraph()
+    p.alignment = alignment
+    p.paragraph_format.space_after = space_after
+    p.paragraph_format.space_before = space_before
+    p.paragraph_format.line_spacing = Pt(13)
+    run = p.add_run(text)
+    run.bold = bold
+    run.font.size = Pt(size)
+    run.font.name = 'Calibri'
+    run.font.color.rgb = color
+    return p
+
+def add_bullet(text, size=9, color=DARK, indent=0.25):
+    p = doc.add_paragraph()
+    p.paragraph_format.space_after = Pt(1.5)
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.line_spacing = Pt(12.5)
+    p.paragraph_format.left_indent = Inches(indent)
+    p.paragraph_format.first_line_indent = Inches(-0.15)
+    run = p.add_run(text)
+    run.font.size = Pt(size)
+    run.font.name = 'Calibri'
+    run.font.color.rgb = color
+    return p
+
+def add_divider():
+    p = doc.add_paragraph()
+    p.paragraph_format.space_after = Pt(4)
+    p.paragraph_format.space_before = Pt(4)
+    pPr = p._p.get_or_add_pPr()
+    pBdr = pPr.makeelement(qn('w:pBdr'), {})
+    bottom = pBdr.makeelement(qn('w:bottom'), {
+        qn('w:val'): 'single', qn('w:sz'): '4',
+        qn('w:space'): '1', qn('w:color'): 'AAAAAA'
+    })
+    pBdr.append(bottom)
+    pPr.append(pBdr)
+
+# HEADER
+add_line('ZAMIR JAMALOV', bold=True, size=15, color=DARK, space_after=Pt(2))
+add_line('Business Analyst  |  Government Service Design & Multi-Agency Coordination',
+         size=9.5, color=ACCENT, space_after=Pt(2))
+add_line('+994 55 207 7228  |  jamalov.zamir@gmail.com  |  Baku, Azerbaijan',
+         size=9, color=GRAY, space_after=Pt(4))
+add_divider()
+
+# PROFILE SUMMARY
+add_line('PROFILE SUMMARY', bold=True, size=9.5, color=ACCENT, space_after=Pt(2))
+add_line(
+    'Business Analyst with experience in government service digitization, '
+    'multi-agency coordination and end-to-end process design. 18 years in IT, '
+    'including key government projects: the Government Payment Portal (GPP) at the '
+    'Central Bank and the Labour and Employment Subsystem (LMAS) at the State '
+    'Employment Agency. Practical experience in service journey analysis, '
+    'citizen-centered digital channel design, and coordination across multiple '
+    'government organizations. Author of 14+ production-level BA documents (BRD, '
+    'FRD, SRS, User Stories, API Specifications) across fintech, e-commerce and '
+    'government services.',
+    size=8.5, color=DARK, space_after=Pt(4))
+add_divider()
+
+# CORE SKILLS
+add_line('CORE SKILLS', bold=True, size=9.5, color=ACCENT, space_after=Pt(2))
+
+add_line('Service Design & Analysis:', bold=True, size=8.5, color=DARK, space_after=Pt(1))
+add_line(
+    'Applied Service Design  |  Service Journey Analysis  |  Citizen-Centered '
+    'Service Design  |  Multi-Agency Service Coordination  |  As-Is / To-Be '
+    'Service Analysis  |  SLA / KPI Monitoring  |  Process Digitization',
+    size=8, color=DARK, space_after=Pt(3))
+
+add_line('Business Analysis:', bold=True, size=8.5, color=DARK, space_after=Pt(1))
+add_line(
+    'BRD / FRD / SRS  |  User Stories & Acceptance Criteria  |  BPMN (As-Is / '
+    'To-Be)  |  UML & Sequence Diagrams  |  Gap Analysis  |  Stakeholder '
+    'Interviews  |  Backlog Prioritization (RICE)  |  UAT',
+    size=8, color=DARK, space_after=Pt(3))
+
+add_line('Technical:', bold=True, size=8.5, color=DARK, space_after=Pt(1))
+add_line(
+    'REST API & JSON  |  Swagger / OpenAPI 3.0  |  SQL  |  SDLC  |  System '
+    'Integration  |  Data-Driven Analysis',
+    size=8, color=DARK, space_after=Pt(3))
+
+add_line('Process & Tools:', bold=True, size=8.5, color=DARK, space_after=Pt(1))
+add_line(
+    'Agile / Scrum  |  Jira  |  Confluence  |  Cross-Functional Coordination  |  '
+    'Government Stakeholder Management',
+    size=8, color=DARK, space_after=Pt(4))
+add_divider()
+
+# PROFESSIONAL EXPERIENCE - DMA FIRST (most relevant)
+add_line('PROFESSIONAL EXPERIENCE', bold=True, size=9.5, color=ACCENT, space_after=Pt(4))
+
+add_line('State Employment Agency  |  Innovation Department Lead & Business Analyst',
+         bold=True, size=9, color=DARK, space_after=Pt(1))
+add_line('2021 - 2022', size=8, color=LIGHT_GRAY, space_after=Pt(2))
+add_bullet(
+    'Led the digitization of the Labour and Employment Subsystem (LMAS): '
+    'analyzed the full citizen service journey from application to result, '
+    'designed the end-to-end process architecture, and authored requirements '
+    'documentation for the initial system development')
+add_bullet(
+    'Designed a new citizen service channel using Telegram bot for real-time '
+    'application submission and response processing, reducing the need for '
+    'physical office visits and improving service accessibility')
+add_bullet(
+    'Built a real-time service performance monitoring dashboard for the '
+    'management board, tracking citizen applications, response times (SLA), '
+    'and service quality indicators (KPI)')
+add_bullet(
+    'Coordinated a 15-member cross-functional project team, provided '
+    'methodology guidance, and managed multi-stakeholder communication across '
+    'government departments')
+add_bullet(
+    'Conducted stakeholder interviews and service gap analysis to identify '
+    'pain points in the existing employment service delivery process')
+
+# Embafinans
+add_line('Embafinans  |  Lead IT Business Analyst',
+         bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
+add_line('2025 - Present', size=8, color=LIGHT_GRAY, space_after=Pt(2))
+add_bullet(
+    'Leading business analysis for fintech products including BNPL credit scoring, '
+    'payment gateway integration, and loan tracking dashboard')
+add_bullet(
+    'Authoring BRD, FRD and SRS documents; writing User Stories with Gherkin '
+    'Acceptance Criteria and maintaining traceability across sprints')
+add_bullet(
+    'Defining REST API specifications in Swagger / OpenAPI 3.0 and creating '
+    'sequence diagrams for integration flows')
+add_bullet(
+    'Coordinating UAT execution with business stakeholders, leading bug triage '
+    'meetings, and achieving on-time sign-off across release cycles')
+
+# Kapital Bank
+add_line('Kapital Bank / Birbonus  |  IT Business Analyst',
+         bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
+add_line('2024 - 2025', size=8, color=LIGHT_GRAY, space_after=Pt(2))
+add_bullet(
+    'Designed a customer loyalty bonus system enabling shoppers to earn rewards '
+    'on purchases and redeem across partner merchants')
+add_bullet(
+    'Conducted stakeholder sessions to define earning rules, eligibility criteria, '
+    'and partner settlement workflows')
+
+# Umico
+add_line('Umico  |  Integration Specialist',
+         bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
+add_line('2022 - 2024', size=8, color=LIGHT_GRAY, space_after=Pt(2))
+add_bullet(
+    'Managed API integration of 25+ partner companies into the Umico ecosystem, '
+    'defining integration specifications and coordinating technical implementation')
+add_bullet(
+    'Developed backend features using PostgreSQL, resolved L2 production incidents, '
+    'and supported partner development teams')
+
+# Central Bank
+add_line('Central Bank of Azerbaijan  |  Integration Specialist',
+         bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
+add_line('2007 - 2012', size=8, color=LIGHT_GRAY, space_after=Pt(2))
+add_bullet(
+    'Coordinated the integration of 10+ government organizations into the '
+    'Government Payment Portal (GPP): defined data exchange requirements and '
+    'integration specifications for each agency')
+add_bullet(
+    'Designed cross-system data exchange middleware between government institutions, '
+    'enabling automated payment processing at national scale')
+
+add_divider()
+
+# PROFESSIONAL DEVELOPMENT
+add_line('PROFESSIONAL DEVELOPMENT', bold=True, size=9.5, color=ACCENT, space_after=Pt(2))
+add_line(
+    'Acquired business analysis methodology through practical application in '
+    'real projects: 14+ production-level BA documents (BRD, FRD, SRS, User '
+    'Stories, API Specifications, BPMN, UAT) across fintech, e-commerce and '
+    'government services. Practical experience in both business process and '
+    'service design methodologies.',
+    size=8.5, color=DARK, space_after=Pt(4))
+add_divider()
+
+# ADDITIONAL BACKGROUND
+add_line('ADDITIONAL PROFESSIONAL BACKGROUND', bold=True, size=9.5, color=ACCENT, space_after=Pt(2))
+add_line(
+    '10+ years of software engineering and data analytics experience across '
+    "Azerbaijan's banking and public sectors, including core banking development "
+    '(Zaminbank, Unibank, Bank of Baku, Rabita Bank), backend development '
+    '(Umico), and public services (ASAN Service). This foundation provides deep '
+    'understanding of enterprise systems, database architectures (Oracle, MSSQL, '
+    'PostgreSQL, MongoDB), government service delivery patterns, and cross-organization '
+    'integration.',
+    size=8.5, color=DARK, space_after=Pt(4))
+add_divider()
+
+# EDUCATION & LANGUAGES
+add_line('EDUCATION', bold=True, size=9.5, color=ACCENT, space_after=Pt(2))
+add_line('Baku State University  -  Bachelor of Science in Applied Mathematics',
+         size=9, color=DARK, space_after=Pt(4))
+
+add_line('LANGUAGES', bold=True, size=9.5, color=ACCENT, space_after=Pt(2))
+add_line('Azerbaijani (Native)  |  Russian (Fluent)  |  English (Professional Working Proficiency)',
+         size=9, color=DARK)
+
+output = '/home/z/my-project/ba-practice/Zamir_Jamalov_CV_Innovation_Agency_EN.docx'
+doc.save(output)
+print(f'CV EN saved: {output}')

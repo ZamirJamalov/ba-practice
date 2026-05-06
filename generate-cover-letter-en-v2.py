@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate Innovation Agency Cover Letter v2 - English B1 level"""
+"""Generate Innovation Agency Cover Letter v2 - English B1 level - 1 page"""
 
 from docx import Document
 from docx.shared import Pt, Inches, RGBColor
@@ -9,7 +9,7 @@ doc = Document()
 
 for section in doc.sections:
     section.top_margin = Inches(0.8)
-    section.bottom_margin = Inches(0.8)
+    section.bottom_margin = Inches(0.6)
     section.left_margin = Inches(1.0)
     section.right_margin = Inches(1.0)
 
@@ -33,95 +33,84 @@ def add_para(text, bold=False, size=11, color=None, alignment=WD_ALIGN_PARAGRAPH
 # Header
 add_para('ZAMIR JAMALOV', bold=True, size=16, space_after=Pt(2))
 add_para('+994 55 207 7228  |  jamalov.zamir@gmail.com  |  Baku, Azerbaijan',
-         size=10, color=GRAY, space_after=Pt(16))
+         size=10, color=GRAY, space_after=Pt(12))
 
-# Date
-add_para('May 6, 2026', alignment=WD_ALIGN_PARAGRAPH.RIGHT, space_after=Pt(18))
+# Date & Addressee on same line area
+add_para('Baku, May 6, 2026', space_after=Pt(8))
 
-# Addressee
-add_para('Innovation and Digital Development Agency', space_after=Pt(2))
-add_para('Baku, Azerbaijan', space_after=Pt(14))
+add_para('Innovation and Digital Development Agency', space_after=Pt(1))
+add_para('Baku, Azerbaijan', space_after=Pt(8))
 
 # Subject
 add_para(
-    'Subject: Application for Senior Business Analyst / Lead Specialist - '
-    'Design and Improvement of Public Services',
-    bold=True, space_after=Pt(14))
+    'Re: Application for Senior Business Analyst / Lead Specialist '
+    '- Design and Improvement of Public Services',
+    bold=True, space_after=Pt(8))
 
 # Greeting
-add_para('Dear Hiring Manager,', space_after=Pt(10))
+add_para('Dear Hiring Manager,', space_after=Pt(6))
 
-# Body paragraphs - B1 English level
-body = [
-    (
-        'I am writing to express my interest in the Senior Business Analyst / '
-        'Lead Specialist position at the Innovation and Digital Development Agency. '
-        'With 18 years in IT, including direct experience in government service '
-        'digitization, multi-agency coordination and business analysis, I believe '
-        'my background is well suited for the Agency\'s mission to improve public '
-        'services through digital transformation.'
-    ),
+# === BODY ===
 
-    (
-        'My career has been built around a consistent theme: connecting government '
-        'institutions with technology. At the Central Bank of Azerbaijan, I '
-        'coordinated the integration of 10+ government organizations into the '
-        'Government Payment Portal (GPP). This required defining data exchange '
-        'requirements for each agency, building cross-system middleware, and working '
-        'closely with multiple stakeholders to ensure seamless payment processing at '
-        'national scale. This experience gave me a deep understanding of how government '
-        'systems interact and where integration challenges arise.'
-    ),
+# 1. OPENING - I understand your mission + I'm a fit
+add_para(
+    'I am applying for the Senior Business Analyst position because the '
+    'Agency\'s mission to redesign and digitize government services directly '
+    'matches my professional background. Over 18 years in IT, I have worked '
+    'on both sides of government digital transformation: as a technical '
+    'integrator connecting government systems, and as a business analyst '
+    'designing end-to-end citizen services.',
+    size=11, space_after=Pt(8))
 
-    (
-        'At the State Employment Agency, I led the Innovation Department and served '
-        'as Business Analyst for the Labour and Employment Subsystem (LMAS). I worked '
-        'with a 15-member project team to digitize the employment service process. '
-        'Specifically, I analyzed the full citizen service journey from application to '
-        'result, identified pain points in the existing process, and designed the '
-        'end-to-end architecture for the new system. Beyond traditional BA work, I '
-        'designed a Telegram-based citizen service channel that enabled real-time '
-        'application submission, directly improving service accessibility for citizens '
-        'who could not visit the office in person. I also built a real-time monitoring '
-        'dashboard for the management board, which provided transparent tracking of '
-        'citizen applications, response times and service quality indicators.'
-    ),
+# 2. PAIN POINT → SOLUTION: Multi-agency coordination + process design
+add_para(
+    'I understand that the Agency\'s biggest challenge is coordinating across '
+    'multiple government institutions: each agency has its own processes, '
+    'systems and stakeholders, and making them work together for a single '
+    'citizen service is complex. I have solved this exact problem. At the '
+    'Central Bank, I coordinated the integration of 10+ government '
+    'organizations into the Government Payment Portal, defining data exchange '
+    'requirements and building cross-system middleware. At the State Employment '
+    'Agency, I led the digitization of the Labour and Employment Subsystem '
+    '(LMAS) with a 15-member cross-functional team, where I had to align '
+    'stakeholders from different departments around a unified service '
+    'architecture.',
+    size=11, space_after=Pt(8))
 
-    (
-        'In my current role at Embafinans, I lead business analysis for fintech '
-        'products. I author BRD, FRD and SRS documents, write User Stories with '
-        'Gherkin Acceptance Criteria, and define REST API specifications. I have '
-        'hands-on experience with As-Is / To-Be process analysis, BPMN modeling, '
-        'and backlog prioritization using the RICE framework. These methodologies '
-        'are directly applicable to the Agency\'s work of analyzing and redesigning '
-        'public services.'
-    ),
+# 3. PAIN POINT → SOLUTION: Citizen-centered design + requirements
+add_para(
+    'I also understand that designing services is not only about technology '
+    'but about putting citizens at the center. At the State Employment Agency, '
+    'I analyzed the full citizen journey from application to result, identified '
+    'bottlenecks, and designed a Telegram-based channel that allowed citizens '
+    'to submit applications without visiting an office. I also built a '
+    'monitoring dashboard for management to track application status, response '
+    'times and service quality indicators in real time. These experiences gave '
+    'me practical understanding of service journey analysis, SLA monitoring and '
+    'citizen-centered design that the Agency applies in its work.',
+    size=11, space_after=Pt(8))
 
-    (
-        'What attracts me most to this position is the Agency\'s focus on end-to-end '
-        'process architecture, multi-agency coordination and citizen-centered service '
-        'design. These are not abstract concepts for me. I have applied them through '
-        'the GPP multi-agency integration, the LMAS employment service digitization, '
-        'and the citizen-facing Telegram channel. I understand how government '
-        'institutions operate, how to engage stakeholders across different agencies, '
-        'and how to design services that put citizens at the center.'
-    ),
+# 4. WHY INNOVATION AGENCY - genuine motivation
+add_para(
+    'What brings me to the Agency is not just a job opportunity. I have '
+    'experienced firsthand how government services can change when they are '
+    'designed around citizens rather than institutions. Both the GPP and LMAS '
+    'projects showed me the impact that well-designed digital services have on '
+    'people\'s daily lives. The Innovation and Digital Development Agency is '
+    'the driving force behind this transformation in Azerbaijan, and I want to '
+    'contribute to that mission with my experience in multi-agency coordination, '
+    'requirements documentation and government process design.',
+    size=11, space_after=Pt(8))
 
-    (
-        'I am confident that my combination of business analysis methodology, '
-        'government sector experience and technical background would allow me to '
-        'contribute meaningfully to the Agency\'s digital transformation initiatives '
-        'from day one. I would welcome the opportunity to discuss how my experience '
-        'can support the Agency\'s goals.'
-    ),
-]
+# 5. CLOSING
+add_para(
+    'I would welcome the opportunity to discuss how my background can support '
+    'the Agency\'s goals in an interview.',
+    size=11, space_after=Pt(10))
 
-for text in body:
-    add_para(text, size=11, space_after=Pt(8))
-
-# Closing
-add_para('Sincerely,', space_before=Pt(14), space_after=Pt(4))
-add_para('Zamir Jamalov', bold=True, size=12)
+# Closing signature
+add_para('Sincerely,', space_before=Pt(6), space_after=Pt(2))
+add_para('Zamir Jamalov', bold=True, size=11)
 
 output = '/home/z/my-project/ba-practice/Zamir_Jamalov_Cover_Letter_Innovation_Agency_EN.docx'
 doc.save(output)

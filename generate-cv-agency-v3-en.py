@@ -197,11 +197,13 @@ add_divider()
 # ADDITIONAL PROFESSIONAL BACKGROUND
 add_line('ADDITIONAL PROFESSIONAL BACKGROUND', bold=True, size=9.5, color=ACCENT, space_after=Pt(2))
 add_line(
-    'Software engineering and data analytics experience (2018-2021) at Rabita Bank '
-    'and Umico in backend development and system integration; prior roles at '
-    'Zaminbank, Unibank, Bank of Baku, and ASAN Service. This foundation provides '
-    'deep understanding of enterprise systems, database architectures (Oracle, MSSQL, '
-    'PostgreSQL, MongoDB), and government service delivery patterns.',
+    'Enterprise system design and implementation experience (2013-2021) across '
+    "Azerbaijan's banking and public sectors: core banking system architecture and "
+    'support at Zaminbank; mobile banking system design and development (UMobileBank) '
+    'at Unibank; banking system modernization at Bank of Baku and Rabita Bank; '
+    'e-commerce platform backend at Umico; and public service data analytics at '
+    'ASAN Service. This period built deep understanding of how complex enterprise '
+    'systems are designed, integrated and maintained at scale.',
     size=8.5, color=DARK, space_after=Pt(4))
 add_divider()
 

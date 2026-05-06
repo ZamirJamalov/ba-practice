@@ -115,7 +115,7 @@ add_divider()
 # PROFESSIONAL EXPERIENCE - Reverse chronological (most recent first)
 add_line('PROFESSIONAL EXPERIENCE', bold=True, size=9.5, color=ACCENT, space_after=Pt(4))
 
-# Embafinans (most recent)
+# 1. Embafinans (most recent)
 add_line('Embafinans  |  Lead IT Business Analyst',
          bold=True, size=9, color=DARK, space_after=Pt(1))
 add_line('2025 - Present', size=8, color=LIGHT_GRAY, space_after=Pt(2))
@@ -126,13 +126,10 @@ add_bullet(
     'Authoring BRD, FRD and SRS documents; writing User Stories with Gherkin '
     'Acceptance Criteria and maintaining traceability across sprints')
 add_bullet(
-    'Defining REST API specifications in Swagger / OpenAPI 3.0 and creating '
-    'sequence diagrams for integration flows')
-add_bullet(
-    'Coordinating UAT execution with business stakeholders, leading bug triage '
-    'meetings, and achieving on-time sign-off across release cycles')
+    'Defining REST API specifications in Swagger / OpenAPI 3.0 and coordinating '
+    'UAT execution with business stakeholders')
 
-# Kapital Bank
+# 2. Kapital Bank
 add_line('Kapital Bank / Birbonus  |  IT Business Analyst',
          bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
 add_line('2024 - 2025', size=8, color=LIGHT_GRAY, space_after=Pt(2))
@@ -143,7 +140,7 @@ add_bullet(
     'Conducted stakeholder sessions to define earning rules, eligibility criteria, '
     'and partner settlement workflows')
 
-# Umico
+# 3. Umico - Integration
 add_line('Umico  |  Integration Specialist',
          bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
 add_line('2022 - 2024', size=8, color=LIGHT_GRAY, space_after=Pt(2))
@@ -154,32 +151,41 @@ add_bullet(
     'Developed backend features using PostgreSQL, resolved L2 production incidents, '
     'and supported partner development teams')
 
-# DMA (most relevant for this position)
-add_line('State Employment Agency  |  Innovation Department Lead & Business Analyst',
+# 4. DMA - Section Lead (most relevant for this position)
+add_line('State Employment Agency  |  Innovation Section Lead & Business Analyst',
          bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
 add_line('2021 - 2022', size=8, color=LIGHT_GRAY, space_after=Pt(2))
 add_bullet(
     'Led the digitization of the Labour and Employment Subsystem (LMAS): '
     'analyzed the full citizen service journey from application to result, '
-    'designed the end-to-end process architecture, and authored requirements '
-    'documentation for the initial system development')
+    'designed the end-to-end process architecture, and authored requirements documentation')
 add_bullet(
-    'Designed a new citizen service channel using Telegram bot for real-time '
-    'application submission and response processing, reducing the need for '
-    'physical office visits and improving service accessibility')
+    'Designed a citizen service channel using Telegram bot for real-time '
+    'application submission, reducing physical office visits and improving accessibility')
 add_bullet(
-    'Built a real-time service performance monitoring dashboard for the '
-    'management board, tracking citizen applications, response times (SLA), '
-    'and service quality indicators (KPI)')
+    'Built a real-time monitoring dashboard tracking citizen applications, '
+    'response times (SLA), and service quality indicators (KPI)')
 add_bullet(
-    'Coordinated a 15-member cross-functional project team, provided '
-    'methodology guidance, and managed multi-stakeholder communication across '
-    'government departments')
-add_bullet(
-    'Conducted stakeholder interviews and service gap analysis to identify '
-    'pain points in the existing employment service delivery process')
+    'Coordinated a 15-member cross-functional project team and managed '
+    'multi-stakeholder communication across government departments')
 
-# Central Bank
+# 5. Umico - Backend
+add_line('Umico  |  Backend Developer',
+         bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
+add_line('2019 - 2021', size=8, color=LIGHT_GRAY, space_after=Pt(2))
+add_bullet(
+    'Developed backend services and API endpoints using PostgreSQL; participated '
+    'in cross-functional feature development and production support')
+
+# 6. Rabita Bank
+add_line('Rabita Bank  |  Software Developer',
+         bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
+add_line('2018 - 2019', size=8, color=LIGHT_GRAY, space_after=Pt(2))
+add_bullet(
+    'Core banking system development and maintenance; participated in '
+    'software requirements analysis and system integration tasks')
+
+# 7. Central Bank
 add_line('Central Bank of Azerbaijan  |  Integration Specialist',
          bold=True, size=9, color=DARK, space_before=Pt(4), space_after=Pt(1))
 add_line('2007 - 2012', size=8, color=LIGHT_GRAY, space_after=Pt(2))
@@ -207,13 +213,12 @@ add_divider()
 # ADDITIONAL BACKGROUND
 add_line('ADDITIONAL PROFESSIONAL BACKGROUND', bold=True, size=9.5, color=ACCENT, space_after=Pt(2))
 add_line(
-    '10+ years of software engineering and data analytics experience across '
+    'Additional software engineering and data analytics experience across '
     "Azerbaijan's banking and public sectors, including core banking development "
-    '(Zaminbank, Unibank, Bank of Baku, Rabita Bank), backend development '
-    '(Umico), and public services (ASAN Service). This foundation provides deep '
-    'understanding of enterprise systems, database architectures (Oracle, MSSQL, '
-    'PostgreSQL, MongoDB), government service delivery patterns, and cross-organization '
-    'integration.',
+    '(Zaminbank, Unibank, Bank of Baku) and public services (ASAN Service). '
+    'This foundation provides deep understanding of enterprise systems, database '
+    'architectures (Oracle, MSSQL, PostgreSQL, MongoDB), and government service '
+    'delivery patterns.',
     size=8.5, color=DARK, space_after=Pt(4))
 add_divider()
 

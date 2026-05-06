@@ -70,15 +70,12 @@ add_divider()
 # PROFILE SUMMARY
 add_line('PROFILE SUMMARY', bold=True, size=9.5, color=ACCENT, space_after=Pt(2))
 add_line(
-    'Business Analyst with experience in government service digitization, '
-    'multi-agency coordination and end-to-end process design. 18 years in IT, '
-    'including key government projects: the Government Payment Portal (GPP) at the '
-    'Central Bank and the Labour and Employment Subsystem (LMAS) at the State '
-    'Employment Agency. Practical experience in service journey analysis, '
-    'citizen-centered digital channel design, and coordination across multiple '
-    'government organizations. Author of 14+ production-level BA documents (BRD, '
-    'FRD, SRS, User Stories, API Specifications) across fintech, e-commerce and '
-    'government services.',
+    'Business Analyst with 18 years in IT, specializing in government service '
+    'digitization, multi-agency coordination, and end-to-end process design. '
+    'Practical experience in service journey analysis, citizen-centered digital '
+    'service design, and requirements documentation (BRD, FRD, SRS, API '
+    'Specifications). Strong background in aligning cross-functional teams '
+    'across government organizations to deliver digital public services.',
     size=8.5, color=DARK, space_after=Pt(4))
 add_divider()
 
@@ -186,11 +183,10 @@ add_divider()
 # PROFESSIONAL DEVELOPMENT
 add_line('PROFESSIONAL DEVELOPMENT', bold=True, size=9.5, color=ACCENT, space_after=Pt(2))
 add_line(
-    'Acquired business analysis methodology through practical application in '
-    'real projects: 14+ production-level BA documents (BRD, FRD, SRS, User '
-    'Stories, API Specifications, BPMN, UAT) across fintech, e-commerce and '
-    'government services. Practical experience in both business process and '
-    'service design methodologies.',
+    'Acquired business analysis methodology through practical application across '
+    'fintech, e-commerce and government digitization projects. Produced BA '
+    'documentation including BRD, FRD, SRS, User Stories, API Specifications, '
+    'BPMN process models and UAT plans in real production environments.',
     size=8.5, color=DARK, space_after=Pt(4))
 add_divider()
 

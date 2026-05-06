@@ -154,8 +154,9 @@ add_line('State Employment Agency  |  Innovation Section Lead & Business Analyst
 add_line('2021 - 2022', size=8, color=LIGHT_GRAY, space_after=Pt(2))
 add_bullet(
     'Led the digitization of the Labour and Employment Subsystem (LMAS): '
-    'analyzed the full citizen service journey from application to result, '
-    'designed the end-to-end process architecture, and authored requirements documentation')
+    'analyzed the full citizen life-event service journey from application to '
+    'result, defined the methodology and end-to-end process architecture, and '
+    'authored requirements documentation')
 add_bullet(
     'Designed a citizen service channel using Telegram bot for real-time '
     'application submission, reducing physical office visits and improving accessibility')
@@ -172,8 +173,8 @@ add_line('Central Bank of Azerbaijan  |  Integration Specialist',
 add_line('2007 - 2012', size=8, color=LIGHT_GRAY, space_after=Pt(2))
 add_bullet(
     'Coordinated the integration of 10+ government organizations into the '
-    'Government Payment Portal (GPP): defined data exchange requirements and '
-    'integration specifications for each agency')
+    'single-window Government Payment Portal (GPP): defined data exchange '
+    'requirements and integration specifications for each agency')
 add_bullet(
     'Designed cross-system data exchange middleware between government institutions, '
     'enabling automated payment processing at national scale')

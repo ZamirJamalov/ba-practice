@@ -3,6 +3,9 @@
 Power BI Zero to Hero - 1 Hour Workshop Guide
 Complete beginner A-Z process with Financial Sample
 A1 English - DTank54 Group
+
+REWRITE: Mission-driven approach - every section has clear
+WHAT, WHY, and CONNECTION so learners always know the objective.
 """
 
 from reportlab.lib.pagesizes import A4
@@ -12,7 +15,7 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
-    PageBreak, HRFlowable
+    PageBreak, HRFlowable, Image
 )
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -46,6 +49,13 @@ GREEN_BG = HexColor('#E8F8F5')
 ORANGE_BG = HexColor('#FEF5E7')
 RED_BG = HexColor('#FDEDEC')
 PURPLE_BG = HexColor('#F4ECF7')
+MISSION_BG = HexColor('#FFF3E0')
+MISSION_BORDER = HexColor('#E65100')
+PURPOSE_BG = HexColor('#E3F2FD')
+PURPOSE_BORDER = HexColor('#1565C0')
+
+# ─── Image directory ─────────────────────────────────────────────────
+IMG_DIR = '/home/z/my-project/download/powerbi_images'
 
 # ─── Styles ───────────────────────────────────────────────────────────
 cover_title = ParagraphStyle('CT', fontName='Carlito-Bold', fontSize=34, leading=40, textColor=NAVY, alignment=TA_CENTER, spaceAfter=5*mm)
@@ -62,6 +72,12 @@ toc_s = ParagraphStyle('TOC', fontName='Serif', fontSize=11, leading=18, textCol
 
 th = ParagraphStyle('TH', fontName='Carlito-Bold', fontSize=9, leading=12, textColor=white, alignment=TA_CENTER)
 tc = ParagraphStyle('TC', fontName='Serif', fontSize=9, leading=13, textColor=DARK, alignment=TA_LEFT)
+
+# Mission page styles
+mission_title = ParagraphStyle('MT', fontName='Carlito-Bold', fontSize=20, leading=26, textColor=MISSION_BORDER, alignment=TA_CENTER, spaceAfter=4*mm)
+mission_body = ParagraphStyle('MB', fontName='Serif', fontSize=10.5, leading=15, textColor=DARK, alignment=TA_JUSTIFY, spaceAfter=2*mm)
+mission_bold = ParagraphStyle('MXB', fontName='Carlito-Bold', fontSize=11, leading=16, textColor=DARK, alignment=TA_CENTER, spaceAfter=2*mm)
+purpose_title_s = ParagraphStyle('PTS', fontName='Carlito-Bold', fontSize=13, leading=18, textColor=PURPOSE_BORDER, alignment=TA_CENTER, spaceAfter=2*mm)
 
 # ─── Helpers ──────────────────────────────────────────────────────────
 def section_bar(title, time_str, story):
@@ -132,6 +148,84 @@ def make_table(headers, rows, widths=None):
     t.setStyle(TableStyle(cmds))
     return t
 
+def add_image(filename, story, w=460, h=308):
+    """Add an image from the powerbi_images directory."""
+    path = os.path.join(IMG_DIR, filename)
+    if os.path.exists(path):
+        story.append(Spacer(1, 2*mm))
+        story.append(Image(path, width=w, height=h, kind='proportional'))
+        story.append(Spacer(1, 2*mm))
+    else:
+        warn(f'Image Not Found: {filename}', f'Expected at: {path}', story)
+
+# ─── NEW: Mission Box (for the Workshop Mission page) ────────────────
+def mission_box(objective, why, connection, story):
+    """Creates a prominent orange-bordered mission box with objective, why, and connection."""
+    s_title = ParagraphStyle('MBT', fontName='Carlito-Bold', fontSize=11, leading=15, textColor=MISSION_BORDER)
+    s_label = ParagraphStyle('MBL', fontName='Carlito-Bold', fontSize=10, leading=14, textColor=ORANGE)
+    s_text = ParagraphStyle('MBX', fontName='Serif', fontSize=10, leading=14, textColor=DARK, leftIndent=3*mm, alignment=TA_JUSTIFY)
+    data = [
+        [Paragraph(f'<b>OBJECTIVE:</b>', s_label)],
+        [Paragraph(objective, s_text)],
+        [Paragraph(f'<b>WHY IT MATTERS:</b>', s_label)],
+        [Paragraph(why, s_text)],
+        [Paragraph(f'<b>CONNECTION:</b>', s_label)],
+        [Paragraph(connection, s_text)],
+    ]
+    t = Table(data, colWidths=[160*mm])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), MISSION_BG),
+        ('TOPPADDING', (0,0), (-1,-1), 2*mm),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2*mm),
+        ('LEFTPADDING', (0,0), (-1,-1), 4*mm),
+        ('RIGHTPADDING', (0,0), (-1,-1), 4*mm),
+        ('BOX', (0,0), (-1,-1), 2.5, MISSION_BORDER),
+    ]))
+    story.append(Spacer(1, 3*mm))
+    story.append(t)
+    story.append(Spacer(1, 3*mm))
+
+# ─── NEW: Purpose Block (at the start of every Part) ─────────────────
+def purpose_block(objective_text, why_text, connection_text, story, minutes='5'):
+    """Creates a big, highly visible 'WHY ARE WE DOING THIS?' box at the start of each Part.
+    
+    Shows: MISSION FOR THIS BLOCK, OBJECTIVE, WHY, CONNECTION to next step.
+    """
+    s_header = ParagraphStyle('PBH', fontName='Carlito-Bold', fontSize=12, leading=16, textColor=white, alignment=TA_CENTER)
+    s_label = ParagraphStyle('PBL', fontName='Carlito-Bold', fontSize=10.5, leading=14, textColor=PURPOSE_BORDER)
+    s_text = ParagraphStyle('PBT', fontName='Serif', fontSize=10, leading=14, textColor=DARK, leftIndent=2*mm, alignment=TA_JUSTIFY)
+    
+    header_data = [[Paragraph(f'WHY ARE WE DOING THIS?  ({minutes} MINUTES)', s_header)]]
+    header_t = Table(header_data, colWidths=[170*mm])
+    header_t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), PURPOSE_BORDER),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5*mm),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5*mm),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+    ]))
+    
+    body_data = [
+        [Paragraph(f'<b>OBJECTIVE:</b> {objective_text}', s_text)],
+        [Paragraph(f'<b>WHY THIS MATTERS:</b> {why_text}', s_text)],
+        [Paragraph(f'<b>HOW THIS CONNECTS:</b> {connection_text}', s_text)],
+    ]
+    body_t = Table(body_data, colWidths=[170*mm])
+    body_t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), PURPOSE_BG),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5*mm),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5*mm),
+        ('LEFTPADDING', (0,0), (-1,-1), 4*mm),
+        ('RIGHTPADDING', (0,0), (-1,-1), 4*mm),
+        ('BOX', (0,0), (-1,-1), 2, PURPOSE_BORDER),
+        ('LINEBELOW', (0,0), (-1,0), 0.5, PURPOSE_BORDER),
+        ('LINEBELOW', (0,1), (-1,1), 0.5, PURPOSE_BORDER),
+    ]))
+    
+    story.append(Spacer(1, 2*mm))
+    story.append(header_t)
+    story.append(body_t)
+    story.append(Spacer(1, 3*mm))
+
 
 # ═══════════════════════════════════════════════════════════════════════
 OUTPUT = '/home/z/my-project/download/PowerBI_1Hour_Workshop_Zero_to_Hero.pdf'
@@ -179,6 +273,125 @@ story.append(Paragraph('You will build your first dashboard in 1 hour', cover_in
 story.append(PageBreak())
 
 # ──────────────────────────────────────────────────────────────────────
+# WORKSHOP MISSION (NEW - The Most Important Page)
+# ──────────────────────────────────────────────────────────────────────
+story.append(Spacer(1, 5*mm))
+story.append(Paragraph('WORKSHOP MISSION', mission_title))
+story.append(Spacer(1, 3*mm))
+
+# Big mission statement
+mission_stmt_data = [[Paragraph(
+    '<b>In 60 minutes, we will transform a raw Excel file with 700 rows of boring numbers '
+    'into an interactive business dashboard that answers REAL business questions.</b>',
+    ParagraphStyle('MS', fontName='Carlito-Bold', fontSize=13, leading=19, textColor=MISSION_BORDER, alignment=TA_CENTER))]]
+mission_stmt_t = Table(mission_stmt_data, colWidths=[160*mm])
+mission_stmt_t.setStyle(TableStyle([
+    ('BACKGROUND', (0,0), (-1,-1), HexColor('#FFF8E1')),
+    ('TOPPADDING', (0,0), (-1,-1), 4*mm),
+    ('BOTTOMPADDING', (0,0), (-1,-1), 4*mm),
+    ('LEFTPADDING', (0,0), (-1,-1), 5*mm),
+    ('RIGHTPADDING', (0,0), (-1,-1), 5*mm),
+    ('BOX', (0,0), (-1,-1), 2.5, MISSION_BORDER),
+]))
+story.append(mission_stmt_t)
+story.append(Spacer(1, 5*mm))
+
+# BEFORE vs AFTER comparison
+story.append(Paragraph('<b>BEFORE vs AFTER: The Transformation</b>', ParagraphStyle('BVA', fontName='Carlito-Bold', fontSize=13, leading=18, textColor=NAVY, alignment=TA_CENTER, spaceAfter=3*mm)))
+story.append(Spacer(1, 2*mm))
+
+before_style = ParagraphStyle('BS', fontName='Serif', fontSize=9.5, leading=13, textColor=RED)
+after_style = ParagraphStyle('AS', fontName='Serif', fontSize=9.5, leading=13, textColor=GREEN)
+before_hdr = ParagraphStyle('BH', fontName='Carlito-Bold', fontSize=10, leading=14, textColor=white, alignment=TA_CENTER)
+after_hdr = ParagraphStyle('AH', fontName='Carlito-Bold', fontSize=10, leading=14, textColor=white, alignment=TA_CENTER)
+
+bva_data = [
+    [Paragraph('<b>BEFORE THE WORKSHOP</b>', before_hdr),
+     Paragraph('<b>AFTER THE WORKSHOP</b>', after_hdr)],
+    [Paragraph('A boring Excel file with 700 rows of numbers that nobody wants to read', before_style),
+     Paragraph('An interactive dashboard with colorful charts, KPI cards, and slicers', after_style)],
+    [Paragraph('Questions like "Which country makes the most money?" take 30 minutes to answer in Excel', before_style),
+     Paragraph('Click one button on the slicer and the answer appears instantly', after_style)],
+    [Paragraph('Static reports that are outdated as soon as new data arrives', before_style),
+     Paragraph('Live reports that update automatically when you refresh the data', after_style)],
+    [Paragraph('Your manager has to ask you for every number', before_style),
+     Paragraph('Your manager can explore the data themselves by clicking around', after_style)],
+    [Paragraph('You feel confused looking at rows and columns', before_style),
+     Paragraph('You feel confident because you can see patterns and stories in the data', after_style)],
+]
+bva_t = Table(bva_data, colWidths=[85*mm, 85*mm])
+bva_t.setStyle(TableStyle([
+    ('BACKGROUND', (0,0), (0,0), RED),
+    ('BACKGROUND', (1,0), (1,0), GREEN),
+    ('TOPPADDING', (0,0), (-1,-1), 2*mm),
+    ('BOTTOMPADDING', (0,0), (-1,-1), 2*mm),
+    ('LEFTPADDING', (0,0), (-1,-1), 3*mm),
+    ('RIGHTPADDING', (0,0), (-1,-1), 3*mm),
+    ('GRID', (0,0), (-1,-1), 0.5, HexColor('#BDC3C7')),
+    ('BOX', (0,0), (-1,-1), 1, NAVY),
+    ('VALIGN', (0,0), (-1,-1), 'TOP'),
+    ('BACKGROUND', (0,1), (0,-1), HexColor('#FFF0F0')),
+    ('BACKGROUND', (1,1), (1,-1), HexColor('#F0FFF0')),
+]))
+story.append(bva_t)
+story.append(Spacer(1, 4*mm))
+
+# BUSINESS QUESTIONS we will answer
+story.append(Paragraph('<b>7 BUSINESS QUESTIONS We Will Answer Today</b>', ParagraphStyle('BQ', fontName='Carlito-Bold', fontSize=13, leading=18, textColor=NAVY, alignment=TA_CENTER, spaceAfter=3*mm)))
+story.append(Spacer(1, 2*mm))
+P('By the end of this workshop, your dashboard will be able to answer all of these questions with one click:', story)
+
+questions = [
+    ['Q1', 'Which country makes the most money from sales?', 'Bar chart: Revenue by Country'],
+    ['Q2', 'How do our sales change over time? Are we growing or shrinking?', 'Line chart: Sales Over Time'],
+    ['Q3', 'What is our total revenue, profit, and cost?', '4 KPI cards at the top of the dashboard'],
+    ['Q4', 'Which product is the most profitable?', 'Slicer + bar chart: filter by Product'],
+    ['Q5', 'What is our profit margin percentage?', 'DAX measure: Profit Margin %'],
+    ['Q6', 'How many sales transactions do we have?', 'DAX measure: Number of Sales'],
+    ['Q7', 'How does performance differ by customer segment?', 'Slicer + all charts: filter by Segment'],
+]
+story.append(make_table(
+    ['#', 'Business Question', 'Dashboard Element That Answers It'],
+    questions,
+    [10*mm, 80*mm, 80*mm]
+))
+
+story.append(Spacer(1, 4*mm))
+
+# WHY each time block exists
+story.append(Paragraph('<b>WHY Each Time Block Exists</b>', ParagraphStyle('WBH', fontName='Carlito-Bold', fontSize=13, leading=18, textColor=NAVY, alignment=TA_CENTER, spaceAfter=3*mm)))
+story.append(Spacer(1, 2*mm))
+P('Every minute of this workshop has a purpose. Here is exactly why we spend time on each block:', story)
+
+story.append(make_table(
+    ['Time Block', 'What We Do', 'Why We Spend Time On This'],
+    [
+        ['5 min (Part 1)', 'Welcome and understand Power BI', 'Without understanding WHY we use Power BI, the rest of the workshop is just clicking buttons blindly. You need the big picture first.'],
+        ['10 min (Part 2)', 'Install Power BI and download data', 'Without software and data, we cannot do anything. This is the mandatory setup step. Skip it and nothing else works.'],
+        ['10 min (Part 3)', 'Load data into Power BI', 'Loading data is step 1 of EVERY Power BI project ever created. Master this and you can start any project.'],
+        ['10 min (Part 4)', 'Explore and understand the data', 'If you do not know your data, you cannot build good charts. This step prevents mistakes later. Like reading a recipe before cooking.'],
+        ['15 min (Part 5)', 'Build the dashboard (charts, cards, slicers)', 'This is the CORE SKILL of Power BI. This is what you came here to learn. We spend the most time here because it is the most important.'],
+        ['5 min (Part 6)', 'Add DAX formulas (custom calculations)', 'DAX transforms your dashboard from "showing raw numbers" to "showing smart answers." This is what separates beginners from intermediate users.'],
+        ['5 min (Part 7)', 'Summary and next steps', 'Without reflection, you forget 80% of what you learned. We review so you remember, and we plan next steps so you keep learning after today.'],
+    ],
+    [22*mm, 48*mm, 100*mm]
+))
+
+story.append(Spacer(1, 4*mm))
+
+# What you will have at the end
+story.append(Paragraph('<b>What You Will Have at the End of This Workshop</b>', ParagraphStyle('WYH', fontName='Carlito-Bold', fontSize=13, leading=18, textColor=NAVY, alignment=TA_CENTER, spaceAfter=3*mm)))
+story.append(Spacer(1, 1*mm))
+B('A working Power BI report file (My_First_Dashboard.pbix) saved on your computer', story)
+B('A dashboard with 4 KPI cards, a bar chart, a line chart, and 3 interactive slicers', story)
+B('2 custom DAX measures (Profit Margin % and Average Sale Size)', story)
+B('The ability to answer 7 real business questions from your data', story)
+B('Understanding of the complete Power BI workflow (the same process professionals use)', story)
+B('A clear learning path to go from beginner to professional', story)
+
+story.append(PageBreak())
+
+# ──────────────────────────────────────────────────────────────────────
 # WORKSHOP OVERVIEW (Agenda)
 # ──────────────────────────────────────────────────────────────────────
 story.append(Paragraph('WORKSHOP AGENDA', ParagraphStyle('AG', fontName='Carlito-Bold', fontSize=22, leading=28, textColor=NAVY, alignment=TA_CENTER, spaceAfter=6*mm)))
@@ -209,6 +422,13 @@ story.append(PageBreak())
 # PART 1: Welcome (5 min)
 # ═══════════════════════════════════════════════════════════════════════
 section_bar('PART 1: Welcome - What is Power BI?', '5 MINUTES', story)
+
+purpose_block(
+    'Understand the big picture: what Power BI is, why companies use it, and what YOU will build today.',
+    'Without understanding WHY we use Power BI, the rest of the workshop is just clicking buttons blindly. You need to know the destination before you start the journey. This 5 minutes gives you the map.',
+    'This connects directly to Part 2 (Setup) because once you understand what Power BI does, you will be motivated to install it and get started immediately.',
+    story, minutes='5'
+)
 
 P('Welcome to the workshop! In this first 5 minutes, you will understand the big picture. What is Power BI? Why do companies use it? What will YOU be able to do after this workshop? Let us start from the very beginning.', story)
 
@@ -242,7 +462,7 @@ P('By the end of this 1-hour workshop, you will build a complete dashboard from 
 B('4 big number cards showing key business metrics (Total Revenue, Total Profit, etc.)', story)
 B('A bar chart showing sales by country', story)
 B('A line chart showing sales over time', story)
-C('3 interactive slicers that let you filter everything with one click', story)
+B('3 interactive slicers that let you filter everything with one click', story)
 P('This is exactly the kind of work that professional Power BI developers do every day. The only difference is that their dashboards are bigger. The process is the same.', story)
 
 goal_box('After Part 1, you should understand:', 'Power BI is a free Microsoft tool that turns raw data into interactive visual reports. Companies use it to make faster, better decisions. Today you will build your first dashboard from scratch.', story)
@@ -253,6 +473,13 @@ story.append(PageBreak())
 # PART 2: Setup (10 min)
 # ═══════════════════════════════════════════════════════════════════════
 section_bar('PART 2: Setup - Install and Prepare', '10 MINUTES', story)
+
+purpose_block(
+    'Install Power BI Desktop (free) on your computer and download the Financial Sample Excel data file.',
+    'Without the Power BI software, we cannot build anything. Without the data file, we have nothing to visualize. This is the mandatory foundation step - like buying ingredients before you start cooking. Skip this and nothing else works.',
+    'This connects directly to Part 3 (Load Data) where we will take the data file you just downloaded and load it into Power BI. You need both pieces ready before we can start building.',
+    story, minutes='10'
+)
 
 P('Before we can build anything, we need two things: the Power BI software and the sample data file. This part takes about 10 minutes. Follow each step carefully.', story)
 
@@ -313,12 +540,14 @@ story.append(PageBreak())
 # ═══════════════════════════════════════════════════════════════════════
 section_bar('PART 3: Load Data into Power BI', '10 MINUTES', story)
 
-P('Now the real work begins. In this part, you will load the Financial Sample Excel file into Power BI. This is like opening a document in Microsoft Word. Once the data is loaded, Power BI knows about all your rows and columns and can start working with them.', story)
+purpose_block(
+    'Connect the Financial Sample Excel file to Power BI and load all 700 rows and 12 columns.',
+    'Loading data is step 1 of EVERY Power BI project in the real world. Whether you work at a small company or Microsoft, every dashboard starts by loading data. Master this step and you can start any Power BI project. Without data inside Power BI, there is nothing to visualize.',
+    'This connects to Part 4 (Explore Data) where we will look at the data we just loaded to understand it before building charts. You must load data before you can explore it.',
+    story, minutes='10'
+)
 
-what_why_box(
-    'You will connect your Excel file to Power BI. Power BI will read all 700 rows and 12 columns from the Excel file.',
-    'This is step 1 of every Power BI project. Before you can build any chart or write any formula, you need to load your data. Without data, there is nothing to visualize.',
-    story)
+P('Now the real work begins. In this part, you will load the Financial Sample Excel file into Power BI. This is like opening a document in Microsoft Word. Once the data is loaded, Power BI knows about all your rows and columns and can start working with them.', story)
 
 S('3.1 Understanding the Financial Sample Data', story)
 P('Before loading, let us understand what is inside the Excel file. This file simulates a real company that sells bicycles and accessories in 5 countries over 3 years (2013-2015). Here is what each column means:', story)
@@ -362,6 +591,9 @@ B('<b>Financials</b> - This is the main data sheet (about 700 rows). CHECK this 
 B('<b>Sheet1</b> - An empty sheet. Do NOT check this.', story)
 P('On the right side, you can see a preview of the data with all the columns (Date, Product, Segment, Country, Sales, Profit, etc.). This confirms you have the right file.', story)
 
+# Navigator dialog image
+add_image('02_navigator_dialog.png', story, w=440, h=280)
+
 step(6, 'Click "Load"', story)
 P('At the bottom of the Navigator window, click "Load." Power BI will read all the data from the Excel file. This takes a few seconds. When it is done, you will see the main Power BI window with your data loaded.', story)
 
@@ -383,24 +615,43 @@ story.append(PageBreak())
 # ═══════════════════════════════════════════════════════════════════════
 section_bar('PART 4: Explore and Understand Your Data', '10 MINUTES', story)
 
+purpose_block(
+    'Look at your data rows, check data types, and understand the structure (700 rows, 12 columns, 7 products, 5 countries, 3 years).',
+    'Understanding your data before building charts is like reading the recipe before cooking. If you know your ingredients, you can cook a better meal. If you know your data, you can build a better report. This step prevents mistakes later - for example, if the Date column has the wrong type, your time charts will not work.',
+    'This connects directly to Part 5 (Build Dashboard) where we will use the columns we just explored to create charts. You need to know your columns (Country, Sales, Profit, Date, etc.) before you can drag them onto charts.',
+    story, minutes='10'
+)
+
 P('Before we build any charts, we need to understand our data. This is a very important step that many beginners skip. If you do not know your data, you cannot build good reports. In this part, we will look at our data carefully and understand what we are working with.', story)
 
-what_why_box(
-    'You will look at your data rows, check data types, and understand the structure.',
-    'Understanding your data before building charts is like reading the recipe before cooking. If you know your ingredients, you can cook a better meal. If you know your data, you can build a better report.',
-    story)
+S('4.1 Understanding the Power BI Desktop Screen', story)
+P('Before we explore data, let us understand the Power BI Desktop interface. Look at your screen. There are 4 important areas:', story)
 
-S('4.1 Switch to Data View', story)
+story.append(make_table(
+    ['Area', 'Where It Is', 'What It Does'],
+    [
+        ['Canvas', 'Center (big white area)', 'This is where you build your report. All your charts go here.'],
+        ['Fields Pane', 'Right side', 'Shows all your columns. You drag fields from here onto charts.'],
+        ['Visualizations Pane', 'Right side (below Fields)', 'Icons for all chart types: bar, line, map, table, card, slicer.'],
+        ['Top Ribbon', 'Top of screen', 'Buttons for formatting, data tools, and model tools.'],
+    ],
+    [30*mm, 40*mm, 100*mm]
+))
+
+# Power BI Desktop UI image
+add_image('01_pbi_desktop_ui.png', story, w=460, h=300)
+
+S('4.2 Switch to Data View', story)
 P('On the left side of the Power BI window, there are 3 icons. Click the <b>second icon</b> (it looks like a table). This is the Data View. Here you can see your data in a table format, similar to Excel. You can scroll through all 700 rows and see every value in every column.', story)
 
-S('4.2 Check the Data View', story)
+S('4.3 Check the Data View', story)
 P('While looking at the Data View, notice these important things:', story)
 B('How many rows do you see? (Scroll to the bottom - there should be about 700 rows)', story)
 B('How many columns are there? (12 columns)', story)
 B('Do all columns have data, or are some cells empty?', story)
 B('Are dates showing correctly? (They should look like dates, not random numbers)', story)
 
-S('4.3 Check Data Types', story)
+S('4.4 Check Data Types', story)
 P('Data types tell Power BI how to treat each column. Click on each column header in the Data View. Then look at the top ribbon to see the current data type. Here is what each column should be:', story)
 
 story.append(make_table(
@@ -419,7 +670,7 @@ story.append(make_table(
 
 tip('What If a Column Has the Wrong Type?', 'If the Date column shows as "Text" instead of "Date," click on the column header, go to the top ribbon, and change the type to "Date." Wrong data types cause problems later, especially for time-based charts. Always verify types after loading data.', story)
 
-S('4.4 Key Facts About Our Data', story)
+S('4.5 Key Facts About Our Data', story)
 story.append(make_table(
     ['Fact', 'Value', 'What This Means for Our Dashboard'],
     [
@@ -433,7 +684,7 @@ story.append(make_table(
     [25*mm, 35*mm, 110*mm]
 ))
 
-S('4.5 Switch to Report View', story)
+S('4.6 Switch to Report View', story)
 P('Now click the <b>first icon</b> on the left side (it looks like a bar chart). This is the Report View. This is where we will build our dashboard. The canvas (the big white area in the center) is empty. We will fill it with charts in the next part.', story)
 
 goal_box('After Part 4, you should understand:', 'Your data has 700 rows, 12 columns, 7 products, 5 countries, and covers 3 years (2013-2015). The Sales and Profit columns contain the numbers we want to analyze. The Product, Segment, Country, and Date columns are our categories for grouping and filtering.', story)
@@ -445,28 +696,24 @@ story.append(PageBreak())
 # ═══════════════════════════════════════════════════════════════════════
 section_bar('PART 5: Build Your First Dashboard', '15 MINUTES', story)
 
+purpose_block(
+    'Build a complete dashboard with 4 KPI cards, a bar chart (revenue by country), a line chart (sales over time), and 3 interactive slicers.',
+    'This is the CORE SKILL of Power BI. Every dashboard in every company is built using the same drag-and-drop process you will learn now. We spend the most time on this part (15 minutes) because this is the most important skill. If you master this, you can build any basic dashboard for any data.',
+    'This connects to Part 6 (Add DAX) where we will make our dashboard smarter with custom calculations. Right now our dashboard shows raw numbers - DAX will turn it into a tool that answers business questions.',
+    story, minutes='15'
+)
+
 P('This is the most exciting part! In the next 15 minutes, you will build a complete dashboard with 4 KPI cards, 2 charts, and 3 slicers. Follow every step exactly. Do not worry if your dashboard does not look perfect. The goal is to understand the process, not to make a beautiful design.', story)
 
-what_why_box(
-    'You will create: 4 number cards (KPIs), a bar chart, a line chart, and 3 interactive slicers.',
-    'This is the core skill of Power BI. Every dashboard in every company is built using the same drag-and-drop process you will learn now. If you master this, you can build any basic dashboard.',
-    story)
+S('5.1 The Fundamental Process', story)
+P('Every chart in Power BI is built the same way. Learn this process once and you can build any chart:', story)
+B('<b>Step A:</b> Click a visual icon in the Visualizations pane (right side)', story)
+B('<b>Step B:</b> Drag a field from the Fields pane to the "Axis" area', story)
+B('<b>Step C:</b> Drag a field from the Fields pane to the "Values" area', story)
+P('That is it! You repeat this 3-step process for every chart, card, and slicer. This is the fundamental skill of Power BI.', story)
 
-S('5.1 Understanding the Power BI Screen', story)
-P('Before we start, look at your screen. There are 4 important areas:', story)
-
-story.append(make_table(
-    ['Area', 'Where It Is', 'What It Does'],
-    [
-        ['Canvas', 'Center (big white area)', 'This is where you build your report. All your charts go here.'],
-        ['Fields Pane', 'Right side', 'Shows all your columns. You drag fields from here onto charts.'],
-        ['Visualizations Pane', 'Right side (below Fields)', 'Icons for all chart types: bar, line, map, table, card, slicer.'],
-        ['Top Ribbon', 'Top of screen', 'Buttons for formatting, data tools, and model tools.'],
-    ],
-    [30*mm, 40*mm, 100*mm]
-))
-
-tip('How Building Works', 'The process is always: 1) Click a visual icon, 2) Drag a field to Axis, 3) Drag a field to Values. That is it! You repeat this process for every chart. This is the fundamental skill of Power BI.', story)
+# Build visualization image
+add_image('05_build_visualization.png', story, w=460, h=300)
 
 S('5.2 KPI Card 1: Total Revenue', story)
 
@@ -542,7 +789,12 @@ step(18, 'Add a Third Slicer', story, ORANGE, ORANGE_BG)
 P('Click on empty canvas space. Click the Slicer icon. Drag "Segment" onto it. Now you have a third slicer showing all 5 customer segments. Try clicking different combinations: "France" + "Montana" + "Enterprise." The dashboard shows exactly that slice of data.', story)
 
 S('5.11 Arrange Your Dashboard', story)
-P('Now arrange all your visuals on the canvas. Here is a good layout:', story)
+P('Now arrange all your visuals on the canvas. Here is the target layout we are aiming for:', story)
+
+# Dashboard layout image
+add_image('06_dashboard_layout.png', story, w=460, h=300)
+
+P('Here is a good layout structure to follow:', story)
 B('<b>Top row:</b> The 4 KPI cards side by side (Revenue, Profit, COGS, Number of Sales)', story)
 B('<b>Left side:</b> The 3 slicers stacked vertically (Country, Product, Segment)', story)
 B('<b>Center:</b> The bar chart (Revenue by Country)', story)
@@ -559,12 +811,17 @@ story.append(PageBreak())
 # ═══════════════════════════════════════════════════════════════════════
 section_bar('PART 6: Add DAX - Make It Smart', '5 MINUTES', story)
 
+purpose_block(
+    'Write your first DAX measures: Profit Margin % and Average Sale Size. These are custom calculations that do NOT exist in the original Excel file.',
+    'Right now your dashboard shows raw numbers (Sales = $X, Profit = $Y). But business people want percentages and ratios, not just totals. The original data has "Sales" and "Profit" columns but does NOT have "Profit Margin %." With DAX, you create this calculation yourself. This transforms your dashboard from "showing numbers" to "answering business questions." This is what separates beginners from intermediate users.',
+    'This connects to Part 7 (Summary) where we will review everything you learned and plan your next steps. After DAX, you have experienced the complete Power BI workflow.',
+    story, minutes='5'
+)
+
 P('Your dashboard looks great, but right now it only shows raw numbers from the data file. In this short part, you will write your first DAX measure. DAX is the formula language of Power BI. It lets you create custom calculations that do not exist in your original data.', story)
 
-what_why_box(
-    'You will create a "Profit Margin %" measure that shows the percentage of revenue that is profit.',
-    'The original data has "Sales" and "Profit" columns, but it does NOT have a "Profit Margin" column. With DAX, you can create this calculation yourself. This is something Excel cannot do interactively (Excel formulas cannot change when you click a slicer).',
-    story)
+# DAX concept image
+add_image('08_dax_concept.png', story, w=440, h=260)
 
 S('6.1 What Is DAX? (Simple Explanation)', story)
 P('DAX stands for Data Analysis Expressions. Think of it as "Excel formulas on steroids." In Excel, you write =SUM(A1:A100) to add numbers. In DAX, you write Total Sales = SUM(Sales[Amount]). The difference is that DAX formulas automatically respond to filters and slicers. If you filter to France, a DAX measure recalculates to show only French numbers. Excel formulas cannot do this.', story)
@@ -620,6 +877,13 @@ story.append(PageBreak())
 # PART 7: Summary (5 min)
 # ═══════════════════════════════════════════════════════════════════════
 section_bar('PART 7: Summary & Next Steps', '5 MINUTES', story)
+
+purpose_block(
+    'Review everything you built, understand the complete Power BI process, and plan your learning path to go from beginner to professional.',
+    'Without reflection, you forget 80% of what you learned within 24 hours. We review the full process so it sticks in your memory. We also plan next steps because this 1-hour workshop only covers the basics - there is a whole world of Power BI skills waiting for you.',
+    'This is the final part. After this, you will have the complete picture. You can go back to your dashboard and keep improving it, or start a new one with your own data.',
+    story, minutes='5'
+)
 
 P('Congratulations! You just completed the entire Power BI workflow from zero to a working dashboard. Let us review what you learned and plan your next steps.', story)
 
@@ -710,7 +974,15 @@ story.append(make_table(
     [30*mm, 70*mm, 70*mm]
 ))
 
-SP(5, story)
+S('7.6 Publishing Your Dashboard (What Comes Next)', story)
+P('Right now your dashboard lives on your computer. The next step is to share it with others by publishing to the Power BI Service (online). Here is how the publish flow works:', story)
+
+# Publish flow image
+add_image('07_publish_flow.png', story, w=440, h=280)
+
+P('The publish process is simple: File &gt; Publish &gt; select your Power BI account &gt; your report appears online. From there, you can share it with colleagues, set up automatic data refresh, and even create dashboards from your reports. This is a more advanced topic that you can explore after today.', story)
+
+SP(3, story)
 P('You have completed the 1-hour Power BI workshop. You started with zero knowledge and you now have a working dashboard with interactive charts and custom calculations. The process you learned today is the same process used by professional Power BI developers around the world. Keep practicing, keep learning, and you will become a Power BI expert.', story)
 
 tip('Final Advice', 'The best way to get better at Power BI is to build dashboards. Open Power BI Desktop every day for 30 minutes and build something new. Connect to different data files, create different charts, write new DAX measures. Every dashboard you build makes you better. In 2-3 months of daily practice, you will be ready for professional Power BI projects.', story)

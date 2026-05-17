@@ -123,7 +123,8 @@ def build():
         'and e-commerce platforms. Guided merchants through full integration lifecycles \u2014 from test '
         'environment setup to production go-live. Strong foundation in networking, log analysis, REST API '
         'troubleshooting, and payment processing workflows. Backed by 15+ years of engineering experience '
-        'in the banking sector, enabling rapid root cause analysis.',
+        'in the banking sector, enabling rapid root cause analysis. Proven ability to translate complex '
+        'technical issues into clear guidance for non-technical merchant stakeholders via email and chat.',
         sBody
     ))
 

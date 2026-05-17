@@ -203,6 +203,8 @@ toc_items = [
     '7. Payment Processing Workflows',
     '8. Cybersecurity & Data Protection',
     '9. Technical Documentation & FAQs',
+    '10. Client Service & Communication Skills',
+    '11. Payment Error Codes & Card Operations',
 ]
 
 for item in toc_items:
@@ -715,6 +717,143 @@ add_topic(story,
         'so merchants always have accurate information.'
     ),
     extra_tip='Say "simple language and screenshots" - this shows you think about non-technical users.'
+)
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TOPIC 10
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+add_topic(story,
+    number=10,
+    title='Client Service & Communication Skills',
+    what_is_it=(
+        '<b>Client service</b> means helping merchants with their problems in a friendly, '
+        'patient, and professional way. In a payment company, the IT Support Specialist is the '
+        'primary contact for merchants. Merchants are not always technical people. They might be '
+        'business owners, shop managers, or accountants. They do not understand API, JSON, or '
+        'HTTP codes. Your job is to explain technical problems in simple language they can understand.'
+        '<br/><br/>'
+        '<b>Communication skills</b> means you can: listen carefully to the merchant\'s problem, '
+        'ask the right questions to understand the issue, explain the solution clearly, '
+        'and follow up to make sure the problem is resolved.'
+        '<br/><br/>'
+        'This role is 50% technical and 50% communication. You can be the best technician in the '
+        'world, but if you cannot explain things to merchants clearly, you will not be successful '
+        'in this role.'
+    ),
+    why_important=(
+        'The vacancy says: "bridge the gap between complex payment technology and exceptional '
+        'client service." This means CIBPay wants someone who is BOTH technical AND good with '
+        'people. Many technical people are not good at communication. If you can show both skills, '
+        'you have a big advantage over other candidates. '
+        'Good communication also reduces the number of support requests because merchants understand '
+        'your explanations and can fix simple problems themselves next time.'
+    ),
+    how_it_works=(
+        'How to communicate effectively with merchants:<br/><br/>'
+        '1. <b>Listen first:</b> Let the merchant explain their problem completely before you speak. '
+        'Do not interrupt.<br/>'
+        '2. <b>Ask clarifying questions:</b> "Can you share the error message?" '
+        '"What time did this happen?" "Which endpoint are you calling?"<br/>'
+        '3. <b>Explain in simple language:</b> Instead of saying "The API returned a 401 Unauthorized '
+        'due to an invalid bearer token," say: "Your API key is not correct. Please check your API key '
+        'in the back-office and try again."<br/>'
+        '4. <b>Provide step-by-step instructions:</b> Break the solution into small steps. '
+        'Use numbered lists. Include screenshots when possible.<br/>'
+        '5. <b>Follow up:</b> After the fix, contact the merchant to confirm everything is working. '
+        'This shows you care about their success.<br/>'
+        "6. <b>Stay calm under pressure:</b> Merchants can be angry when payments are not working. "
+        'Remember: they are not angry at you personally. Stay professional and solution-focused.<br/>'
+        '7. <b>Use the right channel:</b> Email for detailed explanations with screenshots. '
+        'Chat for quick questions. Phone calls for urgent or complex issues.'
+    ),
+    key_tools='Email, Chat, Phone, Ticket system, Screenshots, Step-by-step guides, Empathy, Patience',
+    interview_q='How do you handle a frustrated merchant who is angry about a payment issue?',
+    sample_answer=(
+        'First, I listen carefully and let them explain the problem without interrupting. '
+        'I understand that payment issues are stressful for merchants because it affects their '
+        'business and their customers. I do not take their frustration personally. '
+        'Then I apologize for the inconvenience and assure them I will help. '
+        'I ask for specific details: the error message, the time, and the transaction ID. '
+        'I explain what I am going to do step by step, so they know I am taking action. '
+        'I keep them updated on progress. When the issue is resolved, I follow up to confirm '
+        'everything is working and ask if they need anything else. '
+        'This approach usually turns a frustrated merchant into a satisfied one.'
+    ),
+    extra_tip='Show empathy: say "I understand how important this is for your business." This builds trust immediately.'
+)
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# TOPIC 11
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+add_topic(story,
+    number=11,
+    title='Payment Error Codes & Card Operations',
+    what_is_it=(
+        'When a payment fails, the system returns an error code. As a support specialist, '
+        'you must know what each error code means and how to help the merchant fix it.'
+        '<br/><br/>'
+        '<b>Common API Error Codes:</b><br/>'
+        '<b>200 - Success:</b> The payment was processed successfully.<br/>'
+        '<b>400 - Bad Request:</b> The merchant sent incorrect data. '
+        'For example: missing required field, wrong format, invalid amount.<br/>'
+        '<b>401 - Unauthorized:</b> The API key is wrong, expired, or missing.<br/>'
+        '<b>403 - Forbidden:</b> The merchant does not have permission for this action.<br/>'
+        '<b>404 - Not Found:</b> The URL or resource does not exist.<br/>'
+        '<b>408 - Request Timeout:</b> The request took too long. '
+        'The merchant\'s server or network might be slow.<br/>'
+        '<b>429 - Too Many Requests:</b> The merchant is sending too many requests too fast. '
+        'They need to slow down.<br/>'
+        '<b>500 - Internal Server Error:</b> Something is wrong on CIBPay\'s side. '
+        'Escalate to the development team.<br/>'
+        '<b>502 / 503 - Service Unavailable:</b> The server is temporarily down or under maintenance.<br/><br/>'
+        '<b>Common Card Decline Reasons:</b><br/>'
+        '<b>Insufficient funds:</b> The customer does not have enough money in their account.<br/>'
+        '<b>Expired card:</b> The customer\'s card has expired.<br/>'
+        '<b>Incorrect CVV:</b> The 3-digit security code on the back of the card is wrong.<br/>'
+        '<b>Card blocked:</b> The customer\'s bank has blocked the card for security reasons.<br/>'
+        '<b>Transaction limit exceeded:</b> The payment amount is higher than the card\'s limit.<br/><br/>'
+        '<b>Important concepts:</b><br/>'
+        '<b>3-D Secure (3DS):</b> An extra security step where the customer must enter a '
+        'one-time password (OTP) sent by their bank. This is required for online payments in many countries.<br/>'
+        '<b>Card Tokenization:</b> Replacing the real card number with a random token (like '
+        '4XXX-XXXX-XXXX-1234). This makes transactions safer because the real card number is never stored.'
+    ),
+    why_important=(
+        'Merchants will call you every day asking: "Why did this payment fail?" '
+        'If you can quickly look at the error code and explain the reason, you solve the problem fast. '
+        'If you do not know the error codes, you have to ask someone else, which wastes time and '
+        'makes the merchant lose trust in you. Knowing card decline reasons is also important because '
+        'merchants often ask: "The customer says they have money, why was the card declined?" '
+        'You need to explain the possible reasons clearly.'
+    ),
+    how_it_works=(
+        'How to handle error reports from merchants:<br/><br/>'
+        '1. <b>Ask for the error code:</b> "Can you share the exact error message or code you received?"<br/>'
+        '2. <b>Look up the error:</b> Check your error code reference table.<br/>'
+        '3. <b>Determine the cause:</b> Is it a merchant-side issue (400, 401, 408) '
+        'or a server-side issue (500, 502, 503)?<br/>'
+        '4. <b>Explain to the merchant:</b> Tell them what the error means in simple language '
+        'and what they need to do to fix it.<br/>'
+        '5. <b>For card declines:</b> The merchant cannot fix these. '
+        'Explain that the customer needs to contact their bank or use a different card.<br/>'
+        '6. <b>For server errors:</b> Escalate to the development team immediately. '
+        'Tell the merchant: "Our team is working on this. I will update you shortly."'
+    ),
+    key_tools='HTTP status codes, Card decline reasons, 3-D Secure (3DS), OTP, Card tokenization, Error code reference table',
+    interview_q='A merchant says a payment was declined. How do you investigate?',
+    sample_answer=(
+        'First, I ask the merchant for the transaction ID and the error code. '
+        'If the error code is a client-side error like 400, I check the request data - '
+        'maybe the amount is invalid or a required field is missing. '
+        'If it is a 401, I check their API key. '
+        'If the payment was declined by the bank, I check the decline reason code. '
+        'Common reasons are: insufficient funds, expired card, incorrect CVV, or card blocked. '
+        'I explain the reason to the merchant and advise them to ask the customer to '
+        'contact their bank or try a different payment method. '
+        'If I see a 500 or 503 error, I know it is a server-side issue and I immediately escalate '
+        'to our development team while keeping the merchant updated on the progress.'
+    ),
+    extra_tip='Memorize the HTTP status codes: 200=OK, 400=Bad Request, 401=Unauthorized, 500=Server Error. This is basic knowledge.'
 )
 
 # ── Final Tips Section ──

@@ -122,8 +122,8 @@ def build():
         'API integration support, incident management, and back-office administration across fintech '
         'and e-commerce platforms. Guided merchants through full integration lifecycles \u2014 from test '
         'environment setup to production go-live. Strong foundation in networking, log analysis, REST API '
-        'troubleshooting, and payment processing workflows. Backed by 15+ years of engineering experience '
-        'in the banking sector, enabling rapid root cause analysis and effective collaboration with external partners.',
+        'troubleshooting, and payment processing workflows. Leveraging a strong engineering background in '
+        'banking systems for rapid root cause analysis and effective collaboration with external partners.',
         sBody
     ))
 
@@ -240,7 +240,7 @@ def build():
     story.append(section_hr())
 
     story.append(Paragraph(
-        '<b>Central Bank of Azerbaijan &amp; Unibank</b>  |  Software Engineer \u2014 15+ years in banking and '
+        '<b>Central Bank of Azerbaijan &amp; Unibank</b>  |  Software Engineer \u2014 Extensive experience in banking and '
         'financial services: payment gateway systems, secure transaction handling, and data protection. '
         'Deep understanding of DNS, IP, HTTPS/TLS, and cybersecurity principles for financial systems.',
         sBody

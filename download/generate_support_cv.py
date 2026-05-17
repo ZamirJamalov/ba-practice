@@ -240,10 +240,10 @@ def build():
     story.append(section_hr())
 
     story.append(Paragraph(
-        '<b>Software Engineer</b> \u2014 15+ years in banking &amp; financial systems, including: '
-        'Central Bank of Azerbaijan (payment gateway systems), Government Payment Portal \u2014 Unibank '
-        '(systems integrator), Mobile Soft (backend developer \u2014 Unibank mobile banking). '
-        'Deep understanding of DNS, IP, HTTPS/TLS, and cybersecurity principles.',
+        '<b>15+ years</b> across banking &amp; financial systems \u2014 hands-on in software development, '
+        'systems integration, and technical infrastructure: Central Bank of Azerbaijan (payment gateway '
+        'systems &amp; Government Payment Portal \u2014 systems integrator), Unibank (mobile banking '
+        'backend \u2014 Mobile Soft). Deep understanding of DNS, IP, HTTPS/TLS, and cybersecurity principles.',
         sBody
     ))
     story.append(Paragraph(

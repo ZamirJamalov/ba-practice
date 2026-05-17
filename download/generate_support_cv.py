@@ -197,9 +197,9 @@ def build():
         'access permissions following PCI-DSS security standards'
     ))
     story.append(bullet_text(
-        'Implemented PayTabs card tokenization workflow for credit disbursements to customer cards '
-        '— card registration with verification, token issuance, and token-based payouts via '
-        'Kapital Bank; coordinated with both bank and PayTabs support teams on failed transaction resolution'
+        'Implemented credit disbursement workflows: PayTabs card tokenization for payouts to customer '
+        'cards via Kapital Bank, and Cuzdan wallet integration for direct account crediting; '
+        'coordinated with bank and PayTabs support teams on failed transaction resolution'
     ))
 
     # --- Birbonus ---

@@ -196,6 +196,11 @@ def build():
         'Administered back-office operations: managed merchant credentials, webhook URLs, and '
         'access permissions following PCI-DSS security standards'
     ))
+    story.append(bullet_text(
+        'Implemented PayTabs card tokenization workflow for credit disbursements to customer cards '
+        '— card registration with verification, token issuance, and token-based payouts via '
+        'Kapital Bank; coordinated with both bank and PayTabs support teams on failed transaction resolution'
+    ))
 
     # --- Birbonus ---
     story.append(Paragraph('<b>Birbonus</b>  |  Merchant Integration Specialist', sExpHeader))

@@ -597,9 +597,13 @@ add_topic(story,
         'We receive the result and send it back to the merchant. '
         'The whole process usually takes 1-3 seconds. '
         'I also understand related workflows like refunds, settlements, and chargebacks. '
-        'This knowledge helps me identify exactly where a problem occurs when a merchant reports an issue.'
+        'This knowledge helps me identify exactly where a problem occurs when a merchant reports an issue. '
+        'For example, at Embafinans I implemented a PayTabs card tokenization workflow for credit disbursements '
+        'to customer cards via Kapital Bank. I managed the full process: card registration with verification, '
+        'token issuance, and token-based payouts. This hands-on experience gave me deep understanding of how '
+        'card operations work in practice.'
     ),
-    extra_tip='Use the word "gateway" - it shows you understand the payment company is the middleman between merchant and bank.'
+    extra_tip='Use the word "gateway" and mention "tokenization" - it shows you understand card operations hands-on.'
 )
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -777,9 +781,13 @@ add_topic(story,
         'I explain what I am going to do step by step, so they know I am taking action. '
         'I keep them updated on progress. When the issue is resolved, I follow up to confirm '
         'everything is working and ask if they need anything else. '
-        'This approach usually turns a frustrated merchant into a satisfied one.'
+        'This approach usually turns a frustrated merchant into a satisfied one. '
+        'In my experience, patience and clear communication are key. For example, at Embafinans, '
+        'I regularly communicated with external partners like Kapital Bank and PayTabs support teams '
+        'to resolve transaction failures. I always kept all parties informed and followed up until '
+        'the issue was completely resolved.'
     ),
-    extra_tip='Show empathy: say "I understand how important this is for your business." This builds trust immediately.'
+    extra_tip='Show empathy: say "I understand how important this is for your business." Mention experience with external partners - it shows you can communicate beyond your own team.'
 )
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -851,9 +859,12 @@ add_topic(story,
         'I explain the reason to the merchant and advise them to ask the customer to '
         'contact their bank or try a different payment method. '
         'If I see a 500 or 503 error, I know it is a server-side issue and I immediately escalate '
-        'to our development team while keeping the merchant updated on the progress.'
+        'to our development team while keeping the merchant updated on the progress. '
+        'In my experience at Embafinans, when card transactions failed during PayTabs payouts, '
+        'I contacted both the Kapital Bank support team and the PayTabs support team to find the root cause. '
+        'This cross-team coordination helped us resolve issues faster.'
     ),
-    extra_tip='Memorize the HTTP status codes: 200=OK, 400=Bad Request, 401=Unauthorized, 500=Server Error. This is basic knowledge.'
+    extra_tip='Mention that you have real experience coordinating with bank support teams - this is very valuable for a payment company.'
 )
 
 # ── Final Tips Section ──

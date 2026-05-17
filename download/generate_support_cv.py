@@ -139,7 +139,7 @@ def build():
         ['Merchant Onboarding &amp; API Integration',
          'Incident Management &amp; Troubleshooting',
          'Log Analysis &amp; Root Cause Investigation'],
-        ['Network Diagnostics (DNS, IP, HTTP/S)',
+        ['Network Tools (ping, telnet, ipconfig, traceroute)',
          'REST API Testing &amp; Postman',
          'Back-Office Administration &amp; Configuration'],
         ['Payment Processing Workflows',
@@ -240,7 +240,7 @@ def build():
         'of transaction failures, and implementing fixes to restore service availability'
     ))
     story.append(bullet_text(
-        'Utilized network diagnostic tools (ping, traceroute, nslookup) and HTTP/S protocol knowledge '
+        'Utilized network diagnostic tools (ping, telnet, ipconfig, traceroute, nslookup) and HTTP/S protocol knowledge '
         'to troubleshoot connectivity issues between microservices and external APIs'
     ))
     story.append(bullet_text(

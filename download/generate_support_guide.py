@@ -583,10 +583,16 @@ add_topic(story,
         '<b>Reconciliation:</b> Comparing CIBPay\'s records with the bank\'s records '
         'to make sure all transactions match. If there is a difference, it must be investigated.<br/><br/>'
         '<b>Chargeback:</b> A customer contacts their bank and says "I did not make this payment." '
-        'The bank takes the money back from the merchant. This is called a chargeback.'
+        'The bank takes the money back from the merchant. This is called a chargeback.<br/><br/>'
+        '<b>Card Tokenization:</b> Replacing the real card number with a secure token. '
+        'This is used for recurring payments or payouts. The card is registered once, '
+        'a token is issued, and future transactions use the token instead of the real card number.<br/><br/>'
+        '<b>Wallet Disbursement:</b> Sending money directly to a customer\'s digital wallet '
+        '(like Cuzdan) via API, without going through a bank. The system sends a request to the '
+        'wallet provider, the wallet provider credits the customer account, and returns a success or failure response.'
     ),
-    key_tools='Payment Gateway, Acquiring bank, Issuing bank, Card network (Visa/Mastercard), Settlement, Chargeback, Reconciliation',
-    interview_q='Can you explain the payment processing workflow?',
+    key_tools='Payment Gateway, Acquiring bank, Issuing bank, Card network (Visa/Mastercard), Settlement, Chargeback, Reconciliation, Card Tokenization, Digital Wallet, Disbursement',
+    interview_q='Can you explain the payment processing workflow and your experience with it?',
     sample_answer=(
         'Yes. When a customer makes a payment, the process has several steps. '
         'First, the merchant sends a payment request to our payment gateway. '
@@ -596,14 +602,20 @@ add_topic(story,
         'and sends back an approval or decline. '
         'We receive the result and send it back to the merchant. '
         'The whole process usually takes 1-3 seconds. '
-        'I also understand related workflows like refunds, settlements, and chargebacks. '
-        'This knowledge helps me identify exactly where a problem occurs when a merchant reports an issue. '
-        'For example, at Embafinans I implemented a PayTabs card tokenization workflow for credit disbursements '
-        'to customer cards via Kapital Bank. I managed the full process: card registration with verification, '
-        'token issuance, and token-based payouts. This hands-on experience gave me deep understanding of how '
-        'card operations work in practice.'
+        'I also understand related workflows like refunds, settlements, reconciliation, and chargebacks.<br/><br/>'
+        'I have hands-on experience with two different disbursement channels. '
+        'At Embafinans, I implemented a PayTabs card tokenization workflow for credit payouts '
+        'via Kapital Bank. The process was: register the customer card with a small verification amount, '
+        'receive a token from PayTabs, and then use that token for all future payouts to that card. '
+        'When transactions failed, I analyzed logs, identified the error, and coordinated with both '
+        'Kapital Bank support and PayTabs support to resolve the issue.<br/><br/>'
+        'In parallel, I also integrated the Cuzdan digital wallet application via direct API '
+        'for automated credit disbursements to customer accounts. This was a different channel - '
+        'instead of going through a bank, we sent the payout request directly to the wallet provider. '
+        'I analyzed application and API logs to diagnose integration failures and ensure transaction consistency. '
+        'This experience gave me practical understanding of how different payout channels work in fintech.'
     ),
-    extra_tip='Use the word "gateway" and mention "tokenization" - it shows you understand card operations hands-on.'
+    extra_tip='This answer shows you understand BOTH card-based and wallet-based payment channels. Very few candidates have this range of experience.'
 )
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -176,24 +176,24 @@ def build():
     story.append(Paragraph('2025 \u2013 Present  |  Baku, Azerbaijan', sExpRole))
 
     story.append(bullet_text(
-        'Managed end-to-end API integration lifecycle for merchant partners \u2014 from developer '
-        'onboarding and test environment setup to test case execution and production go-live'
+        'Managed end-to-end merchant onboarding \u2014 from sandbox/test environment setup and API key '
+        'provisioning to test case execution and production go-live'
     ))
     story.append(bullet_text(
         'Troubleshot integration issues, validated API endpoints, and ensured seamless data exchange '
         'by coordinating directly with merchant development teams'
     ))
     story.append(bullet_text(
-        'Developed and maintained technical documentation including API integration guides, '
-        'troubleshooting manuals, and FAQ resources for merchant self-service'
+        'Created technical documentation (Confluence) including API integration guides, '
+        'error code references, and troubleshooting manuals for merchant self-service'
     ))
     story.append(bullet_text(
-        'Tested REST API endpoints using Postman, verifying authentication flows, '
-        'request/response structures, and error codes'
+        'Tested REST API endpoints using Postman, validating JSON payloads, HTTP status codes, '
+        'authentication flows, and error responses'
     ))
     story.append(bullet_text(
-        'Administered back-office operations: managed merchant credentials, configuration settings, '
-        'and access permissions with strict security protocols'
+        'Administered back-office operations: managed merchant credentials, webhook URLs, and '
+        'access permissions following PCI-DSS security standards'
     ))
 
     # --- Birbonus ---
@@ -218,8 +218,8 @@ def build():
     story.append(Paragraph('2022 \u2013 2024  |  Baku, Azerbaijan', sExpRole))
 
     story.append(bullet_text(
-        'Resolved L2 production incidents via ELK Stack log analysis, identifying root causes '
-        'of transaction failures and restoring service availability'
+        'Resolved L2 production incidents via ELK Stack/Kibana log analysis, identifying root causes '
+        'of transaction failures, escalating to dev teams when needed, and meeting SLA targets'
     ))
     story.append(bullet_text(
         'Used network diagnostic tools (ping, telnet, ipconfig, traceroute, nslookup) and HTTP/S '
@@ -238,8 +238,8 @@ def build():
 
     story.append(Paragraph(
         '<b>Central Bank of Azerbaijan &amp; Unibank</b>  |  Software Engineer \u2014 15+ years in banking and '
-        'financial services: payment processing systems, secure transaction handling, and data protection. '
-        'Deep understanding of DNS, IP, HTTP/S, and cybersecurity principles for financial systems.',
+        'financial services: payment gateway systems, secure transaction handling, and data protection. '
+        'Deep understanding of DNS, IP, HTTPS/TLS, and cybersecurity principles for financial systems.',
         sBody
     ))
     story.append(Paragraph(

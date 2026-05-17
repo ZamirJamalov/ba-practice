@@ -123,8 +123,7 @@ def build():
         'and e-commerce platforms. Guided merchants through full integration lifecycles \u2014 from test '
         'environment setup to production go-live. Strong foundation in networking, log analysis, REST API '
         'troubleshooting, and payment processing workflows. Backed by 15+ years of engineering experience '
-        'in the banking sector, enabling rapid root cause analysis. Proven ability to translate complex '
-        'technical issues into clear guidance for non-technical merchant stakeholders via email and chat.',
+        'in the banking sector, enabling rapid root cause analysis and effective collaboration with external partners.',
         sBody
     ))
 
@@ -181,25 +180,24 @@ def build():
         'provisioning to test case execution and production go-live'
     ))
     story.append(bullet_text(
-        'Troubleshot integration issues, validated API endpoints, and ensured seamless data exchange '
-        'by coordinating directly with merchant development teams'
+        'Tested REST API endpoints using Postman, validated JSON payloads, HTTP status codes, '
+        'and error responses; troubleshot integration issues by coordinating with merchant dev teams'
     ))
     story.append(bullet_text(
         'Created technical documentation (Confluence) including API integration guides, '
         'error code references, and troubleshooting manuals for merchant self-service'
     ))
     story.append(bullet_text(
-        'Tested REST API endpoints using Postman, validating JSON payloads, HTTP status codes, '
-        'authentication flows, and error responses'
-    ))
-    story.append(bullet_text(
         'Administered back-office operations: managed merchant credentials, webhook URLs, and '
         'access permissions following PCI-DSS security standards'
     ))
     story.append(bullet_text(
-        'Implemented credit disbursement workflows: PayTabs card tokenization for payouts to customer '
-        'cards via Kapital Bank, and Cuzdan wallet integration for direct account crediting; '
-        'coordinated with bank and PayTabs support teams on failed transaction resolution'
+        'Built PayTabs card tokenization workflow for credit payouts via Kapital Bank \u2014 card registration, '
+        'token issuance, and reconciliation; coordinated with bank and PayTabs support on failed transactions'
+    ))
+    story.append(bullet_text(
+        'Integrated Cuzdan wallet via direct API for automated credit disbursements to customer accounts; '
+        'analyzed application and API logs to diagnose integration failures'
     ))
 
     # --- Birbonus ---
@@ -207,16 +205,15 @@ def build():
     story.append(Paragraph('2024 \u2013 2025  |  Baku, Azerbaijan', sExpRole))
 
     story.append(bullet_text(
-        'Onboarded partner merchants with hands-on technical support for API-based '
-        'integration and payment configuration'
+        'Onboarded partner merchants with hands-on API integration support and payment configuration'
     ))
     story.append(bullet_text(
         'Created test cases and conducted integration testing to verify transaction '
-        'flows, bonus accumulation logic, and settlement processes'
+        'flows, bonus logic, and settlement processes'
     ))
     story.append(bullet_text(
         'Served as primary technical contact for merchants, translating complex integration '
-        'requirements into clear step-by-step guidance; managed credentials and admin panel settings'
+        'requirements into step-by-step guidance; managed credentials and admin panel settings'
     ))
 
     # --- Umico ---

@@ -54,7 +54,7 @@ sTitle = ParagraphStyle(
 )
 sContact = ParagraphStyle(
     'Contact', fontName='Tinos', fontSize=10, leading=14,
-    textColor=MUTED, alignment=TA_CENTER, spaceAfter=2
+    textColor=MUTED, alignment=TA_LEFT, spaceAfter=2
 )
 sSectionHead = ParagraphStyle(
     'SectionHead', fontName='Carlito', fontSize=10, leading=13,

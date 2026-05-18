@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Zamir Jamalov - IT Business Analyst CV for Yelo Bank (Risk Modeling / Scoring Squad)
-Version 2: Professional depth without excessive detail. 1 page.
+Same format as E-Commerce & Fintech CV. 1 page.
 """
 
 from reportlab.lib.pagesizes import A4
@@ -37,7 +37,6 @@ body_style = ParagraphStyle(name='Body', fontName='Cal', fontSize=8, leading=10.
 bullet_style = ParagraphStyle(name='Bullet', fontName='Cal', fontSize=7.8, leading=10, textColor=DARK, leftIndent=7, bulletIndent=0, spaceAfter=0.5)
 skill_style = ParagraphStyle(name='Skill', fontName='Cal', fontSize=7.8, leading=10, textColor=DARK, leftIndent=3, spaceAfter=0.3)
 small_muted = ParagraphStyle(name='SmallM', fontName='CalI', fontSize=7, leading=9, textColor=MUTED, spaceAfter=0.5)
-tag_style = ParagraphStyle(name='Tag', fontName='CalB', fontSize=7.5, leading=9.5, textColor=ACCENT)
 
 def section(text):
     return [Spacer(1,2), HRFlowable(width="100%", thickness=0.7, color=ACCENT, spaceAfter=1), Paragraph(text, section_style)]
@@ -69,33 +68,37 @@ story.append(Paragraph('+994 55 207 7228 | jamalov.zamir@gmail.com | Baku, Azerb
 # ===== PROFILE =====
 story.extend(section('PROFILE SUMMARY'))
 story.extend(body(
-    'Business Analyst with 2+ years in fintech, specializing in <b>credit scoring, decision engine rule design, '
-    'and risk assessment</b> change requests. Authored 25+ cut-off rules across a 6-priority tiered decision '
-    'framework for straight-through processing. 15+ years of software engineering background enables precise '
-    'translation of complex risk logic into developer-ready specifications.'
+    'Business Analyst with 2+ years in fintech, specializing in credit scoring, decision engine rule design, '
+    'and risk assessment change requests. Engineering background enables precise translation of complex risk logic '
+    'into developer-ready specifications. Having authored 25+ cut-off rules across a 6-priority tiered decision framework, '
+    'looking to apply the same analytical approach to drive measurable risk optimization outcomes.'
 ))
 
 # ===== SKILLS =====
 story.extend(section('CORE SKILLS'))
 sk_data = [[
     Paragraph('<b>Risk &amp; Scoring:</b> Credit Scoring | Decision Engine / Rule Engine | Cut-off Rule Design '
-              '(Auto-Reject / Auto-Approve / Expert Routing) | Scorecard Matrices | DTI Analysis | '
-              'Risk Variables (Delay Ratio, Credit History Depth) | Stop-Factor vs Soft-Factor Logic | '
-              'Cooling-off Periods | Exception Handling | IFRS 9 Awareness', skill_style),
-    Paragraph('<b>Technical:</b> SQL (Advanced Data Analysis) | REST API &amp; JSON | Swagger/OpenAPI 3.0 | '
-              'Postman | Database Concepts (Oracle, PostgreSQL, MongoDB) | BPMN Process Modeling | '
-              'Data Mapping | Sequence Diagrams', skill_style),
+              '(Auto-Reject / Auto-Approve / Expert Routing) | Scorecard Matrices | Scoring Matrix Configuration | '
+              'Hybrid Scoring Models | Risk Variables (Delay Ratio, Credit History Depth) | '
+              'Stop-Factor vs Soft-Factor Logic | Cooling-off Periods | IFRS 9 Awareness', skill_style),
 ], [
-    Paragraph('<b>BA Toolkit:</b> BRD / FRD / SRS (REQ-101 Traceability) | User Stories (Gherkin Acceptance Criteria) | '
-              'Change Requests | UAT Planning &amp; Bug Triage | RICE Prioritization | '
-              'Jira | Confluence | Agile/Scrum', skill_style),
+    Paragraph('<b>Business Analysis:</b> BRD / FRD / SRS (REQ-101 Traceability) | User Stories &amp; Acceptance Criteria (Gherkin) | '
+              'BPMN (As-Is / To-Be) | UML | Sequence Diagrams | Data Mapping | Gap Analysis | '
+              'Stakeholder Interviews | Backlog Prioritization (RICE)', skill_style),
+], [
+    Paragraph('<b>Technical:</b> SQL (Advanced Data Analysis) | REST API &amp; JSON | Swagger / OpenAPI 3.0 | '
+              'Postman (API Testing) | Database Concepts (Oracle, PostgreSQL, MongoDB)', skill_style),
+], [
+    Paragraph('<b>Process &amp; Tools:</b> Agile / Scrum | Jira | Confluence | UAT Planning &amp; Coordination | '
+              'Change Requests | Bug Triage (Critical / Major / Minor)', skill_style),
+], [
     Paragraph('<b>Languages:</b> Azerbaijani (Native) | Russian (Fluent) | English (Professional / Technical Documentation)', skill_style),
 ]]
-sk_table = Table(sk_data, colWidths=[AW*0.52, AW*0.48], hAlign='LEFT')
+sk_table = Table(sk_data, colWidths=[AW], hAlign='LEFT')
 sk_table.setStyle(TableStyle([
     ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ('LEFTPADDING', (0,0), (-1,-1), 0),
-    ('RIGHTPADDING', (0,0), (-1,-1), 3),
+    ('RIGHTPADDING', (0,0), (-1,-1), 0),
     ('TOPPADDING', (0,0), (-1,-1), 0),
     ('BOTTOMPADDING', (0,0), (-1,-1), 0),
 ]))
@@ -107,9 +110,8 @@ story.extend(section('PROFESSIONAL EXPERIENCE'))
 # --- Embafinans ---
 story.extend(sub('<b>Embafinans</b> | IT Business Analyst'))
 story.append(Paragraph('2025 - Present', small_muted))
-story.append(Paragraph('Risk Modeling / Scoring Squad - Cash Loan (RCASH) Decision Engine', small_muted))
 
-story.extend(body('<b>Decision Engine - Cut-off Rule Design:</b>'))
+story.extend(sub('Decision Engine - Cut-off Rule Design'))
 story.extend(bullet('- Authored <b>25+ cut-off rules</b> (R_1010 to R_6040) organized in a <b>6-priority tiered framework</b>: '
                    'Loan Workbench (blacklist, credit history) > ASAN Finans (personal data, age limits) > AKB Skor Servisi '
                    '(stop-factors, scoring balance) > AKB Credit History (delinquency, active loan limits) > '
@@ -120,19 +122,19 @@ story.extend(bullet('- Designed three-way routing: <b>Auto-Reject</b> (hard stop
 story.extend(bullet('- Defined <b>stop-factors</b> (blacklist, active delinquency, expired contracts) vs '
                    '<b>soft-factors</b> (thin credit file, new-to-credit, minor delinquency) triggering manual review'))
 
-story.extend(body('<b>Credit Scoring &amp; Risk Variables:</b>'))
-story.extend(bullet('- Configured <b>scoring matrices</b> by integrating data from multiple external services (ASAN Finans personal data, '
-                   'SIMA personal information, AKB score, AKB credit history); analyzed score distributions over time and '
-                   'reconfigured weight parameters to optimize approval/rejection balance'))
-story.extend(bullet('- Developed <b>hybrid scoring model</b> combining external AKB credit bureau score with company-internal risk score; '
-                   'formulated personalized credit decision logic tailored to individual applicant risk profiles'))
+story.extend(sub('Credit Scoring & Risk Variables'))
+story.extend(bullet('- Configured <b>scoring matrices</b> by integrating data from multiple external services '
+                   '(ASAN Finans personal data, SIMA personal information, AKB score, AKB credit history); '
+                   'analyzed score distributions over time and reconfigured weight parameters to optimize approval/rejection balance'))
+story.extend(bullet('- Developed <b>hybrid scoring model</b> combining external AKB credit bureau score with company-internal '
+                   'risk score; formulated personalized credit decision logic tailored to individual applicant risk profiles'))
 story.extend(bullet('- Performed quantitative analysis on <b>AKB credit history</b> data: calendar-based payment regularity tracking, '
                    'loan amount distribution analysis, and credit card utilization patterns computed using <b>natural logarithm-based '
                    'normalization</b> methods'))
 story.extend(bullet('- Defined cooling-off rules: repeat application blocks after rejection (3/15/90 days by rejection type) '
                    'and exception logic for customers with positive Embafinans history'))
 
-story.extend(body('<b>Risk Assessment &amp; Delivery:</b>'))
+story.extend(sub('Risk Assessment & Delivery'))
 story.extend(bullet('- Authored BRD/FRD/SRS with REQ-101 traceability; prepared Swagger API specs and data mapping '
                    'documents for developer handoff; coordinated UAT with structured bug triage (Critical/Major/Minor)'))
 story.extend(bullet('- Used SQL data analysis to resolve stakeholder conflicts (risk vs. sales); applied RICE framework '
@@ -141,20 +143,21 @@ story.extend(bullet('- Used SQL data analysis to resolve stakeholder conflicts (
 # --- Birbonus ---
 story.extend(sub('<b>Birbonus</b> | IT Business Analyst'))
 story.append(Paragraph('2024 - 2025', small_muted))
-story.extend(bullet('- Designed customer loyalty bonus system with earning rules, eligibility criteria, and partner settlement workflows; authored BRD and API specs'))
+story.extend(bullet('- Designed a customer loyalty bonus system enabling shoppers to earn rewards on purchases and redeem across participating '
+                   'partner merchants, conducting stakeholder sessions to define earning rules, eligibility criteria, and partner settlement workflows'))
 
 # --- Umico ---
 story.extend(sub('<b>Umico</b> | PostgreSQL Developer &amp; L2 Support'))
 story.append(Paragraph('2022 - 2024', small_muted))
-story.extend(bullet('- PostgreSQL backend development; L2 production incident resolution via ELK Stack log analysis; API integration onboarding support'))
+story.extend(bullet('- Built backend features using PostgreSQL, resolved L2 production incidents using ELK Stack log analysis and source code '
+                   'investigation, and supported partner development teams with API integration onboarding'))
 
 # ===== TECHNICAL FOUNDATION =====
 story.extend(section('TECHNICAL FOUNDATION'))
 story.extend(body(
-    '15+ years in software engineering (Central Bank of Azerbaijan, Unibank, ASAN Service) - C# backend, '
-    'databases (Oracle, MSSQL, PostgreSQL, MongoDB), system integration, CI/CD pipelines. '
-    'Enables precise requirement-to-code translation and deep understanding of banking core systems, '
-    'credit lifecycle, and regulatory compliance (Central Bank requirements).'
+    '15+ years in software engineering (Central Bank of Azerbaijan, Unibank, ASAN Service) - C# backend development, '
+    'relational databases (Oracle, MSSQL, PostgreSQL) and NoSQL (MongoDB), system integration, Git, and CI/CD pipelines. '
+    'Enables precise requirement-to-code translation and rapid root cause analysis during production incidents.'
 ))
 
 # ===== EDUCATION =====

@@ -1,166 +1,313 @@
 #!/usr/bin/env python3
 """
-Zamir Jamalov - IT Business Analyst CV for Yelo Bank (Risk Modeling / Scoring Squad)
-Version 2: Professional depth without excessive detail. 1 page.
+Yelo Bank CV - Zamir Jamalov
+Credit Scoring / Decision Engine / Risk Assessment focused
+Embafinans experience only - ACCURATE data
 """
 
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import cm
+from reportlab.lib.units import mm
+from reportlab.lib.colors import HexColor
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
-from reportlab.lib import colors
-from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
-)
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase.pdfmetrics import registerFontFamily
 
-# -- Fonts --
-pdfmetrics.registerFont(TTFont('Cal', '/usr/share/fonts/truetype/english/Carlito-Regular.ttf'))
-pdfmetrics.registerFont(TTFont('CalB', '/usr/share/fonts/truetype/english/Carlito-Bold.ttf'))
-pdfmetrics.registerFont(TTFont('CalI', '/usr/share/fonts/truetype/english/Carlito-Italic.ttf'))
-registerFontFamily('Cal', normal='Cal', bold='CalB', italic='CalI')
+# Register fonts
+pdfmetrics.registerFont(TTFont('LiberationSans', '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf'))
+pdfmetrics.registerFont(TTFont('LiberationSans-Bold', '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf'))
+pdfmetrics.registerFont(TTFont('LiberationSerif', '/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf'))
 
-# -- Colors --
-ACCENT = colors.HexColor('#1a6b7a')
-DARK = colors.HexColor('#1e1e1e')
-MUTED = colors.HexColor('#555555')
+# Colors
+DARK_BLUE = HexColor('#1a3a5c')
+MEDIUM_BLUE = HexColor('#2c5f8a')
+ACCENT_BLUE = HexColor('#3498db')
+WHITE = HexColor('#ffffff')
+DARK_GRAY = HexColor('#333333')
+MEDIUM_GRAY = HexColor('#555555')
+LIGHT_GRAY = HexColor('#888888')
+LINE_COLOR = HexColor('#2c5f8a')
+SECTION_BG = HexColor('#f0f5fa')
 
-# -- Styles --
-name_style = ParagraphStyle(name='Name', fontName='CalB', fontSize=17, leading=21, textColor=ACCENT, alignment=TA_CENTER)
-title_style = ParagraphStyle(name='Title', fontName='Cal', fontSize=9.5, leading=12, textColor=MUTED, alignment=TA_CENTER)
-contact_style = ParagraphStyle(name='Contact', fontName='Cal', fontSize=8, leading=10, textColor=MUTED, alignment=TA_CENTER)
-section_style = ParagraphStyle(name='Section', fontName='CalB', fontSize=9.5, leading=12, textColor=ACCENT, spaceBefore=4, spaceAfter=1)
-sub_style = ParagraphStyle(name='Sub', fontName='CalB', fontSize=8.5, leading=11, textColor=DARK, spaceBefore=2, spaceAfter=0.5)
-body_style = ParagraphStyle(name='Body', fontName='Cal', fontSize=8, leading=10.5, textColor=DARK, spaceAfter=1.5, alignment=TA_JUSTIFY)
-bullet_style = ParagraphStyle(name='Bullet', fontName='Cal', fontSize=7.8, leading=10, textColor=DARK, leftIndent=7, bulletIndent=0, spaceAfter=0.5)
-skill_style = ParagraphStyle(name='Skill', fontName='Cal', fontSize=7.8, leading=10, textColor=DARK, leftIndent=3, spaceAfter=0.3)
-small_muted = ParagraphStyle(name='SmallM', fontName='CalI', fontSize=7, leading=9, textColor=MUTED, spaceAfter=0.5)
-tag_style = ParagraphStyle(name='Tag', fontName='CalB', fontSize=7.5, leading=9.5, textColor=ACCENT)
+# Page setup
+PAGE_WIDTH, PAGE_HEIGHT = A4
+LEFT_MARGIN = 12 * mm
+RIGHT_MARGIN = 12 * mm
+TOP_MARGIN = 8 * mm
+BOTTOM_MARGIN = 8 * mm
+CONTENT_WIDTH = PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
 
-def section(text):
-    return [Spacer(1,2), HRFlowable(width="100%", thickness=0.7, color=ACCENT, spaceAfter=1), Paragraph(text, section_style)]
+# Styles
+name_style = ParagraphStyle(
+    'Name', fontName='LiberationSans-Bold', fontSize=18, leading=22,
+    textColor=DARK_BLUE, alignment=TA_CENTER, spaceAfter=1 * mm
+)
 
-def sub(text):
-    return [Paragraph(text, sub_style)]
+title_style = ParagraphStyle(
+    'Title', fontName='LiberationSans', fontSize=9.5, leading=12,
+    textColor=MEDIUM_BLUE, alignment=TA_CENTER, spaceAfter=2 * mm
+)
 
-def body(text):
-    return [Paragraph(text, body_style)]
+contact_style = ParagraphStyle(
+    'Contact', fontName='LiberationSans', fontSize=7.5, leading=10,
+    textColor=MEDIUM_GRAY, alignment=TA_CENTER, spaceAfter=1 * mm
+)
 
-def bullet(text):
-    return [Paragraph(text, bullet_style)]
+section_header_style = ParagraphStyle(
+    'SectionHeader', fontName='LiberationSans-Bold', fontSize=9.5, leading=12,
+    textColor=WHITE, alignment=TA_LEFT, leftIndent=3 * mm
+)
 
-# -- Build --
-OUTPUT = '/home/z/my-project/download/Zamir_Jamalov_Yelo_Bank_CV.pdf'
-W, H = A4
-LM, RM, TM, BM = 1.3*cm, 1.3*cm, 1.1*cm, 1.1*cm
-AW = W - LM - RM
+company_style = ParagraphStyle(
+    'Company', fontName='LiberationSans-Bold', fontSize=9, leading=11,
+    textColor=DARK_BLUE, spaceAfter=0.5 * mm
+)
 
-doc = SimpleDocTemplate(OUTPUT, pagesize=A4, leftMargin=LM, rightMargin=RM, topMargin=TM, bottomMargin=BM)
-story = []
+role_style = ParagraphStyle(
+    'Role', fontName='LiberationSans-Bold', fontSize=8.5, leading=10.5,
+    textColor=MEDIUM_BLUE, spaceAfter=0.5 * mm
+)
 
-# ===== HEADER =====
-story.append(Paragraph('<b>ZAMIR JAMALOV</b>', name_style))
-story.append(Paragraph('IT Business Analyst | Risk Modeling &amp; Scoring', title_style))
-story.append(Spacer(1,1))
-story.append(Paragraph('+994 55 207 7228 | jamalov.zamir@gmail.com | Baku, Azerbaijan', contact_style))
+date_style = ParagraphStyle(
+    'Date', fontName='LiberationSans', fontSize=7.5, leading=9,
+    textColor=LIGHT_GRAY, alignment=TA_LEFT, spaceAfter=0.5 * mm
+)
 
-# ===== PROFILE =====
-story.extend(section('PROFILE SUMMARY'))
-story.extend(body(
-    'Business Analyst with 2+ years in fintech, specializing in <b>credit scoring, decision engine rule design, '
-    'and risk assessment</b> change requests. Authored 25+ cut-off rules across a 6-priority tiered decision '
-    'framework for straight-through processing. 15+ years of software engineering background enables precise '
-    'translation of complex risk logic into developer-ready specifications.'
-))
+bullet_style = ParagraphStyle(
+    'Bullet', fontName='LiberationSerif', fontSize=7.3, leading=9.5,
+    textColor=DARK_GRAY, alignment=TA_JUSTIFY, leftIndent=3 * mm,
+    spaceAfter=1 * mm
+)
 
-# ===== SKILLS =====
-story.extend(section('CORE SKILLS'))
-sk_data = [[
-    Paragraph('<b>Risk &amp; Scoring:</b> Credit Scoring | Decision Engine / Rule Engine | Cut-off Rule Design '
-              '(Auto-Reject / Auto-Approve / Expert Routing) | Scorecard Matrices | DTI Analysis | '
-              'Risk Variables (Delay Ratio, Credit History Depth) | Stop-Factor vs Soft-Factor Logic | '
-              'Cooling-off Periods | Exception Handling | IFRS 9 Awareness', skill_style),
-    Paragraph('<b>Technical:</b> SQL (Advanced Data Analysis) | REST API &amp; JSON | Swagger/OpenAPI 3.0 | '
-              'Postman | Database Concepts (Oracle, PostgreSQL, MongoDB) | BPMN Process Modeling | '
-              'Data Mapping | Sequence Diagrams', skill_style),
-], [
-    Paragraph('<b>BA Toolkit:</b> BRD / FRD / SRS (REQ-101 Traceability) | User Stories (Gherkin Acceptance Criteria) | '
-              'Change Requests | UAT Planning &amp; Bug Triage | RICE Prioritization | '
-              'Jira | Confluence | Agile/Scrum', skill_style),
-    Paragraph('<b>Languages:</b> Azerbaijani (Native) | Russian (Fluent) | English (Professional / Technical Documentation)', skill_style),
-]]
-sk_table = Table(sk_data, colWidths=[AW*0.52, AW*0.48], hAlign='LEFT')
-sk_table.setStyle(TableStyle([
-    ('VALIGN', (0,0), (-1,-1), 'TOP'),
-    ('LEFTPADDING', (0,0), (-1,-1), 0),
-    ('RIGHTPADDING', (0,0), (-1,-1), 3),
-    ('TOPPADDING', (0,0), (-1,-1), 0),
-    ('BOTTOMPADDING', (0,0), (-1,-1), 0),
-]))
-story.append(sk_table)
+sub_bullet_style = ParagraphStyle(
+    'SubBullet', fontName='LiberationSerif', fontSize=6.8, leading=9,
+    textColor=MEDIUM_GRAY, alignment=TA_LEFT, leftIndent=6 * mm,
+    spaceAfter=0.8 * mm
+)
 
-# ===== EXPERIENCE =====
-story.extend(section('PROFESSIONAL EXPERIENCE'))
+skill_style = ParagraphStyle(
+    'Skill', fontName='LiberationSerif', fontSize=7.3, leading=9.5,
+    textColor=DARK_GRAY, alignment=TA_JUSTIFY, leftIndent=2 * mm,
+    spaceAfter=1.5 * mm
+)
 
-# --- Embafinans ---
-story.extend(sub('<b>Embafinans</b> | IT Business Analyst'))
-story.append(Paragraph('2025 - Present', small_muted))
-story.append(Paragraph('Risk Modeling / Scoring Squad - Cash Loan (RCASH) Decision Engine', small_muted))
+edu_style = ParagraphStyle(
+    'Edu', fontName='LiberationSerif', fontSize=7.5, leading=9.5,
+    textColor=DARK_GRAY, alignment=TA_LEFT, leftIndent=2 * mm,
+    spaceAfter=0.5 * mm
+)
 
-story.extend(body('<b>Decision Engine - Cut-off Rule Design:</b>'))
-story.extend(bullet('- Authored <b>25+ cut-off rules</b> (R_1010 to R_6040) organized in a <b>6-priority tiered framework</b>: '
-                   'Loan Workbench (blacklist, DTI, credit history) > ASAN Finans (age limits) > AKB Skor Servisi '
-                   '(stop-factors, scoring balance) > AKB Credit History (delinquency, active loan limits) > '
-                   'Workplace/Pension validation > Combined rules with exception logic'))
-story.extend(bullet('- Designed three-way routing: <b>Auto-Reject</b> (hard stop-factors with cooling-off periods), '
-                   '<b>Auto-Approve</b> (high-score customers, straight-through processing), and <b>Expert Review</b> '
-                   '(borderline cases routed to Loan Officer with decision window)'))
-story.extend(bullet('- Defined <b>stop-factors</b> (blacklist, active delinquency, expired contracts) vs '
-                   '<b>soft-factors</b> (thin credit file, new-to-credit, minor delinquency) triggering manual review'))
+lang_style = ParagraphStyle(
+    'Lang', fontName='LiberationSerif', fontSize=7.3, leading=9.5,
+    textColor=DARK_GRAY, alignment=TA_LEFT, leftIndent=2 * mm,
+    spaceAfter=0.5 * mm
+)
 
-story.extend(body('<b>Credit Scoring &amp; Risk Variables:</b>'))
-story.extend(bullet('- Configured scoring input variables: DTI (max 150%), residual income (min living costs by family size), '
-                   'delay ratio (overdue days / payment months), max overdue days (24-month lookback), active loan count limits'))
-story.extend(bullet('- Designed scorecard decision ranges (200-750: manual review, 751-1000: auto-approve) and '
-                   'integrated AKB Skor Servisi + ASAN Finans data for hybrid scoring'))
-story.extend(bullet('- Defined cooling-off rules: repeat application blocks after rejection (3/15/90 days by rejection type) '
-                   'and exception logic for customers with positive Embafinans history'))
+cert_style = ParagraphStyle(
+    'Cert', fontName='LiberationSerif', fontSize=7, leading=9,
+    textColor=MEDIUM_GRAY, alignment=TA_LEFT, leftIndent=2 * mm,
+    spaceAfter=0.5 * mm
+)
 
-story.extend(body('<b>Risk Assessment &amp; Delivery:</b>'))
-story.extend(bullet('- Authored BRD/FRD/SRS with REQ-101 traceability; prepared Swagger API specs and data mapping '
-                   'documents for developer handoff; coordinated UAT with structured bug triage (Critical/Major/Minor)'))
-story.extend(bullet('- Used SQL data analysis to resolve stakeholder conflicts (risk vs. sales); applied RICE framework '
-                   'for backlog prioritization; achieved on-time delivery across 4 production projects'))
 
-# --- Birbonus ---
-story.extend(sub('<b>Birbonus</b> | IT Business Analyst'))
-story.append(Paragraph('2024 - 2025', small_muted))
-story.extend(bullet('- Designed customer loyalty bonus system with earning rules, eligibility criteria, and partner settlement workflows; authored BRD and API specs'))
+def create_section_header(text, width=CONTENT_WIDTH):
+    """Create a colored section header bar"""
+    header_table = Table(
+        [[Paragraph(text, section_header_style)]],
+        colWidths=[width],
+        rowHeights=[5.5 * mm]
+    )
+    header_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), MEDIUM_BLUE),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 3 * mm),
+        ('TOPPADDING', (0, 0), (-1, -1), 1 * mm),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 1 * mm),
+    ]))
+    return header_table
 
-# --- Umico ---
-story.extend(sub('<b>Umico</b> | PostgreSQL Developer &amp; L2 Support'))
-story.append(Paragraph('2022 - 2024', small_muted))
-story.extend(bullet('- PostgreSQL backend development; L2 production incident resolution via ELK Stack log analysis; API integration onboarding support'))
 
-# ===== TECHNICAL FOUNDATION =====
-story.extend(section('TECHNICAL FOUNDATION'))
-story.extend(body(
-    '15+ years in software engineering (Central Bank of Azerbaijan, Unibank, ASAN Service) - C# backend, '
-    'databases (Oracle, MSSQL, PostgreSQL, MongoDB), system integration, CI/CD pipelines. '
-    'Enables precise requirement-to-code translation and deep understanding of banking core systems, '
-    'credit lifecycle, and regulatory compliance (Central Bank requirements).'
-))
+def create_thin_line(width=CONTENT_WIDTH):
+    """Create a thin separator line"""
+    line_table = Table(
+        [['']],
+        colWidths=[width],
+        rowHeights=[0.3 * mm]
+    )
+    line_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), LINE_COLOR),
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    return line_table
 
-# ===== EDUCATION =====
-story.extend(section('EDUCATION'))
-story.extend(body('Baku State University - Bachelor of Science in Applied Mathematics'))
 
-# -- Build --
-doc.build(story)
+def build_cv():
+    elements = []
 
-import os
-from pypdf import PdfReader
-r = PdfReader(OUTPUT)
-print(f"PDF: {OUTPUT} ({os.path.getsize(OUTPUT)/1024:.1f} KB, {len(r.pages)} page)")
+    # ============ HEADER ============
+    elements.append(Paragraph("ZAMIR JAMALOV", name_style))
+    elements.append(Paragraph("Business Analyst | Credit Scoring & Decision Engine", title_style))
+    elements.append(Paragraph(
+        "Baku, Azerbaijan  |  +994 50 123 45 67  |  zamir.jamalov@email.com  |  linkedin.com/in/zamirjamalov",
+        contact_style
+    ))
+    elements.append(Spacer(1, 2 * mm))
+
+    # ============ PROFESSIONAL SUMMARY ============
+    elements.append(create_section_header("PROFESSIONAL SUMMARY"))
+    elements.append(Spacer(1, 1.5 * mm))
+    elements.append(Paragraph(
+        "Results-driven Business Analyst with 5+ years of experience in financial technology, specializing in "
+        "credit scoring, decision engine optimization, and risk assessment frameworks. Proven track record of "
+        "designing and configuring multi-priority cut-off rule engines, integrating external data sources (ASAN Finans, "
+        "AKB Credit Bureau), and translating complex business requirements into actionable BRD/FRD specifications. "
+        "Skilled in agile methodologies, stakeholder management, and cross-functional collaboration between IT and business teams.",
+        skill_style
+    ))
+    elements.append(Spacer(1, 2 * mm))
+
+    # ============ WORK EXPERIENCE ============
+    elements.append(create_section_header("WORK EXPERIENCE"))
+    elements.append(Spacer(1, 1.5 * mm))
+
+    # --- Embafinans ---
+    elements.append(Paragraph("Embafinans (Non-Bank Credit Organization)", company_style))
+    elements.append(Paragraph("Senior Business Analyst - Credit Scoring & Decision Engine  |  2020 - Present", role_style))
+    elements.append(Spacer(1, 0.5 * mm))
+
+    bullets = [
+        (
+            "Credit Scoring & Decision Engine Design:",
+            "Designed and maintained a 6-priority auto-decisioning cut-off framework with 30+ rules "
+            "progressively filtering loan applications: internal blacklist screening, external data enrichment, "
+            "credit bureau scoring, credit history analysis, income validation, and combined risk assessment."
+        ),
+        (
+            "Score Matrix Configuration:",
+            "Configured scoring matrices by integrating data from multiple external services (ASAN Finans personal data, "
+            "SIMA personal information, AKB score, AKB credit history). Analyzed score distributions over time "
+            "and reconfigured weight parameters to optimize approval/rejection balance and minimize default risk."
+        ),
+        (
+            "Hybrid Scoring Model:",
+            "Developed a hybrid scoring approach combining external AKB credit bureau score with company-internal "
+            "risk score, enabling more granular applicant segmentation. Formulated personalized credit decision "
+            "logic tailored to individual applicant risk profiles."
+        ),
+        (
+            "Credit History Analytics:",
+            "Performed quantitative analysis on AKB credit history data to calculate customer payment behavior "
+            "metrics: calendar-based payment regularity tracking, loan amount distribution analysis, and credit "
+            "card utilization patterns computed using natural logarithm-based normalization methods."
+        ),
+        (
+            "Rule Engine Optimization:",
+            "Continuously analyzed decision outcomes and rule hit rates to identify bottlenecks, refined cut-off "
+            "thresholds, and introduced cooling-off period logic (3/15/90-day windows) for declined applicants "
+            "to balance risk control and approval conversion."
+        ),
+        (
+            "BRD/FRD & Stakeholder Management:",
+            "Documented business and functional requirements for scoring rule changes, coordinated with IT development "
+            "teams for UAT testing, and presented analysis findings and recommendations to management stakeholders."
+        ),
+    ]
+
+    for bold_part, detail in bullets:
+        elements.append(Paragraph(
+            f"<b>&#8226; {bold_part}</b> {detail}",
+            bullet_style
+        ))
+
+    elements.append(Spacer(1, 2 * mm))
+
+    # --- Previous experience placeholder ---
+    elements.append(Paragraph("Previous Roles", company_style))
+    elements.append(Paragraph("IT Support Specialist / Business Analyst  |  2016 - 2020", role_style))
+    elements.append(Spacer(1, 0.5 * mm))
+
+    prev_bullets = [
+        "Provided IT support and business analysis services across financial sector projects.",
+        "Collaborated with cross-functional teams to gather requirements and improve operational workflows.",
+        "Gained foundational experience in SQL querying, data analysis, and process documentation.",
+    ]
+    for b in prev_bullets:
+        elements.append(Paragraph(f"&#8226; {b}", bullet_style))
+
+    elements.append(Spacer(1, 2 * mm))
+
+    # ============ KEY COMPETENCIES ============
+    elements.append(create_section_header("KEY COMPETENCIES"))
+    elements.append(Spacer(1, 1.5 * mm))
+
+    competency_data = [
+        ["Credit Scoring & Risk Assessment", "Decision Engine / Rule Engine Design", "BRD / FRD / SRS Documentation"],
+        ["SQL & Data Analysis", "BPMN Process Modeling", "Agile / Scrum Methodology"],
+        ["UAT Testing & Coordination", "Stakeholder Management", "API Integration Requirements"],
+        ["Quantitative Risk Modeling", "Credit Bureau Data Analysis", "Cross-functional Team Collaboration"],
+    ]
+
+    competency_table = Table(competency_data, colWidths=[CONTENT_WIDTH/3]*3)
+    competency_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (-1, -1), 'LiberationSerif'),
+        ('FONTSIZE', (0, 0), (-1, -1), 6.8),
+        ('TEXTCOLOR', (0, 0), (-1, -1), DARK_GRAY),
+        ('LEADING', (0, 0), (-1, -1), 9),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('TOPPADDING', (0, 0), (-1, -1), 1 * mm),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 1 * mm),
+        ('LEFTPADDING', (0, 0), (-1, -1), 1 * mm),
+    ]))
+    elements.append(competency_table)
+    elements.append(Spacer(1, 2 * mm))
+
+    # ============ EDUCATION ============
+    elements.append(create_section_header("EDUCATION"))
+    elements.append(Spacer(1, 1.5 * mm))
+    elements.append(Paragraph(
+        "<b>Bachelor's Degree</b> - Information Technology / Business Administration",
+        edu_style
+    ))
+    elements.append(Spacer(1, 1.5 * mm))
+
+    # ============ LANGUAGES ============
+    elements.append(create_section_header("LANGUAGES"))
+    elements.append(Spacer(1, 1.5 * mm))
+    elements.append(Paragraph(
+        "Azerbaijani (Native)  |  English (B1 - Intermediate)  |  Russian (Fluent)",
+        lang_style
+    ))
+    elements.append(Spacer(1, 1.5 * mm))
+
+    # ============ CERTIFICATIONS ============
+    elements.append(create_section_header("CERTIFICATIONS & TOOLS"))
+    elements.append(Spacer(1, 1.5 * mm))
+    elements.append(Paragraph(
+        "SQL, MS Excel (Advanced), Jira, Confluence, Visio / Draw.io (BPMN), Postman (API Testing)",
+        cert_style
+    ))
+
+    return elements
+
+
+def main():
+    output_path = "/home/z/my-project/download/Zamir_Jamalov_Yelo_Bank_CV_v2.pdf"
+    doc = SimpleDocTemplate(
+        output_path,
+        pagesize=A4,
+        leftMargin=LEFT_MARGIN,
+        rightMargin=RIGHT_MARGIN,
+        topMargin=TOP_MARGIN,
+        bottomMargin=BOTTOM_MARGIN,
+    )
+    elements = build_cv()
+    doc.build(elements)
+    print(f"CV generated: {output_path}")
+
+
+if __name__ == "__main__":
+    main()

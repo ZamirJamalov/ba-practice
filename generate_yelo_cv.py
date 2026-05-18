@@ -114,27 +114,24 @@ story.append(Paragraph('Embafinans  |  IT Business Analyst', company_style))
 story.append(Paragraph('2025 - Present', date_style))
 
 story.append(Paragraph('Decision Engine - Cut-off Rule Design', subsec_style))
-story.extend(bullet('- Authored 25+ cut-off rules (R_1010 to R_6040) organized in a 6-priority tiered framework: '
+story.extend(bullet('- Authored 25+ cut-off rules (R_1010 to R_6040) in a 6-priority tiered framework: '
                    'Loan Workbench > ASAN Finans (personal data, age limits) > AKB Skor Servisi '
-                   '(stop-factors, scoring balance) > AKB Credit History (delinquency, active loan limits) > '
-                   'Workplace/Pension validation > Combined rules with exception logic'))
-story.extend(bullet('- Designed three-way routing: Auto-Reject (hard stop-factors with cooling-off periods), '
-                   'Auto-Approve (high-score customers, straight-through processing), and Expert Review '
-                   '(borderline cases routed to Loan Officer with decision window)'))
+                   '> AKB Credit History > Workplace/Pension validation > Combined rules'))
+story.extend(bullet('- Designed three-way routing: Auto-Reject (hard stop-factors), Auto-Approve (high-score), '
+                   'and Expert Review (borderline cases routed to Loan Officer)'))
 
 story.append(Paragraph('Credit Scoring & Risk Variables', subsec_style))
 story.extend(bullet('- Configured scoring matrices integrating data from ASAN Finans, SIMA, AKB score, and AKB credit history; '
-                   'analyzed score distributions over time and reconfigured weight parameters to optimize approval/rejection balance'))
+                   'analyzed score distributions and reconfigured weight parameters to optimize approval/rejection balance'))
 story.extend(bullet('- Developed hybrid scoring model combining external AKB bureau score with company-internal risk score; '
-                   'formulated personalized credit decision logic tailored to individual applicant risk profiles'))
-story.extend(bullet('- Performed quantitative analysis on AKB credit history: calendar-based payment regularity, '
-                   'loan amount distribution, and credit card utilization computed using natural logarithm-based normalization'))
-story.extend(bullet('- Defined cooling-off rules (3/15/90-day blocks) and exception logic for repeat applicants'))
+                   'formulated personalized credit decision logic for individual applicant risk profiles'))
+story.extend(bullet('- Performed quantitative analysis on AKB credit history: payment regularity, loan amount distribution, '
+                   'and credit card utilization computed using natural logarithm-based normalization'))
 
 story.append(Paragraph('Risk Assessment & Delivery', subsec_style))
 story.extend(bullet('- Authored BRD/FRD/SRS with REQ-101 traceability; prepared Swagger API specs and data mapping '
-                   'documents for developer handoff; coordinated UAT with structured bug triage (Critical/Major/Minor)'))
-story.extend(bullet('- Used SQL data analysis to resolve stakeholder conflicts (risk vs. sales); applied RICE framework '
+                   'documents; coordinated UAT with structured bug triage (Critical/Major/Minor)'))
+story.extend(bullet('- Used SQL data analysis to resolve stakeholder conflicts; applied RICE framework '
                    'for backlog prioritization; achieved on-time delivery across 4 production projects'))
 
 # --- Birbonus ---
@@ -152,20 +149,20 @@ story.extend(bullet('- Built backend features using PostgreSQL, resolved L2 prod
 # ===== TECHNICAL FOUNDATION =====
 story.extend(section('TECHNICAL FOUNDATION'))
 story.extend(body(
-    '15+ years in software engineering (Central Bank of Azerbaijan, Unibank, ASAN Service). As PL/SQL backend developer, '
-    'participated in a core banking system built from scratch, developing key modules including chart of accounts (hesabatlari plani), '
-    'accounting transactions (muhasibat ugurlamalari), currency exchange (valyuta mubadilesi), and credit lifecycle module. '
-    'C# backend development, relational databases (Oracle, MSSQL, PostgreSQL) and NoSQL (MongoDB), system integration, Git, and CI/CD pipelines. '
+    'As PL/SQL backend developer, participated in a core banking system built from scratch at Unibank, developing key modules '
+    'including general ledger / chart of accounts, accounting transactions and postings, currency exchange operations, '
+    'and credit lifecycle module. Additionally, 15+ years across Central Bank of Azerbaijan and ASAN Service covering '
+    'C# backend development, Oracle / MSSQL / PostgreSQL / MongoDB databases, system integration, Git, and CI/CD pipelines. '
     'Enables precise requirement-to-code translation and deep understanding of banking core systems.'
 ))
 
-# ===== EDUCATION & CERTIFICATIONS =====
-story.extend(section('EDUCATION &amp; CERTIFICATIONS'))
+# ===== TRAINING & EDUCATION =====
+story.extend(section('TRAINING &amp; EDUCATION'))
+story.append(Paragraph('Innab Training Center  |  Corporate Data Analytics Trainer', company_style))
+story.append(Paragraph('Delivered corporate Python data analytics training for Bank of Baku and SOCAR Upstream, adapting content '
+                   'to each organization\'s real datasets. Focus on descriptive and diagnostic analysis, enabling professionals '
+                   'to uncover patterns, trends, and root causes in their operational data.', body_style))
 story.extend(body('Baku State University - Bachelor of Science in Applied Mathematics'))
-story.extend(body(
-    'Innab Training Center - Data Analytics with Python: Descriptive &amp; diagnostic analysis, hypothesis testing, '
-    'regression modeling, and statistical inference using Python (pandas, NumPy, scikit-learn)'
-))
 
 # -- Build --
 doc.build(story)

@@ -149,9 +149,9 @@ story.extend(bullet('- Built backend features using PostgreSQL, resolved L2 prod
 # ===== TECHNICAL FOUNDATION =====
 story.extend(section('TECHNICAL FOUNDATION'))
 story.extend(body(
-    'As PL/SQL backend developer, participated in a core banking system built from scratch at Unibank, developing key modules '
+    'As PL/SQL backend developer, participated in a core banking system built from scratch, developing key modules '
     'including general ledger / chart of accounts, accounting transactions and postings, currency exchange operations, '
-    'and credit lifecycle module. Additionally, 15+ years across Central Bank of Azerbaijan and ASAN Service covering '
+    'and credit lifecycle module. Additionally, 15+ years across Central Bank of Azerbaijan, Unibank, and ASAN Service covering '
     'C# backend development, Oracle / MSSQL / PostgreSQL / MongoDB databases, system integration, Git, and CI/CD pipelines. '
     'Enables precise requirement-to-code translation and deep understanding of banking core systems.'
 ))

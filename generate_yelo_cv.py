@@ -69,7 +69,8 @@ story.extend(section('PROFILE SUMMARY'))
 story.extend(body(
     'Business Analyst with 2+ years in fintech, specializing in credit scoring, decision engine rule design, '
     'and risk assessment change requests. Engineering background enables precise translation of complex risk logic '
-    'into developer-ready specifications. Having authored 25+ cut-off rules across a 6-priority tiered decision framework, '
+    'into developer-ready specifications. Proficient in Python-based data analytics including descriptive and diagnostic analysis, '
+    'hypothesis testing, and regression modeling. Having authored 25+ cut-off rules across a 6-priority tiered decision framework, '
     'looking to apply the same analytical approach to drive measurable risk optimization outcomes.'
 ))
 
@@ -87,12 +88,13 @@ sk_data = [
               'Gap Analysis | Stakeholder Interviews | RICE Prioritization', skill_val_style)],
     [Paragraph('<b>Technical:</b>', skill_cat_style),
      Paragraph('<b>Process &amp; Tools:</b>', skill_cat_style)],
-    [Paragraph('SQL (Advanced Data Analysis) | REST API &amp; JSON | Swagger / OpenAPI 3.0 | '
-              'Postman (API Testing) | Databases (Oracle, PostgreSQL, MongoDB)', skill_val_style),
+    [Paragraph('SQL (Advanced Data Analysis) | Python (Data Analytics, pandas, NumPy) | REST API &amp; JSON | '
+              'Swagger / OpenAPI 3.0 | Postman | Databases (Oracle, PostgreSQL, MongoDB)', skill_val_style),
      Paragraph('Agile / Scrum | Jira | Confluence | UAT Planning &amp; Coordination | '
               'Change Requests | Bug Triage (Critical / Major / Minor)', skill_val_style)],
-    [Paragraph('<b>Languages:</b> Azerbaijani (Native) | Russian (Fluent) | English (Professional / Technical Documentation)', skill_val_style),
-     Paragraph('', skill_val_style)],
+    [Paragraph('<b>Data Analytics:</b> Descriptive &amp; Diagnostic Analysis | Hypothesis Testing | Regression Modeling | '
+              'Statistical Analysis (Python)', skill_val_style),
+     Paragraph('<b>Languages:</b> Azerbaijani (Native) | Russian (Fluent) | English (Professional / Technical Documentation)', skill_val_style)],
 ]
 sk_table = Table(sk_data, colWidths=[AW*0.52, AW*0.48], hAlign='LEFT')
 sk_table.setStyle(TableStyle([
@@ -150,14 +152,20 @@ story.extend(bullet('- Built backend features using PostgreSQL, resolved L2 prod
 # ===== TECHNICAL FOUNDATION =====
 story.extend(section('TECHNICAL FOUNDATION'))
 story.extend(body(
-    '15+ years in software engineering (Central Bank of Azerbaijan, Unibank, ASAN Service) - C# backend development, '
-    'relational databases (Oracle, MSSQL, PostgreSQL) and NoSQL (MongoDB), system integration, Git, and CI/CD pipelines. '
-    'Enables precise requirement-to-code translation and rapid root cause analysis during production incidents.'
+    '15+ years in software engineering (Central Bank of Azerbaijan, Unibank, ASAN Service). As PL/SQL backend developer, '
+    'participated in a core banking system built from scratch, developing key modules including chart of accounts (hesabatlari plani), '
+    'accounting transactions (muhasibat ugurlamalari), currency exchange (valyuta mubadilesi), and credit lifecycle module. '
+    'C# backend development, relational databases (Oracle, MSSQL, PostgreSQL) and NoSQL (MongoDB), system integration, Git, and CI/CD pipelines. '
+    'Enables precise requirement-to-code translation and deep understanding of banking core systems.'
 ))
 
-# ===== EDUCATION =====
-story.extend(section('EDUCATION'))
+# ===== EDUCATION & CERTIFICATIONS =====
+story.extend(section('EDUCATION &amp; CERTIFICATIONS'))
 story.extend(body('Baku State University - Bachelor of Science in Applied Mathematics'))
+story.extend(body(
+    'Innab Training Center - Data Analytics with Python: Descriptive &amp; diagnostic analysis, hypothesis testing, '
+    'regression modeling, and statistical inference using Python (pandas, NumPy, scikit-learn)'
+))
 
 # -- Build --
 doc.build(story)

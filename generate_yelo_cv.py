@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
 Zamir Jamalov - IT Business Analyst CV for Yelo Bank (Risk Modeling / Scoring Squad)
-1 page, compressed format.
+Version 2: Professional depth without excessive detail. 1 page.
 """
 
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import cm, mm
+from reportlab.lib.units import cm
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 from reportlab.lib import colors
@@ -20,35 +20,27 @@ from reportlab.pdfbase.pdfmetrics import registerFontFamily
 pdfmetrics.registerFont(TTFont('Cal', '/usr/share/fonts/truetype/english/Carlito-Regular.ttf'))
 pdfmetrics.registerFont(TTFont('CalB', '/usr/share/fonts/truetype/english/Carlito-Bold.ttf'))
 pdfmetrics.registerFont(TTFont('CalI', '/usr/share/fonts/truetype/english/Carlito-Italic.ttf'))
-pdfmetrics.registerFont(TTFont('CalBI', '/usr/share/fonts/truetype/english/Carlito-BoldItalic.ttf'))
-registerFontFamily('Cal', normal='Cal', bold='CalB', italic='CalI', boldItalic='CalBI')
+registerFontFamily('Cal', normal='Cal', bold='CalB', italic='CalI')
 
 # -- Colors --
 ACCENT = colors.HexColor('#1a6b7a')
 DARK = colors.HexColor('#1e1e1e')
 MUTED = colors.HexColor('#555555')
-LINE = colors.HexColor('#cccccc')
-LIGHT_BG = colors.HexColor('#f7f9fa')
 
 # -- Styles --
-name_style = ParagraphStyle(name='Name', fontName='CalB', fontSize=18, leading=22, textColor=ACCENT, alignment=TA_CENTER)
-title_style = ParagraphStyle(name='Title', fontName='Cal', fontSize=10, leading=13, textColor=MUTED, alignment=TA_CENTER)
-contact_style = ParagraphStyle(name='Contact', fontName='Cal', fontSize=8.5, leading=11, textColor=MUTED, alignment=TA_CENTER)
+name_style = ParagraphStyle(name='Name', fontName='CalB', fontSize=17, leading=21, textColor=ACCENT, alignment=TA_CENTER)
+title_style = ParagraphStyle(name='Title', fontName='Cal', fontSize=9.5, leading=12, textColor=MUTED, alignment=TA_CENTER)
+contact_style = ParagraphStyle(name='Contact', fontName='Cal', fontSize=8, leading=10, textColor=MUTED, alignment=TA_CENTER)
+section_style = ParagraphStyle(name='Section', fontName='CalB', fontSize=9.5, leading=12, textColor=ACCENT, spaceBefore=4, spaceAfter=1)
+sub_style = ParagraphStyle(name='Sub', fontName='CalB', fontSize=8.5, leading=11, textColor=DARK, spaceBefore=2, spaceAfter=0.5)
+body_style = ParagraphStyle(name='Body', fontName='Cal', fontSize=8, leading=10.5, textColor=DARK, spaceAfter=1.5, alignment=TA_JUSTIFY)
+bullet_style = ParagraphStyle(name='Bullet', fontName='Cal', fontSize=7.8, leading=10, textColor=DARK, leftIndent=7, bulletIndent=0, spaceAfter=0.5)
+skill_style = ParagraphStyle(name='Skill', fontName='Cal', fontSize=7.8, leading=10, textColor=DARK, leftIndent=3, spaceAfter=0.3)
+small_muted = ParagraphStyle(name='SmallM', fontName='CalI', fontSize=7, leading=9, textColor=MUTED, spaceAfter=0.5)
+tag_style = ParagraphStyle(name='Tag', fontName='CalB', fontSize=7.5, leading=9.5, textColor=ACCENT)
 
-section_style = ParagraphStyle(name='Section', fontName='CalB', fontSize=10, leading=13, textColor=ACCENT, spaceBefore=5, spaceAfter=2)
-sub_style = ParagraphStyle(name='Sub', fontName='CalB', fontSize=9, leading=12, textColor=DARK, spaceBefore=3, spaceAfter=1)
-body_style = ParagraphStyle(name='Body', fontName='Cal', fontSize=8.5, leading=11.5, textColor=DARK, spaceAfter=1, alignment=TA_JUSTIFY)
-bullet_style = ParagraphStyle(name='Bullet', fontName='Cal', fontSize=8, leading=10.5, textColor=DARK, leftIndent=8, bulletIndent=0, spaceAfter=0.5)
-skill_style = ParagraphStyle(name='Skill', fontName='Cal', fontSize=8, leading=10.5, textColor=DARK, leftIndent=4, spaceAfter=0.3)
-small_muted = ParagraphStyle(name='SmallM', fontName='CalI', fontSize=7.5, leading=10, textColor=MUTED, spaceAfter=1)
-
-# -- Helpers --
 def section(text):
-    return [
-        Spacer(1, 3),
-        HRFlowable(width="100%", thickness=0.8, color=ACCENT, spaceAfter=1),
-        Paragraph(text, section_style),
-    ]
+    return [Spacer(1,2), HRFlowable(width="100%", thickness=0.7, color=ACCENT, spaceAfter=1), Paragraph(text, section_style)]
 
 def sub(text):
     return [Paragraph(text, sub_style)]
@@ -59,116 +51,106 @@ def body(text):
 def bullet(text):
     return [Paragraph(text, bullet_style)]
 
-def skill_line(text):
-    return [Paragraph(text, skill_line)]
-
 # -- Build --
 OUTPUT = '/home/z/my-project/download/Zamir_Jamalov_Yelo_Bank_CV.pdf'
 W, H = A4
-LM, RM, TM, BM = 1.4*cm, 1.4*cm, 1.2*cm, 1.2*cm
+LM, RM, TM, BM = 1.3*cm, 1.3*cm, 1.1*cm, 1.1*cm
 AW = W - LM - RM
 
 doc = SimpleDocTemplate(OUTPUT, pagesize=A4, leftMargin=LM, rightMargin=RM, topMargin=TM, bottomMargin=BM)
-
 story = []
 
 # ===== HEADER =====
 story.append(Paragraph('<b>ZAMIR JAMALOV</b>', name_style))
 story.append(Paragraph('IT Business Analyst | Risk Modeling &amp; Scoring', title_style))
-story.append(Spacer(1, 2))
+story.append(Spacer(1,1))
 story.append(Paragraph('+994 55 207 7228 | jamalov.zamir@gmail.com | Baku, Azerbaijan', contact_style))
-story.append(Spacer(1, 4))
 
-# ===== PROFILE SUMMARY =====
+# ===== PROFILE =====
 story.extend(section('PROFILE SUMMARY'))
 story.extend(body(
-    'Business Analyst with 2+ years in fintech, specializing in <b>credit scoring, antifraud systems, '
-    'risk assessment, and decision engine</b> change requests. Engineering background (15+ years) enables '
-    'precise translation of complex risk rules into technical specifications for development teams. '
-    'Delivered production scoring and credit lifecycle systems, bridging business, risk, and IT.'
+    'Business Analyst with 2+ years in fintech, specializing in <b>credit scoring, decision engine rule design, '
+    'and risk assessment</b> change requests. Authored 25+ cut-off rules across a 6-priority tiered decision '
+    'framework for straight-through processing. 15+ years of software engineering background enables precise '
+    'translation of complex risk logic into developer-ready specifications.'
 ))
 
-# ===== CORE SKILLS =====
+# ===== SKILLS =====
 story.extend(section('CORE SKILLS'))
-
-# Skills table - 2 columns
-skills_left = [
-    '<b>Risk &amp; Scoring:</b> Credit Scoring Models | Decision Engine &amp; Rule Engine | Antifraud Systems | '
-    'Risk Assessment | Scorecards | Cut-off Matrices | DTI / Residual Income | IFRS 9 Classification',
-    '<b>BA Documentation:</b> BRD / FRD / SRS | User Stories (Gherkin) | BPMN (As-Is / To-Be) | '
-    'UML | Use Cases | Process Flow | Change Requests | API Specification (Swagger/OpenAPI 3.0)',
-]
-skills_right = [
-    '<b>Technical:</b> SQL (Advanced - Data Analysis &amp; Validation) | REST API &amp; JSON | Postman | '
-    'Database Concepts (Oracle, PostgreSQL, MongoDB) | BPM/JBPM Workflow | Data Mapping',
-    '<b>Tools &amp; Methods:</b> Jira | Confluence | Agile/Scrum | UAT Planning &amp; Bug Triage | '
-    'RICE Prioritization | L2 Production Support (ELK Stack)',
-]
-
 sk_data = [[
-    Paragraph(skills_left[0], skill_style),
-    Paragraph(skills_right[0], skill_style),
+    Paragraph('<b>Risk &amp; Scoring:</b> Credit Scoring | Decision Engine / Rule Engine | Cut-off Rule Design '
+              '(Auto-Reject / Auto-Approve / Expert Routing) | Scorecard Matrices | DTI Analysis | '
+              'Risk Variables (Delay Ratio, Credit History Depth) | Stop-Factor vs Soft-Factor Logic | '
+              'Cooling-off Periods | Exception Handling | IFRS 9 Awareness', skill_style),
+    Paragraph('<b>Technical:</b> SQL (Advanced Data Analysis) | REST API &amp; JSON | Swagger/OpenAPI 3.0 | '
+              'Postman | Database Concepts (Oracle, PostgreSQL, MongoDB) | BPMN Process Modeling | '
+              'Data Mapping | Sequence Diagrams', skill_style),
 ], [
-    Paragraph(skills_left[1], skill_style),
-    Paragraph(skills_right[1], skill_style),
-], [
-    Paragraph('<b>Languages:</b> Azerbaijani (Native) | Russian (Fluent) | English (Professional / Technical)', skill_style),
-    Paragraph('', skill_style),
+    Paragraph('<b>BA Toolkit:</b> BRD / FRD / SRS (REQ-101 Traceability) | User Stories (Gherkin Acceptance Criteria) | '
+              'Change Requests | UAT Planning &amp; Bug Triage | RICE Prioritization | '
+              'Jira | Confluence | Agile/Scrum', skill_style),
+    Paragraph('<b>Languages:</b> Azerbaijani (Native) | Russian (Fluent) | English (Professional / Technical Documentation)', skill_style),
 ]]
 sk_table = Table(sk_data, colWidths=[AW*0.52, AW*0.48], hAlign='LEFT')
 sk_table.setStyle(TableStyle([
     ('VALIGN', (0,0), (-1,-1), 'TOP'),
     ('LEFTPADDING', (0,0), (-1,-1), 0),
-    ('RIGHTPADDING', (0,0), (-1,-1), 4),
+    ('RIGHTPADDING', (0,0), (-1,-1), 3),
     ('TOPPADDING', (0,0), (-1,-1), 0),
     ('BOTTOMPADDING', (0,0), (-1,-1), 0),
 ]))
 story.append(sk_table)
 
-# ===== PROFESSIONAL EXPERIENCE =====
+# ===== EXPERIENCE =====
 story.extend(section('PROFESSIONAL EXPERIENCE'))
 
 # --- Embafinans ---
-story.append(Paragraph('<b>Embafinans</b> | IT Business Analyst', sub_style))
+story.extend(sub('<b>Embafinans</b> | IT Business Analyst'))
 story.append(Paragraph('2025 - Present', small_muted))
-story.extend(body('Risk Modeling &amp; Scoring Squad - Credit Scoring, Antifraud, Risk Assessment, Decision Engine'))
+story.append(Paragraph('Risk Modeling / Scoring Squad - Cash Loan (RCASH) Decision Engine', small_muted))
 
-story.extend(body('<b>Credit Scoring Systems:</b>'))
-story.extend(bullet('- Designed hybrid scoring algorithms integrating ASAN Finans and AKB data for customer risk scoring; formulated DTI and Residual Income validation rules with auto-reject logic (code 005)'))
-story.extend(bullet('- Architected Scorecard matrices (0-149: Auto Reject, 150-750: Manual Review, >750: Auto Approve) and defined complex scoring variables (Monthly Delay Ratio, Max Overdue Days) for Clojure scripts'))
+story.extend(body('<b>Decision Engine - Cut-off Rule Design:</b>'))
+story.extend(bullet('- Authored <b>25+ cut-off rules</b> (R_1010 to R_6040) organized in a <b>6-priority tiered framework</b>: '
+                   'Loan Workbench (blacklist, DTI, credit history) > ASAN Finans (age limits) > AKB Skor Servisi '
+                   '(stop-factors, scoring balance) > AKB Credit History (delinquency, active loan limits) > '
+                   'Workplace/Pension validation > Combined rules with exception logic'))
+story.extend(bullet('- Designed three-way routing: <b>Auto-Reject</b> (hard stop-factors with cooling-off periods), '
+                   '<b>Auto-Approve</b> (high-score customers, straight-through processing), and <b>Expert Review</b> '
+                   '(borderline cases routed to Loan Officer with decision window)'))
+story.extend(bullet('- Defined <b>stop-factors</b> (blacklist, active delinquency, expired contracts) vs '
+                   '<b>soft-factors</b> (thin credit file, new-to-credit, minor delinquency) triggering manual review'))
 
-story.extend(body('<b>Antifraud Systems:</b>'))
-story.extend(bullet('- Designed SIMA KYC biometric verification integration with async validation and auto-block scenarios (error codes 1001, 1003)'))
-story.extend(bullet('- Implemented Sanction Scanner and Blacklist checking with auto-reject logic (code 180) and dynamic cooling-off rules (15/90 day blocks) for repeat fraudulent applications'))
+story.extend(body('<b>Credit Scoring &amp; Risk Variables:</b>'))
+story.extend(bullet('- Configured scoring input variables: DTI (max 150%), residual income (min living costs by family size), '
+                   'delay ratio (overdue days / payment months), max overdue days (24-month lookback), active loan count limits'))
+story.extend(bullet('- Designed scorecard decision ranges (200-750: manual review, 751-1000: auto-approve) and '
+                   'integrated AKB Skor Servisi + ASAN Finans data for hybrid scoring'))
+story.extend(bullet('- Defined cooling-off rules: repeat application blocks after rejection (3/15/90 days by rejection type) '
+                   'and exception logic for customers with positive Embafinans history'))
 
-story.extend(body('<b>Risk Assessment:</b>'))
-story.extend(bullet('- Formulated pre/post-disbursement risk rules including age limit bypass, PAR/IFRS 9 classification logic (Stage 1/2/3), and collateral LTV ratio calculations for credit limit management'))
-
-story.extend(body('<b>Decision Engine &amp; Workflow:</b>'))
-story.extend(bullet('- Systematized 7-level priority cut-off rules (R_1020 to R_5030) for straight-through processing with auto-cancel triggers; designed smart routing algorithms for auto-assignment to Loan Officers based on amount/risk'))
-story.extend(bullet('- Designed refinancing (close-open) scenarios with auto-deduction waterfall (principal + interest + penalty) and BPM/JBPM lifecycle transitions (S001-S006)'))
-
-story.extend(body('<b>Delivery &amp; Coordination:</b>'))
-story.extend(bullet('- Authored BRD/FRD/SRS with REQ-101 traceability; prepared Swagger API specs and data mapping documents for developer handoff; coordinated UAT with bug triage'))
-story.extend(bullet('- Used SQL data analysis to resolve stakeholder conflicts (risk vs. sales); applied RICE framework for backlog prioritization'))
+story.extend(body('<b>Risk Assessment &amp; Delivery:</b>'))
+story.extend(bullet('- Authored BRD/FRD/SRS with REQ-101 traceability; prepared Swagger API specs and data mapping '
+                   'documents for developer handoff; coordinated UAT with structured bug triage (Critical/Major/Minor)'))
+story.extend(bullet('- Used SQL data analysis to resolve stakeholder conflicts (risk vs. sales); applied RICE framework '
+                   'for backlog prioritization; achieved on-time delivery across 4 production projects'))
 
 # --- Birbonus ---
-story.append(Paragraph('<b>Birbonus</b> | IT Business Analyst', sub_style))
+story.extend(sub('<b>Birbonus</b> | IT Business Analyst'))
 story.append(Paragraph('2024 - 2025', small_muted))
-story.extend(bullet('- Designed customer loyalty bonus system with earning rules, eligibility criteria, and partner settlement workflows; authored BRD and API integration specs'))
+story.extend(bullet('- Designed customer loyalty bonus system with earning rules, eligibility criteria, and partner settlement workflows; authored BRD and API specs'))
 
 # --- Umico ---
-story.append(Paragraph('<b>Umico</b> | PostgreSQL Developer &amp; L2 Support', sub_style))
+story.extend(sub('<b>Umico</b> | PostgreSQL Developer &amp; L2 Support'))
 story.append(Paragraph('2022 - 2024', small_muted))
-story.extend(bullet('- Built backend features using PostgreSQL; resolved L2 production incidents via ELK Stack log analysis; supported partner teams with API integration onboarding'))
+story.extend(bullet('- PostgreSQL backend development; L2 production incident resolution via ELK Stack log analysis; API integration onboarding support'))
 
 # ===== TECHNICAL FOUNDATION =====
 story.extend(section('TECHNICAL FOUNDATION'))
 story.extend(body(
     '15+ years in software engineering (Central Bank of Azerbaijan, Unibank, ASAN Service) - C# backend, '
     'databases (Oracle, MSSQL, PostgreSQL, MongoDB), system integration, CI/CD pipelines. '
-    'Enables precise requirement-to-code translation and rapid root cause analysis. Deep understanding '
-    'of banking core systems, credit lifecycle, and regulatory compliance.'
+    'Enables precise requirement-to-code translation and deep understanding of banking core systems, '
+    'credit lifecycle, and regulatory compliance (Central Bank requirements).'
 ))
 
 # ===== EDUCATION =====
@@ -178,7 +160,7 @@ story.extend(body('Baku State University - Bachelor of Science in Applied Mathem
 # -- Build --
 doc.build(story)
 
-# Check page count
 import os
-size = os.path.getsize(OUTPUT)
-print(f"PDF: {OUTPUT} ({size/1024:.1f} KB)")
+from pypdf import PdfReader
+r = PdfReader(OUTPUT)
+print(f"PDF: {OUTPUT} ({os.path.getsize(OUTPUT)/1024:.1f} KB, {len(r.pages)} page)")

@@ -88,7 +88,7 @@ sk_data = [
     [Paragraph('<b>Technical:</b>', skill_cat_style),
      Paragraph('<b>Process &amp; Tools:</b>', skill_cat_style)],
     [Paragraph('SQL (Advanced Data Analysis) | Python (Data Analytics, pandas, NumPy) | REST API &amp; JSON | '
-              'Swagger / OpenAPI 3.0 | Postman | Databases (Oracle, PostgreSQL, MongoDB)', skill_val_style),
+              'Swagger / OpenAPI 3.0 | Postman | SOAP / XML | Databases (Oracle, PostgreSQL, MongoDB)', skill_val_style),
      Paragraph('Agile / Scrum | Jira | Confluence | UAT Planning &amp; Coordination | '
               'Change Requests | Bug Triage (Critical / Major / Minor)', skill_val_style)],
     [Paragraph('<b>Data Analytics:</b> Descriptive &amp; Diagnostic Analysis | Hypothesis Testing | Regression Modeling | '

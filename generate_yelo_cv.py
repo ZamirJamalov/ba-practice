@@ -52,7 +52,7 @@ def bullet(text):
 # -- Build --
 OUTPUT = '/home/z/my-project/download/Zamir_Jamalov_Yelo_Bank_CV.pdf'
 W, H = A4
-LM, RM, TM, BM = 1.4*cm, 1.4*cm, 1.2*cm, 1.2*cm
+LM, RM, TM, BM = 1.3*cm, 1.3*cm, 1.0*cm, 1.0*cm
 AW = W - LM - RM
 
 doc = SimpleDocTemplate(OUTPUT, pagesize=A4, leftMargin=LM, rightMargin=RM, topMargin=TM, bottomMargin=BM)
@@ -121,18 +121,19 @@ story.extend(bullet('- Designed three-way routing: Auto-Reject (hard stop-factor
 
 story.append(Paragraph('Credit Scoring & Risk Variables', subsec_style))
 story.extend(bullet('- Configured scoring matrices integrating data from ASAN Personal Info, ASAN Finance, ASAN Pension Info, '
-                   'SIMA, AKB Score, and AKB History; '
-                   'analyzed score distributions and reconfigured weight parameters to optimize approval/rejection balance'))
+                   'SIMA, AKB Score, and AKB History; analyzed score distributions to optimize approval/rejection balance'))
 story.extend(bullet('- Developed hybrid scoring model combining external AKB bureau score with company-internal risk score; '
-                   'formulated personalized credit decision logic for individual applicant risk profiles'))
-story.extend(bullet('- Performed quantitative analysis on AKB credit history: payment regularity, loan amount distribution, '
+                   'formulated personalized credit decision logic for individual applicant profiles'))
+story.extend(bullet('- Performed quantitative analysis on AKB History: payment regularity, loan amount distribution, '
                    'and credit card utilization computed using natural logarithm-based normalization'))
 
-story.append(Paragraph('Risk Assessment', subsec_style))
-story.extend(bullet('- Designed stop-factors for SME and retail credits including age limit controls '
-                   'and bypass mechanism for authorized experts'))
-story.extend(bullet('- Defined end-of-day batch logic for daysInArrear, Risk Class (Low/Medium/High), '
-                   'and IFRS 9 stages (1, 2, 3); structured portfolio-at-risk reports (30-120+ day buckets)'))
+story.append(Paragraph('Risk Assessment & Model Optimization', subsec_style))
+story.extend(bullet('- Monitored scoring model performance and optimized cut-off thresholds with risk team; '
+                   'analyzed score distributions and approval/rejection ratios to recalibrate decision boundaries'))
+story.extend(bullet('- Controlled data quality of scoring inputs (ASAN services, AKB bureau, SIMA); identified anomalies '
+                   'and coordinated with IT to resolve integration issues'))
+story.extend(bullet('- Defined antifraud detection rules within decision engine; structured risk indicators '
+                   'for pre-disbursement screening based on behavioral and historical patterns'))
 
 story.append(Paragraph('Delivery & Coordination', subsec_style))
 story.extend(bullet('- Authored BRD/FRD/SRS with REQ-101 traceability; prepared Swagger API specs; '
@@ -154,10 +155,9 @@ story.extend(bullet('- PostgreSQL backend development; L2 production incident re
 story.extend(section('TECHNICAL FOUNDATION'))
 story.extend(body(
     'As PL/SQL backend developer, participated in a core banking system built from scratch, developing key modules '
-    'including general ledger / chart of accounts, accounting transactions and postings, currency exchange operations, '
-    'and credit lifecycle module. Additionally, 15+ years across Central Bank of Azerbaijan, Unibank, and ASAN Service covering '
-    'C# backend development, Oracle / MSSQL / PostgreSQL / MongoDB databases, system integration, Git, and CI/CD pipelines. '
-    'Enables precise requirement-to-code translation and deep understanding of banking core systems.'
+    'including general ledger / chart of accounts, accounting transactions, currency exchange, and credit lifecycle. '
+    '15+ years across Central Bank of Azerbaijan, Unibank, and ASAN Service covering C# backend, '
+    'Oracle / MSSQL / PostgreSQL / MongoDB, system integration, and CI/CD pipelines.'
 ))
 
 # ===== TRAINING & EDUCATION =====

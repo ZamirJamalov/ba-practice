@@ -115,13 +115,14 @@ story.append(Paragraph('2025 - Present', date_style))
 
 story.append(Paragraph('Decision Engine - Cut-off Rule Design', subsec_style))
 story.extend(bullet('- Authored 25+ cut-off rules in a 6-priority tiered framework: '
-                   'Loan Workbench > ASAN Finance (personal data, age limits) > AKB Skor Servisi '
-                   '> AKB Credit History > Workplace/Pension validation > Combined rules'))
+                   'ASAN Personal Info (personal data, age limits) > ASAN Finance (workplace) > AKB Score (score data, stop-factors) '
+                   '> AKB History (credit records, overdue days) > ASAN Pension Info (pension data) > Combined rules'))
 story.extend(bullet('- Designed three-way routing: Auto-Reject (hard stop-factors), Auto-Approve (high-score), '
                    'and Expert Review (borderline cases routed to Loan Officer)'))
 
 story.append(Paragraph('Credit Scoring & Risk Variables', subsec_style))
-story.extend(bullet('- Configured scoring matrices integrating data from ASAN Finance, SIMA, AKB score, and AKB credit history; '
+story.extend(bullet('- Configured scoring matrices integrating data from ASAN Personal Info, ASAN Finance, ASAN Pension Info, '
+                   'SIMA, AKB Score, and AKB History; '
                    'analyzed score distributions and reconfigured weight parameters to optimize approval/rejection balance'))
 story.extend(bullet('- Developed hybrid scoring model combining external AKB bureau score with company-internal risk score; '
                    'formulated personalized credit decision logic for individual applicant risk profiles'))

@@ -70,7 +70,7 @@ story.extend(body(
     'Business Analyst with 2+ years in fintech, specializing in credit scoring, decision engine rule design, '
     'and risk assessment. Engineering background enables precise translation of risk logic into developer-ready specs. '
     'Proficient in Python-based data analytics (descriptive/diagnostic analysis, hypothesis testing, regression). '
-    'Having authored 25+ cut-off rules across a 6-priority decision framework, looking to drive measurable risk optimization outcomes.'
+    'Having designed 25+ cut-off rules across a 6-priority decision framework, looking to drive measurable risk optimization outcomes.'
 ))
 
 # ===== SKILLS =====
@@ -113,7 +113,7 @@ story.append(Paragraph('Embafinans  |  IT Business Analyst', company_style))
 story.append(Paragraph('2025 - Present', date_style))
 
 story.append(Paragraph('Decision Engine - Cut-off Rule Design', subsec_style))
-story.extend(bullet('- Authored 25+ cut-off rules in a 6-priority tiered framework: '
+story.extend(bullet('- Designed 25+ cut-off rules in a 6-priority tiered framework: '
                    'ASAN Personal Info (personal data, age limits) > ASAN Finance (workplace) > AKB Score (score data, stop-factors) '
                    '> AKB History (credit records, overdue days) > ASAN Pension Info (pension data) > Combined rules'))
 story.extend(bullet('- Designed three-way routing: Auto-Reject (hard stop-factors), Auto-Approve (high-score), '
@@ -136,14 +136,14 @@ story.extend(bullet('- Defined antifraud detection rules within decision engine;
                    'for pre-disbursement screening based on behavioral and historical patterns'))
 
 story.append(Paragraph('Delivery & Coordination', subsec_style))
-story.extend(bullet('- Authored BRD/FRD/SRS with end-to-end requirements traceability; prepared Swagger API specs; '
+story.extend(bullet('- Designed BRD/FRD/SRS with end-to-end requirements traceability; prepared Swagger API specs; '
                    'coordinated UAT with bug triage; applied RICE framework for backlog prioritization'))
 
 # --- Birbonus ---
 story.append(Paragraph('Birbonus  |  IT Business Analyst', company_style))
 story.append(Paragraph('2024 - 2025', date_style))
 story.extend(bullet('- Designed a customer loyalty bonus system with earning rules, eligibility criteria, '
-                   'and partner settlement workflows; authored BRD and API specs'))
+                   'and partner settlement workflows; prepared BRD and API specs'))
 
 # --- Umico ---
 story.append(Paragraph('Umico  |  PostgreSQL Developer &amp; L2 Support', company_style))

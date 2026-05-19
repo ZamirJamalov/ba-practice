@@ -81,10 +81,10 @@ sk_data = [
     [Paragraph('Credit Scoring | Decision Engine / Rule Engine | Cut-off Rule Design '
               '(Auto-Reject / Auto-Approve / Expert Routing) | Scorecard Matrices | '
               'Hybrid Scoring Models | Risk Variables | Stop-Factor vs Soft-Factor | '
-              'Cooling-off Periods | IFRS 9 Awareness', skill_val_style),
-     Paragraph('BRD / FRD / SRS (REQ-101 Traceability) | User Stories &amp; Acceptance Criteria (Gherkin) | '
+              'Cooling-off Periods', skill_val_style),
+     Paragraph('BRD / FRD / SRS | User Stories &amp; Acceptance Criteria (Gherkin) | '
               'BPMN (As-Is / To-Be) | UML | Sequence Diagrams | Data Mapping | '
-              'Gap Analysis | Stakeholder Interviews | RICE Prioritization', skill_val_style)],
+              'Gap Analysis | Use Case | Stakeholder Interviews | RICE Prioritization', skill_val_style)],
     [Paragraph('<b>Technical:</b>', skill_cat_style),
      Paragraph('<b>Process &amp; Tools:</b>', skill_cat_style)],
     [Paragraph('SQL (Advanced Data Analysis) | Python (Data Analytics, pandas, NumPy) | REST API &amp; JSON | '
@@ -136,7 +136,7 @@ story.extend(bullet('- Defined antifraud detection rules within decision engine;
                    'for pre-disbursement screening based on behavioral and historical patterns'))
 
 story.append(Paragraph('Delivery & Coordination', subsec_style))
-story.extend(bullet('- Authored BRD/FRD/SRS with REQ-101 traceability; prepared Swagger API specs; '
+story.extend(bullet('- Authored BRD/FRD/SRS with end-to-end requirements traceability; prepared Swagger API specs; '
                    'coordinated UAT with bug triage; applied RICE framework for backlog prioritization'))
 
 # --- Birbonus ---

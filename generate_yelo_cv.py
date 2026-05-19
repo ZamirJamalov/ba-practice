@@ -68,10 +68,9 @@ story.append(Paragraph('+994 55 207 7228  |  jamalov.zamir@gmail.com  |  Baku, A
 story.extend(section('PROFILE SUMMARY'))
 story.extend(body(
     'Business Analyst with 2+ years in fintech, specializing in credit scoring, decision engine rule design, '
-    'and risk assessment change requests. Engineering background enables precise translation of complex risk logic '
-    'into developer-ready specifications. Proficient in Python-based data analytics including descriptive and diagnostic analysis, '
-    'hypothesis testing, and regression modeling. Having authored 25+ cut-off rules across a 6-priority tiered decision framework, '
-    'looking to apply the same analytical approach to drive measurable risk optimization outcomes.'
+    'and risk assessment. Engineering background enables precise translation of risk logic into developer-ready specs. '
+    'Proficient in Python-based data analytics (descriptive/diagnostic analysis, hypothesis testing, regression). '
+    'Having authored 25+ cut-off rules across a 6-priority decision framework, looking to drive measurable risk optimization outcomes.'
 ))
 
 # ===== SKILLS =====
@@ -129,23 +128,27 @@ story.extend(bullet('- Developed hybrid scoring model combining external AKB bur
 story.extend(bullet('- Performed quantitative analysis on AKB credit history: payment regularity, loan amount distribution, '
                    'and credit card utilization computed using natural logarithm-based normalization'))
 
-story.append(Paragraph('Risk Assessment & Delivery', subsec_style))
-story.extend(bullet('- Authored BRD/FRD/SRS with REQ-101 traceability; prepared Swagger API specs and data mapping '
-                   'documents; coordinated UAT with structured bug triage (Critical/Major/Minor)'))
-story.extend(bullet('- Used SQL data analysis to resolve stakeholder conflicts; applied RICE framework '
-                   'for backlog prioritization; achieved on-time delivery across 4 production projects'))
+story.append(Paragraph('Risk Assessment', subsec_style))
+story.extend(bullet('- Designed stop-factors for SME and retail credits including age limit controls '
+                   'and bypass mechanism for authorized experts'))
+story.extend(bullet('- Defined end-of-day batch logic for daysInArrear, Risk Class (Low/Medium/High), '
+                   'and IFRS 9 stages (1, 2, 3); structured portfolio-at-risk reports (30-120+ day buckets)'))
+
+story.append(Paragraph('Delivery & Coordination', subsec_style))
+story.extend(bullet('- Authored BRD/FRD/SRS with REQ-101 traceability; prepared Swagger API specs; '
+                   'coordinated UAT with bug triage; applied RICE framework for backlog prioritization'))
 
 # --- Birbonus ---
 story.append(Paragraph('Birbonus  |  IT Business Analyst', company_style))
 story.append(Paragraph('2024 - 2025', date_style))
-story.extend(bullet('- Designed a customer loyalty bonus system enabling shoppers to earn rewards on purchases and redeem across participating '
-                   'partner merchants, conducting stakeholder sessions to define earning rules, eligibility criteria, and partner settlement workflows'))
+story.extend(bullet('- Designed a customer loyalty bonus system with earning rules, eligibility criteria, '
+                   'and partner settlement workflows; authored BRD and API specs'))
 
 # --- Umico ---
 story.append(Paragraph('Umico  |  PostgreSQL Developer &amp; L2 Support', company_style))
 story.append(Paragraph('2022 - 2024', date_style))
-story.extend(bullet('- Built backend features using PostgreSQL, resolved L2 production incidents using ELK Stack log analysis and source code '
-                   'investigation, and supported partner development teams with API integration onboarding'))
+story.extend(bullet('- PostgreSQL backend development; L2 production incident resolution via ELK Stack log analysis; '
+                   'API integration onboarding support for partner teams'))
 
 # ===== TECHNICAL FOUNDATION =====
 story.extend(section('TECHNICAL FOUNDATION'))
@@ -160,9 +163,9 @@ story.extend(body(
 # ===== TRAINING & EDUCATION =====
 story.extend(section('TRAINING &amp; EDUCATION'))
 story.append(Paragraph('Innab Training Center  |  Corporate Data Analytics Trainer', company_style))
-story.append(Paragraph('Delivered corporate Python data analytics training for Bank of Baku and SOCAR Upstream, adapting content '
-                   'to each organization\'s real datasets. Focus on descriptive and diagnostic analysis, enabling professionals '
-                   'to uncover patterns, trends, and root causes in their operational data.', body_style))
+story.append(Paragraph('Delivered corporate Python data analytics training for Bank of Baku and SOCAR Upstream, '
+                   'adapting content to each organization\'s real datasets. Focus on descriptive and diagnostic analysis '
+                   'to uncover patterns, trends, and root causes in operational data.', body_style))
 story.extend(body('Baku State University - Bachelor of Science in Applied Mathematics'))
 
 # -- Build --

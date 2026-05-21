@@ -2,8 +2,8 @@
 """
 SQL Analytical Tasks - Step by Step Guide for Tank54
 5 Examples + 15 Practice Exercises | A1 English | Oracle HR Schema
-Only topics covered: SELECT, WHERE, ORDER BY, Aggregate, GROUP BY, HAVING, Subquery
-NO JOINS (not covered yet!)
+Only topics covered: SELECT, WHERE, ORDER BY, Aggregate, GROUP BY, HAVING, CASE WHEN
+NO JOINS, NO Subqueries (not covered yet!)
 """
 
 from reportlab.lib.pagesizes import A4
@@ -72,7 +72,7 @@ story.append(Paragraph(
 ))
 story.append(Spacer(1, 0.8*cm))
 story.append(Paragraph(
-    'Topics: SELECT, WHERE, ORDER BY, Aggregate Functions, GROUP BY, HAVING, Subqueries',
+    'Topics: SELECT, WHERE, ORDER BY, Aggregate Functions, GROUP BY, HAVING, CASE WHEN',
     ParagraphStyle('Topics', fontName='CalI', fontSize=9, leading=12, textColor=MUTED, alignment=TA_CENTER)
 ))
 
@@ -138,7 +138,7 @@ concepts = [
     ['HAVING', 'Filters after GROUP BY', 'HAVING COUNT(*) > 5'],
     ['WHERE', 'Filters rows before grouping', 'WHERE salary > 10000'],
     ['ORDER BY', 'Sorts the result', 'ORDER BY salary DESC'],
-    ['Subquery', 'Query inside a query', 'WHERE salary > (SELECT AVG(salary) FROM employees)'],
+    ['CASE WHEN', 'Conditional logic', 'CASE WHEN salary > 10000 THEN \'High\' ELSE \'Low\' END'],
 ]
 
 cc = []
@@ -232,30 +232,30 @@ story.append(Paragraph(
 
 # ---------- EXAMPLE 3 ----------
 story.append(Spacer(1, 6))
-story.append(Paragraph('Example 3: Employees Earning Above Average', h2_style))
+story.append(Paragraph('Example 3: Employees with Salary in a Range', h2_style))
 story.append(HRFlowable(width="100%", thickness=0.3, color=ACCENT, spaceAfter=3))
 
 story.append(Paragraph('<b>Task:</b>', label_style))
 story.append(Paragraph(
-    'Find all employees whose salary is higher than the average salary of all employees. '
-    'Show name, salary, and how much more they earn than the average.',
+    'Find all employees whose salary is between 5000 and 15000. Show their full name, job ID, and salary. '
+    'Order by salary from high to low.',
     task_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>Step-by-Step:</b>', label_style))
-story.append(Paragraph('<b>Step 1:</b> First, we need the average salary. A simple subquery gives this: SELECT AVG(salary) FROM employees.', step_style))
-story.append(Paragraph('<b>Step 2:</b> We use this subquery in the WHERE clause. Each employee\'s salary must be > the subquery result.', step_style))
-story.append(Paragraph('<b>Step 3:</b> To show how much more they earn, we subtract the subquery from the salary: salary - (SELECT AVG(salary) FROM employees).', step_style))
-story.append(Paragraph('<b>Step 4:</b> We concatenate first name and last name with || to show the full name.', step_style))
+story.append(Paragraph('<b>Step 1:</b> We need a range filter: salary must be between 5000 and 15000. We can use BETWEEN for this.', step_style))
+story.append(Paragraph('<b>Step 2:</b> BETWEEN includes both numbers. So salary >= 5000 AND salary <= 1500. This is the same as BETWEEN 5000 AND 15000.', step_style))
+story.append(Paragraph('<b>Step 3:</b> We need the full name. We use || to join first_name and last_name with a space in between.', step_style))
+story.append(Paragraph('<b>Step 4:</b> We also want the job_id column to see what job each employee has.', step_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>SQL Query:</b>', label_style))
 story.append(Paragraph(
     'SELECT first_name || \' \' || last_name AS employee_name,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;salary,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;salary - (SELECT AVG(salary) FROM employees) AS above_avg<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;job_id,<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;salary<br/>'
     'FROM employees<br/>'
-    'WHERE salary &gt; (SELECT AVG(salary) FROM employees)<br/>'
+    'WHERE salary BETWEEN 5000 AND 15000<br/>'
     'ORDER BY salary DESC;',
     sql_style))
 
@@ -274,54 +274,55 @@ story.append(Spacer(1, 3))
 story.append(Paragraph('<b>Step-by-Step:</b>', label_style))
 story.append(Paragraph('<b>Step 1:</b> We need to create a group label for each employee based on their salary. We use CASE WHEN for this.', step_style))
 story.append(Paragraph('<b>Step 2:</b> CASE WHEN salary &lt; 5000 THEN \'Low\' WHEN salary &lt;= 10000 THEN \'Medium\' ELSE \'High\' END. The conditions check from top to bottom.', step_style))
-story.append(Paragraph('<b>Step 3:</b> We wrap the CASE expression in an outer query and use GROUP BY to count employees in each salary group.', step_style))
-story.append(Paragraph('<b>Step 4:</b> COUNT(*) counts the rows in each group. We order the result so "High" comes first.', step_style))
+story.append(Paragraph('<b>Step 3:</b> To group by the CASE result, we write the full CASE expression in GROUP BY (not the alias). In Oracle, we can use the alias in ORDER BY.', step_style))
+story.append(Paragraph('<b>Step 4:</b> COUNT(*) counts the rows in each group. We order the result by count from high to low.', step_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>SQL Query:</b>', label_style))
 story.append(Paragraph(
-    'SELECT salary_group,<br/>'
+    'SELECT CASE<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN salary &lt; 5000 THEN \'Low\'<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN salary &lt;= 10000 THEN \'Medium\'<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE \'High\'<br/>'
+    'END AS salary_group,<br/>'
     '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COUNT(*) AS employee_count<br/>'
-    'FROM (<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT CASE<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN salary &lt; 5000 THEN \'Low\'<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN salary &lt;= 10000 THEN \'Medium\'<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE \'High\'<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END AS salary_group<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM employees<br/>'
-    ') GROUP BY salary_group<br/>'
+    'FROM employees<br/>'
+    'GROUP BY CASE<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN salary &lt; 5000 THEN \'Low\'<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN salary &lt;= 10000 THEN \'Medium\'<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE \'High\'<br/>'
+    'END<br/>'
     'ORDER BY employee_count DESC;',
     sql_style))
 
 # ---------- EXAMPLE 5 ----------
 story.append(Spacer(1, 6))
-story.append(Paragraph('Example 5: Departments Where Avg Salary is Below Company Average', h2_style))
+story.append(Paragraph('Example 5: Total Salary Cost per Department', h2_style))
 story.append(HRFlowable(width="100%", thickness=0.3, color=ACCENT, spaceAfter=3))
 
 story.append(Paragraph('<b>Task:</b>', label_style))
 story.append(Paragraph(
-    'Find departments where the average salary is lower than the company average. '
-    'Show department ID, average salary, and the company average.',
+    'Find the total salary cost for each department. Also find how many employees work in each department. '
+    'Show department ID, employee count, and total salary. Order by total salary from high to low.',
     task_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>Step-by-Step:</b>', label_style))
-story.append(Paragraph('<b>Step 1:</b> We need the company average salary. A subquery gives this: SELECT AVG(salary) FROM employees.', step_style))
-story.append(Paragraph('<b>Step 2:</b> We need the average salary per department. We use GROUP BY department_id and AVG(salary).', step_style))
-story.append(Paragraph('<b>Step 3:</b> To compare a group result with another value, we use HAVING with a subquery. We cannot use WHERE here because AVG is an aggregate function.', step_style))
-story.append(Paragraph('<b>Step 4:</b> We show both the department average and the company average side by side for easy comparison.', step_style))
+story.append(Paragraph('<b>Step 1:</b> We need two things: the count of employees and the sum of salaries. We use COUNT(*) and SUM(salary).', step_style))
+story.append(Paragraph('<b>Step 2:</b> We group by department_id because we want these numbers for each department.', step_style))
+story.append(Paragraph('<b>Step 3:</b> We exclude departments with no employees by checking department_id IS NOT NULL in the WHERE clause.', step_style))
+story.append(Paragraph('<b>Step 4:</b> We order by the total salary (SUM result) from high to low to see which department costs the most.', step_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>SQL Query:</b>', label_style))
 story.append(Paragraph(
     'SELECT department_id,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROUND(AVG(salary), 2) AS dept_avg,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROUND((SELECT AVG(salary) FROM employees), 2) AS company_avg<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COUNT(*) AS employee_count,<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUM(salary) AS total_salary<br/>'
     'FROM employees<br/>'
     'WHERE department_id IS NOT NULL<br/>'
     'GROUP BY department_id<br/>'
-    'HAVING AVG(salary) &lt; (SELECT AVG(salary) FROM employees)<br/>'
-    'ORDER BY dept_avg;',
+    'ORDER BY total_salary DESC;',
     sql_style))
 
 story.append(PageBreak())
@@ -379,21 +380,21 @@ tasks = [
     },
     {
         'num': 8,
-        'title': 'Employees Earning Above Average',
-        'text': 'Find all employees who earn more than the company average salary. Show full name and salary. Use a subquery for the average.',
-        'topic': 'Subquery + WHERE',
+        'title': 'Employees with High Salary',
+        'text': 'Find all employees whose salary is more than 15000. Show their full name, job ID, and salary. Order by salary from high to low.',
+        'topic': 'WHERE + ORDER BY',
     },
     {
         'num': 9,
-        'title': 'Employees Earning Below Average',
-        'text': 'Find all employees who earn less than the company average salary. Show full name and salary. Order by salary from low to high.',
-        'topic': 'Subquery + WHERE + ORDER BY',
+        'title': 'Commission vs No-Commission Employees',
+        'text': 'Count how many employees have a commission and how many do not. Use CASE WHEN to create two groups: Has Commission and No Commission. Show both counts.',
+        'topic': 'CASE WHEN + COUNT',
     },
     {
         'num': 10,
-        'title': 'Salary Difference From Average',
-        'text': 'For each employee, show their name, salary, and the difference from the company average (salary minus average). Show only employees who earn more than the average.',
-        'topic': 'Subquery + Arithmetic + WHERE',
+        'title': 'Employees Hired in a Specific Year',
+        'text': 'Find all employees who were hired in the year 2005. Show their full name, hire date, and salary. Order by hire date from old to new.',
+        'topic': 'WHERE + Date Filter + ORDER BY',
     },
     {
         'num': 11,

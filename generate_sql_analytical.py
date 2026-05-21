@@ -2,6 +2,8 @@
 """
 SQL Analytical Tasks - Step by Step Guide for Tank54
 5 Examples + 15 Practice Exercises | A1 English | Oracle HR Schema
+Only topics covered: SELECT, WHERE, ORDER BY, Aggregate, GROUP BY, HAVING, Subquery
+NO JOINS (not covered yet!)
 """
 
 from reportlab.lib.pagesizes import A4
@@ -30,7 +32,6 @@ DARK = colors.HexColor('#2a2a2a')
 MUTED = colors.HexColor('#666666')
 LIGHT_BG = colors.HexColor('#f0f7f8')
 SQL_BG = colors.HexColor('#f5f5f0')
-STEP_NUM = colors.HexColor('#1a6b7a')
 WHITE = colors.white
 
 # -- Styles --
@@ -43,10 +44,8 @@ body_style = ParagraphStyle('Body', fontName='Cal', fontSize=9, leading=13, text
 sql_style = ParagraphStyle('SQL', fontName='Mono', fontSize=7.8, leading=11, textColor=DARK, spaceAfter=2,
                            backColor=SQL_BG, borderPadding=4, leftIndent=6, rightIndent=6)
 step_style = ParagraphStyle('Step', fontName='Cal', fontSize=9, leading=12.5, textColor=DARK, leftIndent=14, spaceAfter=1.5)
-bullet_style = ParagraphStyle('Bullet', fontName='Cal', fontSize=9, leading=12, textColor=DARK, leftIndent=14, bulletIndent=0, spaceAfter=1.5)
-task_style = ParagraphStyle('Task', fontName='Cal', fontSize=9, leading=12.5, textColor=DARK, leftIndent=6, spaceAfter=1)
 label_style = ParagraphStyle('Label', fontName='CalI', fontSize=8, leading=10, textColor=MUTED, spaceAfter=1)
-num_style = ParagraphStyle('Num', fontName='CalB', fontSize=9, leading=12, textColor=ACCENT, spaceAfter=1)
+task_style = ParagraphStyle('Task', fontName='Cal', fontSize=9, leading=12.5, textColor=DARK, leftIndent=6, spaceAfter=1)
 
 W, H = A4
 LM, RM, TM, BM = 1.5*cm, 1.5*cm, 1.2*cm, 1.2*cm
@@ -73,63 +72,34 @@ story.append(Paragraph(
 ))
 story.append(Spacer(1, 0.8*cm))
 story.append(Paragraph(
-    'Topics: SELECT, WHERE, JOINs, GROUP BY, HAVING, Aggregate Functions, Subqueries, ORDER BY',
+    'Topics: SELECT, WHERE, ORDER BY, Aggregate Functions, GROUP BY, HAVING, Subqueries',
     ParagraphStyle('Topics', fontName='CalI', fontSize=9, leading=12, textColor=MUTED, alignment=TA_CENTER)
 ))
 
 story.append(PageBreak())
 
-# ============ ORACLE HR SCHEMA TABLES ============
-story.append(Paragraph('Oracle HR Schema - Tables', h1_style))
+# ============ EMPLOYEES TABLE ============
+story.append(Paragraph('Oracle HR Schema - EMPLOYEES Table', h1_style))
 story.append(HRFlowable(width="100%", thickness=0.5, color=ACCENT, spaceAfter=4))
 story.append(Paragraph(
-    'We use the Oracle HR database. This database has information about employees, departments, jobs, and salaries. '
-    'Here are the main tables we use in this guide.',
+    'We use the Oracle HR database. For all tasks in this guide, we use only the <b>EMPLOYEES</b> table. '
+    'This table has information about every employee in the company.',
     body_style))
 story.append(Spacer(1, 4))
 
-tables_info = [
-    ['Table Name', 'What is inside?'],
-    ['EMPLOYEES', 'Employee ID, first name, last name, email, phone, hire date, job, salary, manager, department'],
-    ['DEPARTMENTS', 'Department ID, department name, location, manager'],
-    ['JOBS', 'Job ID, job title, min salary, max salary'],
-    ['JOB_HISTORY', 'Employee, start date, end date, job, department'],
-    ['LOCATIONS', 'Location ID, street address, city, country'],
-]
-
-t_data = []
-for i, row in enumerate(tables_info):
-    if i == 0:
-        t_data.append([Paragraph(f'<b>{c}</b>', ParagraphStyle('TH', fontName='CalB', fontSize=8.5, leading=11, textColor=WHITE)) for c in row])
-    else:
-        t_data.append([Paragraph(c, ParagraphStyle('TD1', fontName='Mono' if c.isupper() else 'Cal', fontSize=8.5, leading=11, textColor=DARK)) for c in row])
-
-t = Table(t_data, colWidths=[AW*0.22, AW*0.78])
-t.setStyle(TableStyle([
-    ('BACKGROUND', (0,0), (-1,0), ACCENT),
-    ('TEXTCOLOR', (0,0), (-1,0), WHITE),
-    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-    ('LEFTPADDING', (0,0), (-1,-1), 6),
-    ('RIGHTPADDING', (0,0), (-1,-1), 6),
-    ('TOPPADDING', (0,0), (-1,-1), 4),
-    ('BOTTOMPADDING', (0,0), (-1,-1), 4),
-    ('ROWBACKGROUNDS', (0,1), (-1,-1), [WHITE, LIGHT_BG]),
-    ('GRID', (0,0), (-1,-1), 0.3, colors.HexColor('#cccccc')),
-]))
-story.append(t)
-story.append(Spacer(1, 8))
-
-story.append(Paragraph('Important Columns in EMPLOYEES table:', h3_style))
 cols = [
-    ['Column', 'Type', 'Example'],
-    ['EMPLOYEE_ID', 'Number', '100'],
-    ['FIRST_NAME', 'Text', 'Steven'],
-    ['LAST_NAME', 'Text', 'King'],
-    ['HIRE_DATE', 'Date', '17-JUN-03'],
-    ['JOB_ID', 'Text', 'AD_PRES'],
-    ['SALARY', 'Number', '24000'],
-    ['DEPARTMENT_ID', 'Number', '90'],
-    ['MANAGER_ID', 'Number', '(null or number)'],
+    ['Column', 'Type', 'Example', 'Description'],
+    ['EMPLOYEE_ID', 'Number', '100', 'Unique ID for each employee'],
+    ['FIRST_NAME', 'Text', 'Steven', 'First name of the employee'],
+    ['LAST_NAME', 'Text', 'King', 'Last name of the employee'],
+    ['EMAIL', 'Text', 'SKING', 'Email of the employee'],
+    ['PHONE_NUMBER', 'Text', '515.123.4567', 'Phone number'],
+    ['HIRE_DATE', 'Date', '17-JUN-03', 'Date when the employee started'],
+    ['JOB_ID', 'Text', 'AD_PRES', 'Job role code'],
+    ['SALARY', 'Number', '24000', 'Monthly salary'],
+    ['COMMISSION_PCT', 'Number', '0.3', 'Commission percent (some jobs)'],
+    ['MANAGER_ID', 'Number', '(null)', 'ID of the employee\'s manager'],
+    ['DEPARTMENT_ID', 'Number', '90', 'ID of the department'],
 ]
 tc = []
 for i, row in enumerate(cols):
@@ -137,287 +107,323 @@ for i, row in enumerate(cols):
         tc.append([Paragraph(f'<b>{c}</b>', ParagraphStyle('TH2', fontName='CalB', fontSize=8, leading=10, textColor=WHITE)) for c in row])
     else:
         tc.append([Paragraph(c, ParagraphStyle('TD2', fontName='Mono' if c.isupper() else 'Cal', fontSize=8, leading=10, textColor=DARK)) for c in row])
-tc_t = Table(tc, colWidths=[AW*0.3, AW*0.2, AW*0.5])
+tc_t = Table(tc, colWidths=[AW*0.22, AW*0.12, AW*0.22, AW*0.44])
 tc_t.setStyle(TableStyle([
     ('BACKGROUND', (0,0), (-1,0), ACCENT),
     ('TEXTCOLOR', (0,0), (-1,0), WHITE),
     ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-    ('LEFTPADDING', (0,0), (-1,-1), 6),
-    ('RIGHTPADDING', (0,0), (-1,-1), 6),
+    ('LEFTPADDING', (0,0), (-1,-1), 5),
+    ('RIGHTPADDING', (0,0), (-1,-1), 5),
     ('TOPPADDING', (0,0), (-1,-1), 3),
     ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+    ('ROWBACKGROUNDS', (0,1), (-1,-1), [WHITE, LIGHT_BG]),
     ('GRID', (0,0), (-1,-1), 0.3, colors.HexColor('#cccccc')),
 ]))
 story.append(tc_t)
 
+story.append(Spacer(1, 8))
+
+# ============ KEY CONCEPTS REMINDER ============
+story.append(Paragraph('Quick Reminder - Key Concepts', h2_style))
+story.append(HRFlowable(width="100%", thickness=0.3, color=ACCENT, spaceAfter=3))
+
+concepts = [
+    ['Concept', 'What it does', 'Example'],
+    ['COUNT(*)', 'Counts rows', 'SELECT COUNT(*) FROM employees'],
+    ['SUM(column)', 'Adds all values', 'SELECT SUM(salary) FROM employees'],
+    ['AVG(column)', 'Calculates average', 'SELECT AVG(salary) FROM employees'],
+    ['MIN(column)', 'Finds smallest value', 'SELECT MIN(salary) FROM employees'],
+    ['MAX(column)', 'Finds largest value', 'SELECT MAX(salary) FROM employees'],
+    ['GROUP BY', 'Groups rows by a column', 'GROUP BY department_id'],
+    ['HAVING', 'Filters after GROUP BY', 'HAVING COUNT(*) > 5'],
+    ['WHERE', 'Filters rows before grouping', 'WHERE salary > 10000'],
+    ['ORDER BY', 'Sorts the result', 'ORDER BY salary DESC'],
+    ['Subquery', 'Query inside a query', 'WHERE salary > (SELECT AVG(salary) FROM employees)'],
+]
+
+cc = []
+for i, row in enumerate(concepts):
+    if i == 0:
+        cc.append([Paragraph(f'<b>{c}</b>', ParagraphStyle('TH3', fontName='CalB', fontSize=7.5, leading=10, textColor=WHITE)) for c in row])
+    else:
+        cc.append([Paragraph(c, ParagraphStyle('TD3', fontName='Mono' if j == 0 else ('Mono' if '(' in c else 'Cal'), fontSize=7.5, leading=10, textColor=DARK)) for j, c in enumerate(row)])
+cc_t = Table(cc, colWidths=[AW*0.18, AW*0.34, AW*0.48])
+cc_t.setStyle(TableStyle([
+    ('BACKGROUND', (0,0), (-1,0), ACCENT),
+    ('TEXTCOLOR', (0,0), (-1,0), WHITE),
+    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    ('LEFTPADDING', (0,0), (-1,-1), 5),
+    ('RIGHTPADDING', (0,0), (-1,-1), 5),
+    ('TOPPADDING', (0,0), (-1,-1), 3),
+    ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+    ('GRID', (0,0), (-1,-1), 0.3, colors.HexColor('#cccccc')),
+]))
+story.append(cc_t)
+
 story.append(PageBreak())
 
-# ============ PART 1: EXAMPLES ============
+# ============ PART 1: EXAMPLES (NO JOINS) ============
 story.append(Paragraph('PART 1: Examples', h1_style))
 story.append(HRFlowable(width="100%", thickness=0.5, color=ACCENT, spaceAfter=4))
 story.append(Paragraph(
     'In this part, we show 5 examples. Each example has 3 parts: the task, the steps, and the SQL query. '
-    'Read each step carefully. Try to understand the logic before you look at the SQL code.',
+    'Read each step carefully. Try to understand the logic before you look at the SQL code. '
+    'All examples use only the EMPLOYEES table. No JOINs are used.',
     body_style))
 
 # ---------- EXAMPLE 1 ----------
 story.append(Spacer(1, 6))
-story.append(Paragraph('Example 1: Average Salary by Department', h2_style))
+story.append(Paragraph('Example 1: Employee Count by Department', h2_style))
 story.append(HRFlowable(width="100%", thickness=0.3, color=ACCENT, spaceAfter=3))
 
 story.append(Paragraph('<b>Task:</b>', label_style))
 story.append(Paragraph(
-    'Find the average salary for each department. Show only departments where the average salary '
-    'is more than 10000. Order the result by average salary from high to low.',
+    'Count how many employees work in each department. Show department ID and the count. '
+    'Show only departments with more than 5 employees.',
     task_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>Step-by-Step:</b>', label_style))
-story.append(Paragraph('<b>Step 1:</b> What tables do we need? We need EMPLOYEES (for salary) and DEPARTMENTS (for department name).', step_style))
-story.append(Paragraph('<b>Step 2:</b> We need to connect the tables. EMPLOYEES.DEPARTMENT_ID = DEPARTMENTS.DEPARTMENT_ID. This is an INNER JOIN.', step_style))
-story.append(Paragraph('<b>Step 3:</b> We need the average salary for each department. So we use GROUP BY department name. And we use AVG(salary).', step_style))
-story.append(Paragraph('<b>Step 4:</b> We only want departments with average salary > 10000. After GROUP BY, we use HAVING (not WHERE).', step_style))
-story.append(Paragraph('<b>Step 5:</b> Order by average salary from high to low: ORDER BY ... DESC.', step_style))
+story.append(Paragraph('<b>Step 1:</b> What do we want to count? Employees in each department. So we need COUNT(*) to count rows.', step_style))
+story.append(Paragraph('<b>Step 2:</b> We need to count by department, so we use GROUP BY department_id. This puts employees into groups by their department.', step_style))
+story.append(Paragraph('<b>Step 3:</b> We only want departments with more than 5 employees. Because 5 is about the COUNT result, we use HAVING (not WHERE).', step_style))
+story.append(Paragraph('<b>Step 4:</b> Remember: WHERE filters rows before grouping. HAVING filters groups after grouping.', step_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>SQL Query:</b>', label_style))
 story.append(Paragraph(
-    'SELECT d.department_name,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROUND(AVG(e.salary), 2) AS avg_salary<br/>'
-    'FROM employees e<br/>'
-    'INNER JOIN departments d<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON e.department_id = d.department_id<br/>'
-    'GROUP BY d.department_name<br/>'
-    'HAVING AVG(e.salary) &gt; 10000<br/>'
-    'ORDER BY avg_salary DESC;',
+    'SELECT department_id,<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COUNT(*) AS employee_count<br/>'
+    'FROM employees<br/>'
+    'GROUP BY department_id<br/>'
+    'HAVING COUNT(*) &gt; 5<br/>'
+    'ORDER BY employee_count DESC;',
     sql_style))
 
 # ---------- EXAMPLE 2 ----------
 story.append(Spacer(1, 6))
-story.append(Paragraph('Example 2: Employees Who Earn More Than Their Manager', h2_style))
+story.append(Paragraph('Example 2: Average, Min and Max Salary', h2_style))
 story.append(HRFlowable(width="100%", thickness=0.3, color=ACCENT, spaceAfter=3))
 
 story.append(Paragraph('<b>Task:</b>', label_style))
 story.append(Paragraph(
-    'Find all employees whose salary is higher than their manager\'s salary. Show employee name, '
-    'employee salary, manager name, and manager salary.',
+    'Find the average, minimum, and maximum salary for each job. Show job ID and all three values. '
+    'Order by average salary from high to low.',
     task_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>Step-by-Step:</b>', label_style))
-story.append(Paragraph('<b>Step 1:</b> We need to find each employee and their manager. The MANAGER_ID in EMPLOYEES points to another EMPLOYEE_ID. So we need to join EMPLOYEES with itself. This is called a SELF JOIN.', step_style))
-story.append(Paragraph('<b>Step 2:</b> We use two aliases: "e" for the employee and "m" for the manager. The join condition is: e.manager_id = m.employee_id.', step_style))
-story.append(Paragraph('<b>Step 3:</b> The filter is simple: the employee salary must be more than the manager salary. e.salary > m.salary.', step_style))
-story.append(Paragraph('<b>Step 4:</b> We show first name, last name, and salary for both the employee and the manager.', step_style))
+story.append(Paragraph('<b>Step 1:</b> We need three aggregate functions: AVG(salary), MIN(salary), and MAX(salary). All three work on the SALARY column.', step_style))
+story.append(Paragraph('<b>Step 2:</b> We want these values for each job, so we use GROUP BY job_id.', step_style))
+story.append(Paragraph('<b>Step 3:</b> We use ROUND() to make the average salary show only 2 decimal places. This makes the result cleaner.', step_style))
+story.append(Paragraph('<b>Step 4:</b> We order by the average salary in DESC order (high to low). We can use the alias "avg_sal" in ORDER BY.', step_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>SQL Query:</b>', label_style))
 story.append(Paragraph(
-    'SELECT e.first_name || \' \' || e.last_name AS employee_name,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.salary AS employee_salary,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m.first_name || \' \' || m.last_name AS manager_name,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m.salary AS manager_salary<br/>'
-    'FROM employees e<br/>'
-    'INNER JOIN employees m<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON e.manager_id = m.employee_id<br/>'
-    'WHERE e.salary &gt; m.salary<br/>'
-    'ORDER BY e.salary DESC;',
+    'SELECT job_id,<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROUND(AVG(salary), 2) AS avg_sal,<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MIN(salary) AS min_sal,<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAX(salary) AS max_sal<br/>'
+    'FROM employees<br/>'
+    'GROUP BY job_id<br/>'
+    'ORDER BY avg_sal DESC;',
     sql_style))
 
 # ---------- EXAMPLE 3 ----------
 story.append(Spacer(1, 6))
-story.append(Paragraph('Example 3: Department with Most Employees', h2_style))
+story.append(Paragraph('Example 3: Employees Earning Above Average', h2_style))
 story.append(HRFlowable(width="100%", thickness=0.3, color=ACCENT, spaceAfter=3))
 
 story.append(Paragraph('<b>Task:</b>', label_style))
 story.append(Paragraph(
-    'Find the department name that has the most employees. Show the department name and the number of employees.',
+    'Find all employees whose salary is higher than the average salary of all employees. '
+    'Show name, salary, and how much more they earn than the average.',
     task_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>Step-by-Step:</b>', label_style))
-story.append(Paragraph('<b>Step 1:</b> We need to count employees in each department. So we use COUNT(*) with GROUP BY department_id.', step_style))
-story.append(Paragraph('<b>Step 2:</b> We join EMPLOYEES with DEPARTMENTS to get the department name, not just the ID.', step_style))
-story.append(Paragraph('<b>Step 3:</b> We order by count DESC and take only the first row with FETCH FIRST 1 ROW ONLY (or ROWNUM = 1 in older Oracle).', step_style))
+story.append(Paragraph('<b>Step 1:</b> First, we need the average salary. A simple subquery gives this: SELECT AVG(salary) FROM employees.', step_style))
+story.append(Paragraph('<b>Step 2:</b> We use this subquery in the WHERE clause. Each employee\'s salary must be > the subquery result.', step_style))
+story.append(Paragraph('<b>Step 3:</b> To show how much more they earn, we subtract the subquery from the salary: salary - (SELECT AVG(salary) FROM employees).', step_style))
+story.append(Paragraph('<b>Step 4:</b> We concatenate first name and last name with || to show the full name.', step_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>SQL Query:</b>', label_style))
 story.append(Paragraph(
-    'SELECT d.department_name,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COUNT(e.employee_id) AS total_employees<br/>'
-    'FROM employees e<br/>'
-    'INNER JOIN departments d<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON e.department_id = d.department_id<br/>'
-    'GROUP BY d.department_name<br/>'
-    'ORDER BY total_employees DESC<br/>'
-    'FETCH FIRST 1 ROW ONLY;',
+    'SELECT first_name || \' \' || last_name AS employee_name,<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;salary,<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;salary - (SELECT AVG(salary) FROM employees) AS above_avg<br/>'
+    'FROM employees<br/>'
+    'WHERE salary &gt; (SELECT AVG(salary) FROM employees)<br/>'
+    'ORDER BY salary DESC;',
     sql_style))
 
 # ---------- EXAMPLE 4 ----------
 story.append(Spacer(1, 6))
-story.append(Paragraph('Example 4: Salary Gap - Highest and Lowest by Job', h2_style))
+story.append(Paragraph('Example 4: Salary Ranges - Counting Groups', h2_style))
 story.append(HRFlowable(width="100%", thickness=0.3, color=ACCENT, spaceAfter=3))
 
 story.append(Paragraph('<b>Task:</b>', label_style))
 story.append(Paragraph(
-    'For each job title, find the difference between the highest salary and the lowest salary. '
-    'Show only jobs where the gap is more than 5000.',
+    'Put employees into 3 salary groups: Low (salary &lt; 5000), Medium (5000 to 10000), High (&gt; 10000). '
+    'Count how many employees are in each group.',
     task_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>Step-by-Step:</b>', label_style))
-story.append(Paragraph('<b>Step 1:</b> We need the job title, so we join EMPLOYEES with JOBS on job_id.', step_style))
-story.append(Paragraph('<b>Step 2:</b> For each job, we find the max salary (MAX) and min salary (MIN). This needs GROUP BY job_title.', step_style))
-story.append(Paragraph('<b>Step 3:</b> The gap = MAX(salary) - MIN(salary). We can calculate this in SELECT.', step_style))
-story.append(Paragraph('<b>Step 4:</b> We filter with HAVING, because the filter is on the result of an aggregate function (MAX - MIN > 5000).', step_style))
+story.append(Paragraph('<b>Step 1:</b> We need to create a group label for each employee based on their salary. We use CASE WHEN for this.', step_style))
+story.append(Paragraph('<b>Step 2:</b> CASE WHEN salary &lt; 5000 THEN \'Low\' WHEN salary &lt;= 10000 THEN \'Medium\' ELSE \'High\' END. The conditions check from top to bottom.', step_style))
+story.append(Paragraph('<b>Step 3:</b> We wrap the CASE expression in an outer query and use GROUP BY to count employees in each salary group.', step_style))
+story.append(Paragraph('<b>Step 4:</b> COUNT(*) counts the rows in each group. We order the result so "High" comes first.', step_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>SQL Query:</b>', label_style))
 story.append(Paragraph(
-    'SELECT j.job_title,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAX(e.salary) AS highest_salary,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MIN(e.salary) AS lowest_salary,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MAX(e.salary) - MIN(e.salary) AS salary_gap<br/>'
-    'FROM employees e<br/>'
-    'INNER JOIN jobs j<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON e.job_id = j.job_id<br/>'
-    'GROUP BY j.job_title<br/>'
-    'HAVING MAX(e.salary) - MIN(e.salary) &gt; 5000<br/>'
-    'ORDER BY salary_gap DESC;',
+    'SELECT salary_group,<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COUNT(*) AS employee_count<br/>'
+    'FROM (<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SELECT CASE<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN salary &lt; 5000 THEN \'Low\'<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHEN salary &lt;= 10000 THEN \'Medium\'<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ELSE \'High\'<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;END AS salary_group<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM employees<br/>'
+    ') GROUP BY salary_group<br/>'
+    'ORDER BY employee_count DESC;',
     sql_style))
 
 # ---------- EXAMPLE 5 ----------
 story.append(Spacer(1, 6))
-story.append(Paragraph('Example 5: Employees Earning Above Average', h2_style))
+story.append(Paragraph('Example 5: Departments Where Avg Salary is Below Company Average', h2_style))
 story.append(HRFlowable(width="100%", thickness=0.3, color=ACCENT, spaceAfter=3))
 
 story.append(Paragraph('<b>Task:</b>', label_style))
 story.append(Paragraph(
-    'Find all employees who earn more than the average salary of the whole company. Show employee name, '
-    'job title, salary, and how much more they earn than the average.',
+    'Find departments where the average salary is lower than the company average. '
+    'Show department ID, average salary, and the company average.',
     task_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>Step-by-Step:</b>', label_style))
-story.append(Paragraph('<b>Step 1:</b> First, we need the average salary of the whole company. We can get this with a subquery: SELECT AVG(salary) FROM employees.', step_style))
-story.append(Paragraph('<b>Step 2:</b> We use this subquery in the WHERE clause. Each employee\'s salary must be > the result of the subquery.', step_style))
-story.append(Paragraph('<b>Step 3:</b> We join EMPLOYEES with JOBS to show the job title. We also calculate the difference: salary - average.', step_style))
-story.append(Paragraph('<b>Step 4:</b> In the SELECT list, we can write the subquery again to show the difference: salary - (SELECT AVG(salary) FROM employees).', step_style))
+story.append(Paragraph('<b>Step 1:</b> We need the company average salary. A subquery gives this: SELECT AVG(salary) FROM employees.', step_style))
+story.append(Paragraph('<b>Step 2:</b> We need the average salary per department. We use GROUP BY department_id and AVG(salary).', step_style))
+story.append(Paragraph('<b>Step 3:</b> To compare a group result with another value, we use HAVING with a subquery. We cannot use WHERE here because AVG is an aggregate function.', step_style))
+story.append(Paragraph('<b>Step 4:</b> We show both the department average and the company average side by side for easy comparison.', step_style))
 
 story.append(Spacer(1, 3))
 story.append(Paragraph('<b>SQL Query:</b>', label_style))
 story.append(Paragraph(
-    'SELECT e.first_name || \' \' || e.last_name AS employee_name,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j.job_title,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.salary,<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.salary - (SELECT AVG(salary) FROM employees) AS above_avg<br/>'
-    'FROM employees e<br/>'
-    'INNER JOIN jobs j<br/>'
-    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ON e.job_id = j.job_id<br/>'
-    'WHERE e.salary &gt; (SELECT AVG(salary) FROM employees)<br/>'
-    'ORDER BY above_avg DESC;',
+    'SELECT department_id,<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROUND(AVG(salary), 2) AS dept_avg,<br/>'
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ROUND((SELECT AVG(salary) FROM employees), 2) AS company_avg<br/>'
+    'FROM employees<br/>'
+    'WHERE department_id IS NOT NULL<br/>'
+    'GROUP BY department_id<br/>'
+    'HAVING AVG(salary) &lt; (SELECT AVG(salary) FROM employees)<br/>'
+    'ORDER BY dept_avg;',
     sql_style))
 
 story.append(PageBreak())
 
-# ============ PART 2: PRACTICE TASKS ============
+# ============ PART 2: PRACTICE TASKS (NO JOINS) ============
 story.append(Paragraph('PART 2: Practice Tasks', h1_style))
 story.append(HRFlowable(width="100%", thickness=0.5, color=ACCENT, spaceAfter=4))
 story.append(Paragraph(
     'Now it is your turn! Solve these 15 tasks. Write your SQL queries on paper or in a database tool. '
-    'Use the Oracle HR schema. Good luck!',
+    'Use only the EMPLOYEES table. No JOINs are needed. Good luck!',
     body_style))
 
 tasks = [
     {
         'num': 1,
-        'title': 'Total Salary Cost',
-        'text': 'Find the total salary cost (sum of all salaries) for each department. Show department name and total salary. Order by total salary from high to low.',
-        'topic': 'JOIN + GROUP BY + SUM',
+        'title': 'Total Salary Cost of the Company',
+        'text': 'Find the total salary cost of the whole company. This means: add up all employee salaries. Show the total as one number.',
+        'topic': 'SUM',
     },
     {
         'num': 2,
-        'title': 'Employee Count by Department',
-        'text': 'Count how many employees work in each department. Show department name and count. Show only departments with more than 5 employees.',
-        'topic': 'JOIN + GROUP BY + HAVING + COUNT',
+        'title': 'How Many Employees in the Company?',
+        'text': 'Count the total number of employees in the company. Show the count as one number.',
+        'topic': 'COUNT',
     },
     {
         'num': 3,
-        'title': 'Highest Paid Employee in Each Department',
-        'text': 'Find the employee with the highest salary in each department. Show department name, employee name, and salary.',
-        'topic': 'JOIN + GROUP BY + MAX + Subquery',
+        'title': 'Salary Statistics',
+        'text': 'Find the average, minimum, and maximum salary in the whole company. Show all three values in one result.',
+        'topic': 'AVG + MIN + MAX',
     },
     {
         'num': 4,
-        'title': 'Average Salary by Job Title',
-        'text': 'Find the average salary for each job title. Show job title and average salary. Order by average salary from low to high.',
-        'topic': 'JOIN + GROUP BY + AVG + ORDER BY',
+        'title': 'Employee Count by Department',
+        'text': 'Count how many employees are in each department. Show department ID and the count. Order by count from high to low.',
+        'topic': 'GROUP BY + COUNT',
     },
     {
         'num': 5,
-        'title': 'Employees Without a Department',
-        'text': 'Find all employees who do not have a department (department_id is null). Show their name and job title.',
-        'topic': 'LEFT JOIN + IS NULL',
+        'title': 'Average Salary by Job',
+        'text': 'Find the average salary for each job ID. Show job ID and average salary (round to 2 decimals). Order by average salary from high to low.',
+        'topic': 'GROUP BY + AVG + ORDER BY',
     },
     {
         'num': 6,
-        'title': 'Salary Range Analysis',
-        'text': 'For each job title, show the minimum salary, maximum salary, and average salary. Use the JOBS table to show job titles. Order by the salary range (max - min) from big to small.',
-        'topic': 'JOIN + GROUP BY + MIN + MAX + AVG',
+        'title': 'Departments with More Than 10 Employees',
+        'text': 'Find departments that have more than 10 employees. Show department ID and the count. Order by count from high to low.',
+        'topic': 'GROUP BY + HAVING + COUNT',
     },
     {
         'num': 7,
-        'title': 'New Hires in 2024-2025',
-        'text': 'Find employees hired in the years 2024 and 2025. Show their name, hire date, and department name. Order by hire date (newest first).',
-        'topic': 'WHERE + BETWEEN or date filter + JOIN',
+        'title': 'High-Earning Jobs',
+        'text': 'Find jobs where the average salary is more than 10000. Show job ID and average salary. Order by average salary from high to low.',
+        'topic': 'GROUP BY + HAVING + AVG',
     },
     {
         'num': 8,
-        'title': 'Departments with High Average Salary',
-        'text': 'Find departments where the average salary is higher than the company average. Show department name and average salary. Use a subquery for the company average.',
-        'topic': 'GROUP BY + HAVING + Subquery',
+        'title': 'Employees Earning Above Average',
+        'text': 'Find all employees who earn more than the company average salary. Show full name and salary. Use a subquery for the average.',
+        'topic': 'Subquery + WHERE',
     },
     {
         'num': 9,
-        'title': 'Employees Who Changed Jobs',
-        'text': 'Find employees who have a record in the JOB_HISTORY table. This means they changed their job. Show employee name, old job, new job, and the dates.',
-        'topic': 'Subquery + JOIN (employees, jobs, job_history)',
+        'title': 'Employees Earning Below Average',
+        'text': 'Find all employees who earn less than the company average salary. Show full name and salary. Order by salary from low to high.',
+        'topic': 'Subquery + WHERE + ORDER BY',
     },
     {
         'num': 10,
-        'title': 'Salary Comparison: Employee vs Department Average',
-        'text': 'For each employee, show their salary and their department average salary. Show the difference. Show only employees who earn less than their department average.',
-        'topic': 'Subquery + JOIN + Arithmetic',
+        'title': 'Salary Difference From Average',
+        'text': 'For each employee, show their name, salary, and the difference from the company average (salary minus average). Show only employees who earn more than the average.',
+        'topic': 'Subquery + Arithmetic + WHERE',
     },
     {
         'num': 11,
-        'title': 'Managers and Their Team Size',
-        'text': 'For each manager, count how many employees they manage. Show manager name and team size. Show only managers with more than 3 employees.',
-        'topic': 'SELF JOIN + GROUP BY + HAVING + COUNT',
+        'title': 'Commission Employees',
+        'text': 'Find all employees who have a commission (commission_pct is not null). Count how many such employees exist. Show the count.',
+        'topic': 'WHERE IS NOT NULL + COUNT',
     },
     {
         'num': 12,
-        'title': 'Salary Percentile: Top 5 Earners',
-        'text': 'Find the top 5 highest paid employees in the whole company. Show their name, job title, and salary.',
-        'topic': 'ORDER BY + FETCH FIRST (or ROWNUM)',
+        'title': 'Salary Ranges - Low, Medium, High',
+        'text': 'Group employees into 3 salary ranges: Low (less than 5000), Medium (5000 to 10000), High (more than 10000). Count how many employees are in each range. Use CASE WHEN.',
+        'topic': 'CASE WHEN + GROUP BY + COUNT',
     },
     {
         'num': 13,
-        'title': 'Salary Distribution by Department',
-        'text': 'For each department, count how many employees earn more than 10000 and how many earn 10000 or less. Show department name and both counts.',
-        'topic': 'CASE WHEN + GROUP BY + SUM',
+        'title': 'Employees per Manager',
+        'text': 'Count how many employees each manager has. Show manager ID and the count. Show only managers who have more than 5 employees. Order by count from high to low.',
+        'topic': 'GROUP BY + HAVING + COUNT',
     },
     {
         'num': 14,
-        'title': 'Average Years of Service by Department',
-        'text': 'Find the average number of years employees have worked in each department. Use the HIRE_DATE column. Show department name and average years. Order by longest average service first.',
-        'topic': 'Date Functions + GROUP BY + AVG + JOIN',
+        'title': 'Highest Salary per Department',
+        'text': 'Find the highest salary in each department. Show department ID and the maximum salary. Order by maximum salary from high to low.',
+        'topic': 'GROUP BY + MAX + ORDER BY',
     },
     {
         'num': 15,
-        'title': 'Cross-Department Salary Analysis',
-        'text': 'Find all pairs of departments where the average salary difference is more than 3000. Use a self-join on a subquery that calculates average salary per department.',
-        'topic': 'Subquery + Self JOIN + HAVING',
+        'title': 'Departments with Highest and Lowest Salary Gap',
+        'text': 'For each department, find the difference between the highest and lowest salary. Show department ID and the salary gap. Show only departments where the gap is more than 8000. Order by gap from big to small.',
+        'topic': 'GROUP BY + MAX - MIN + HAVING',
     },
 ]
 
@@ -436,7 +442,6 @@ for t in tasks:
         ('RIGHTPADDING', (0,0), (-1,-1), 6),
         ('TOPPADDING', (0,0), (-1,-1), 4),
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
-        ('ROUNDEDCORNERS', [4,4,0,0]),
     ]))
     story.append(th_table)
 
@@ -449,7 +454,6 @@ for t in tasks:
         ('TOPPADDING', (0,0), (-1,-1), 5),
         ('BOTTOMPADDING', (0,0), (-1,-1), 5),
         ('BOX', (0,0), (-1,-1), 0.5, ACCENT),
-        ('ROUNDEDCORNERS', [0,0,4,4]),
     ]))
     story.append(tb_table)
 

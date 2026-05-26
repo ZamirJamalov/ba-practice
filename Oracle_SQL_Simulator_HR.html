@@ -50,11 +50,14 @@
   .col-item:hover{color:var(--text);background:var(--surface2)}
   .col-item .col-pk{color:var(--yellow);margin-right:4px}
   .col-item .col-fk{color:var(--green);margin-right:4px}
-  .sample-list{padding:4px 8px 8px;overflow-y:auto}
-  .sample-item{padding:6px 10px;margin-bottom:3px;border-radius:4px;cursor:pointer;font-size:11px;color:var(--text);transition:background .15s;border:1px solid transparent;line-height:1.4}
-  .sample-item:hover{background:var(--surface2);border-color:var(--border)}
-  .sample-item .s-title{color:var(--green);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.3px}
-  .sample-item .s-sql{color:var(--text-muted);font-family:'Cascadia Code','Fira Code',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .saved-list{padding:4px 8px 8px;overflow-y:auto}
+  .saved-item{display:flex;align-items:center;gap:6px;padding:6px 10px;margin-bottom:3px;border-radius:4px;cursor:pointer;font-size:11px;color:var(--text);transition:background .15s;border:1px solid transparent;line-height:1.4}
+  .saved-item:hover{background:var(--surface2);border-color:var(--border)}
+  .saved-item .sq-name{color:var(--accent);font-weight:600;font-size:11px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .saved-item .sq-delete{color:var(--text-muted);font-size:13px;cursor:pointer;flex-shrink:0;padding:0 2px;border:none;background:none;line-height:1}
+  .saved-item .sq-delete:hover{color:var(--red)}
+  .saved-item .sq-sql{color:var(--text-muted);font-family:'Cascadia Code','Fira Code',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+  .saved-empty{padding:12px 10px;font-size:11px;color:var(--text-muted);text-align:center}
   .editor-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
   .editor-toolbar{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
   .btn{display:flex;align-items:center;gap:6px;padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
@@ -65,6 +68,8 @@
   .btn-clear:hover{color:var(--text);border-color:var(--text-muted)}
   .btn-format{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
   .btn-format:hover{color:var(--text);border-color:var(--text-muted)}
+  .btn-save{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
+  .btn-save:hover{color:var(--accent);border-color:var(--accent)}
   .exec-time{margin-left:auto;font-size:11px;color:var(--text-muted);font-family:monospace}
   .font-size-group{display:flex;align-items:center;gap:4px;margin-left:4px}
   .font-size-label{font-size:11px;color:var(--text-muted);white-space:nowrap}
@@ -123,7 +128,7 @@
 <body>
 <div class="header">
   <div class="header-left">
-    <div class="logo">Oracle SQL Simulator <span>| HR Schema Practice</span></div>
+    <div class="logo">Oracle SQL Simulator</div>
   </div>
   <div class="header-right">
     <select class="schema-select" id="schemaSelect">
@@ -145,11 +150,11 @@
       <div class="sidebar-body" id="tablesBody"></div>
     </div>
     <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-      <div class="sidebar-header" onclick="toggleSection('samples')">
-        <h3>Sample Queries</h3>
-        <span class="arrow open" id="samplesArrow">&#9660;</span>
+      <div class="sidebar-header" onclick="toggleSection('saved')">
+        <h3>Saved Queries</h3>
+        <span class="arrow open" id="savedArrow">&#9660;</span>
       </div>
-      <div class="sample-list" id="samplesBody" style="flex:1;overflow-y:auto"></div>
+      <div class="saved-list" id="savedBody" style="flex:1;overflow-y:auto"></div>
     </div>
   </div>
   <div class="editor-area">
@@ -157,6 +162,7 @@
       <button class="btn btn-run" id="runBtn" onclick="executeQuery()">&#9654; Run</button>
       <button class="btn btn-clear" onclick="clearEditor()">&#10005; Clear</button>
       <button class="btn btn-format" onclick="formatQuery()">&#8677; Format</button>
+      <button class="btn btn-save" onclick="saveQuery()">&#128190; Save</button>
       <div class="font-size-group">
         <span class="font-size-label">Font:</span>
         <select class="font-size-select" id="fontSizeSelect" onchange="changeEditorFontSize(this.value)">
@@ -184,7 +190,7 @@
       <div class="empty-state" id="emptyState">
         <div class="es-icon">&#128450;</div>
         <div class="es-title">No Results Yet</div>
-        <div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.<br>Select a sample query from the sidebar to get started.</div>
+        <div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.</div>
       </div>
       <div class="results-info" id="resultsInfo" style="display:none">
         <span>Rows: <span class="ri-count" id="rowCount">0</span></span>
@@ -196,7 +202,7 @@
   </div>
 </div>
 <div class="statusbar">
-  <span><span class="status-dot"></span>Ready - AlaSQL Engine | HR Schema Loaded</span>
+  <span><span class="status-dot"></span>Ready</span>
   <span id="dbInfo"></span>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/alasql/4.5.0/alasql.min.js"></script>
@@ -465,25 +471,6 @@ const TABLE_META = {
   }
 };
 
-const SAMPLES = [
-  {title:'Basic SELECT',cat:'Basics',sql:'SELECT * FROM employees'},
-  {title:'SELECT with WHERE',cat:'Basics',sql:'SELECT first_name, last_name, salary\nFROM employees\nWHERE salary > 10000'},
-  {title:'ORDER BY',cat:'Basics',sql:'SELECT last_name, salary\nFROM employees\nORDER BY salary DESC'},
-  {title:'INNER JOIN',cat:'JOINs',sql:'SELECT e.last_name, d.department_name\nFROM employees e\nJOIN departments d\n  ON e.department_id = d.department_id'},
-  {title:'LEFT JOIN',cat:'JOINs',sql:'SELECT e.last_name, d.department_name\nFROM employees e\nLEFT JOIN departments d\n  ON e.department_id = d.department_id'},
-  {title:'RIGHT JOIN',cat:'JOINs',sql:'SELECT e.last_name, d.department_name\nFROM employees e\nRIGHT JOIN departments d\n  ON e.department_id = d.department_id'},
-  {title:'3-Table JOIN',cat:'JOINs',sql:'SELECT e.last_name, d.department_name, j.job_title\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id\nJOIN jobs j ON e.job_id = j.job_id'},
-  {title:'4-Table JOIN',cat:'JOINs',sql:'SELECT e.last_name, d.department_name, j.job_title, l.city\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id\nJOIN jobs j ON e.job_id = j.job_id\nJOIN locations l ON d.location_id = l.location_id'},
-  {title:'5-Table JOIN Chain',cat:'JOINs',sql:'SELECT e.last_name, d.department_name, l.city,\n       c.country_name, r.region_name\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id\nJOIN locations l ON d.location_id = l.location_id\nJOIN countries c ON l.country_id = c.country_id\nJOIN regions r ON c.region_id = r.region_id\nORDER BY r.region_name, c.country_name'},
-  {title:'SELF JOIN (Employee-Manager)',cat:'JOINs',sql:'SELECT e.last_name AS employee,\n       m.last_name AS manager\nFROM employees e\nLEFT JOIN employees m\n  ON e.manager_id = m.employee_id'},
-  {title:'GROUP BY + COUNT',cat:'Aggregate',sql:'SELECT d.department_name, COUNT(*) AS emp_count\nFROM departments d\nLEFT JOIN employees e\n  ON d.department_id = e.department_id\nGROUP BY d.department_name\nORDER BY emp_count DESC'},
-  {title:'GROUP BY + AVG',cat:'Aggregate',sql:'SELECT d.department_name,\n       ROUND(AVG(e.salary)) AS avg_salary\nFROM departments d\nJOIN employees e\n  ON d.department_id = e.department_id\nGROUP BY d.department_name\nORDER BY avg_salary DESC'},
-  {title:'HAVING',cat:'Aggregate',sql:'SELECT d.department_name, COUNT(*) AS cnt\nFROM departments d\nJOIN employees e ON d.department_id = e.department_id\nGROUP BY d.department_name\nHAVING COUNT(*) > 5'},
-  {title:'Find NULL values',cat:'Advanced',sql:'SELECT last_name, department_id\nFROM employees\nWHERE department_id IS NULL'},
-  {title:'LEFT JOIN + IS NULL',cat:'Advanced',sql:'SELECT d.department_name\nFROM departments d\nLEFT JOIN employees e\n  ON d.department_id = e.department_id\nWHERE e.employee_id IS NULL'},
-  {title:'6-Table Full Report',cat:'Advanced',sql:'SELECT e.last_name, j.job_title,\n       d.department_name, l.city,\n       c.country_name, r.region_name\nFROM employees e\nLEFT JOIN jobs j ON e.job_id = j.job_id\nLEFT JOIN departments d ON e.department_id = d.department_id\nLEFT JOIN locations l ON d.location_id = l.location_id\nLEFT JOIN countries c ON l.country_id = c.country_id\nLEFT JOIN regions r ON c.region_id = r.region_id\nORDER BY d.department_name, e.last_name'}
-];
-
 // ============================================================
 // STATE
 // ============================================================
@@ -543,17 +530,6 @@ function buildSidebar() {
     html += '</div>';
   }
   body.innerHTML = html;
-
-  var sbody = document.getElementById('samplesBody');
-  var shtml = '';
-  for (var si = 0; si < SAMPLES.length; si++) {
-    var s = SAMPLES[si];
-    shtml += '<div class="sample-item" onclick="loadSample(this)" data-sql="' + encodeURIComponent(s.sql) + '">';
-    shtml += '<div class="s-title">' + s.cat + '</div>';
-    shtml += '<div class="s-sql">' + s.sql.replace(/\n/g, ' ').substring(0, 60) + '...</div>';
-    shtml += '</div>';
-  }
-  sbody.innerHTML = shtml;
 }
 
 function toggleTable(table, el) {
@@ -585,9 +561,73 @@ function insertColumn(table, column) {
   updateLineNumbers();
 }
 
-function loadSample(el) {
-  document.getElementById('sqlEditor').value = decodeURIComponent(el.dataset.sql);
-  updateLineNumbers();
+// ============================================================
+// SAVED QUERIES
+// ============================================================
+var SAVED_KEY = 'sql-sim-saved-queries';
+
+function getSavedQueries() {
+  try {
+    return JSON.parse(localStorage.getItem(SAVED_KEY)) || [];
+  } catch(e) { return []; }
+}
+
+function saveQuery() {
+  var ed = document.getElementById('sqlEditor');
+  var sql = ed.value.trim();
+  if (!sql) return;
+
+  var name = '';
+  var match = sql.match(/SELECT\s+(?:DISTINCT\s+)?(.+?)\s+FROM/i);
+  if (match) {
+    name = match[1].replace(/\s+/g,' ').substring(0, 40);
+  } else {
+    name = sql.substring(0, 40).replace(/\n/g,' ');
+  }
+
+  var saved = getSavedQueries();
+  var id = Date.now();
+  saved.push({ id: id, name: name, sql: sql, date: new Date().toLocaleDateString() });
+  localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
+  renderSavedQueries();
+}
+
+function deleteSavedQuery(id) {
+  var saved = getSavedQueries();
+  saved = saved.filter(function(q) { return q.id !== id; });
+  localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
+  renderSavedQueries();
+}
+
+function loadSavedQuery(id) {
+  var saved = getSavedQueries();
+  var q = saved.find(function(q) { return q.id === id; });
+  if (q) {
+    document.getElementById('sqlEditor').value = q.sql;
+    updateLineNumbers();
+  }
+}
+
+function renderSavedQueries() {
+  var body = document.getElementById('savedBody');
+  var saved = getSavedQueries();
+  if (saved.length === 0) {
+    body.innerHTML = '<div class="saved-empty">No saved queries yet</div>';
+    return;
+  }
+  var html = '';
+  for (var i = saved.length - 1; i >= 0; i--) {
+    var q = saved[i];
+    var sqlPreview = q.sql.replace(/\n/g,' ').substring(0, 50);
+    html += '<div class="saved-item" onclick="loadSavedQuery(' + q.id + ')">';
+    html += '<div style="width:100%;overflow:hidden">';
+    html += '<div class="sq-name">' + q.name + '</div>';
+    html += '<div class="sq-sql">' + sqlPreview + (q.sql.length > 50 ? '...' : '') + '</div>';
+    html += '</div>';
+    html += '<span class="sq-delete" onclick="event.stopPropagation();deleteSavedQuery(' + q.id + ')" title="Delete">&#10005;</span>';
+    html += '</div>';
+  }
+  body.innerHTML = html;
 }
 
 // ============================================================
@@ -1196,6 +1236,7 @@ initTheme();
 initFontSize();
 initDB();
 buildSidebar();
+renderSavedQueries();
 updateLineNumbers();
 editor.value = 'SELECT e.last_name, d.department_name, j.job_title, e.salary\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id\nJOIN jobs j ON e.job_id = j.job_id\nORDER BY e.salary DESC';
 updateLineNumbers();

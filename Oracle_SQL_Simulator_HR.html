@@ -536,12 +536,51 @@ function initDB() {
 }
 
 // ============================================================
+// ORACLE SQL PREPROCESSOR - Convert Oracle syntax to SQLite
+// ============================================================
+function preprocessOracleSQL(sql) {
+  // EXTRACT(YEAR FROM expr) → extract_year(expr)
+  sql = sql.replace(/EXTRACT\s*\(\s*(YEAR|MONTH|DAY|HOUR|MINUTE|SECOND|QUARTER|WEEK|DOW|DOY)\s+FROM\s+/gi,
+    function(match, part) {
+      return 'extract_' + part.toLowerCase() + '(';
+    }
+  );
+  return sql;
+}
+
+// ============================================================
 // ORACLE UDFs - Custom functions for Oracle compatibility
 // ============================================================
 function registerOracleFunctions() {
   // NVL(expr1, expr2) - return first non-null
   db.create_function('nvl', function(a, b) { return (a === null || a === undefined) ? b : a; });
   db.create_function('nvl2', function(a, b, c) { return (a !== null && a !== undefined) ? b : c; });
+
+  // EXTRACT_YEAR, EXTRACT_MONTH, EXTRACT_DAY etc. (from Oracle EXTRACT(part FROM expr))
+  db.create_function('extract_year', function(d) {
+    if (!d) return null;
+    return new Date(d).getFullYear();
+  });
+  db.create_function('extract_month', function(d) {
+    if (!d) return null;
+    return new Date(d).getMonth() + 1;
+  });
+  db.create_function('extract_day', function(d) {
+    if (!d) return null;
+    return new Date(d).getDate();
+  });
+  db.create_function('extract_hour', function(d) {
+    if (!d) return null;
+    return new Date(d).getHours();
+  });
+  db.create_function('extract_minute', function(d) {
+    if (!d) return null;
+    return new Date(d).getMinutes();
+  });
+  db.create_function('extract_second', function(d) {
+    if (!d) return null;
+    return new Date(d).getSeconds();
+  });
 
   // SYSDATE - current date/time
   db.create_function('sysdate', function() {
@@ -1212,8 +1251,9 @@ function executeQuery() {
 
   setTimeout(function() {
     try {
+      var sqlToRun = preprocessOracleSQL(sql);
       var t0 = performance.now();
-      var sqlResults = db.exec(sql);
+      var sqlResults = db.exec(sqlToRun);
       var elapsed = (performance.now() - t0).toFixed(1);
       timeEl.textContent = elapsed + ' ms';
 

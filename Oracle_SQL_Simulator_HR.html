@@ -676,15 +676,26 @@ function convertPivot(sql) {
   }
   if (inItems.length === 0) return sql;
 
-  // Extract aggregate function and expression (everything before FOR)
+  // Extract aggregate functions (everything before FOR) — support multiple: SUM(x) AS a, COUNT(y) AS b
   var aggPart = pivotBody.substring(0, pivotBody.indexOf('FOR')).trim();
-  var aggMatch = aggPart.match(/(\w+)\s*\(\s*([\w\s.,*]+?)\s*\)$/i);
-  if (!aggMatch) return sql;
-  var aggFunc = aggMatch[1].toUpperCase();
-  var aggExpr = aggMatch[2].trim();
-  var aggIsStar = (aggExpr === '*');
+  var aggregates = [];
+  // Parse each aggregate: FUNC(expr) [AS alias], FUNC(expr) [AS alias], ...
+  var aggRe = /(\w+)\s*\(([^()]*)\)\s*(?:AS\s+(\w+))?\s*,?/gi;
+  var am;
+  while ((am = aggRe.exec(aggPart)) !== null) {
+    var func = am[1].toUpperCase();
+    var expr = am[2].trim();
+    var alias = am[3] || (func + '_' + expr.replace(/[^a-zA-Z0-9_]/g, '_'));
+    aggregates.push({ func: func, expr: expr, alias: alias, isStar: expr === '*' });
+  }
+  if (aggregates.length === 0) return sql;
 
   // Step 5: Determine GROUP BY columns from source query
+  // Collect all aggregate expressions to exclude them from GROUP BY
+  var aggExprs = [];
+  for (var ai = 0; ai < aggregates.length; ai++) {
+    if (aggregates[ai].expr !== '*') aggExprs.push(aggregates[ai].expr.toLowerCase());
+  }
   var groupCols = [];
   var selMatch = sourceQuery.match(/SELECT\s+([\s\S]*?)\s+FROM\s/i);
   if (selMatch) {
@@ -693,11 +704,12 @@ function convertPivot(sql) {
       var c = cols[ci].trim();
       if (!c) continue;
       var colName = c.replace(/.*\./g, '').trim();
-      var am = colName.match(/(?:AS\s+)?(\w+)\s*$/i);
-      if (am) colName = am[1];
+      var am2 = colName.match(/(?:AS\s+)?(\w+)\s*$/i);
+      if (am2) colName = am2[1];
       var bare = c.trim().replace(/.*\s+(\w+)\s*$/i, '$1');
       var skip = (colName.toLowerCase() === pivotCol.toLowerCase() || bare.toLowerCase() === pivotCol.toLowerCase());
-      if (!skip && aggExpr !== '*' && (colName.toLowerCase() === aggExpr.toLowerCase() || bare.toLowerCase() === aggExpr.toLowerCase())) skip = true;
+      if (!skip && aggExprs.indexOf(colName.toLowerCase()) >= 0) skip = true;
+      if (!skip && aggExprs.indexOf(bare.toLowerCase()) >= 0) skip = true;
       if (c.trim() === '*') skip = true;
       if (!skip) groupCols.push(colName);
     }
@@ -709,12 +721,16 @@ function convertPivot(sql) {
     if (tblMatch) groupCols.push('*');
   }
 
-  // Step 6: Build SUM(CASE WHEN...) SELECT
+  // Step 6: Build SUM(CASE WHEN...) SELECT for each aggregate × IN value combination
+  // Oracle generates columns as: valueAlias_aggAlias (e.g., MGR_TOTAL_PAY, MGR_HEADCOUNT)
   var caseLines = [];
   for (var ii = 0; ii < inItems.length; ii++) {
     var valStr = inItems[ii].quoted ? "'" + inItems[ii].value + "'" : inItems[ii].value;
-    var thenExpr = aggIsStar ? '1' : aggExpr;
-    caseLines.push('    ' + aggFunc + '(CASE WHEN ' + pivotCol + ' = ' + valStr + ' THEN ' + thenExpr + ' END) AS ' + inItems[ii].alias);
+    for (var ai = 0; ai < aggregates.length; ai++) {
+      var thenExpr = aggregates[ai].isStar ? '1' : aggregates[ai].expr;
+      var colName = inItems[ii].alias + '_' + aggregates[ai].alias.toUpperCase();
+      caseLines.push('    ' + aggregates[ai].func + '(CASE WHEN ' + pivotCol + ' = ' + valStr + ' THEN ' + thenExpr + ' END) AS ' + colName);
+    }
   }
   var groupByStr = groupCols.length > 0 && groupCols[0] !== '*' ? groupCols.join(', ') : pivotCol;
   if (groupCols[0] === '*') groupByStr = pivotCol;

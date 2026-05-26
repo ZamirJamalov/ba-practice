@@ -594,6 +594,26 @@ function preprocessOracleSQL(sql) {
   return sql;
 }
 
+// Split string by commas, respecting parenthesis nesting
+function splitTopLevelCommas(str) {
+  var parts = [];
+  var depth = 0;
+  var current = '';
+  for (var i = 0; i < str.length; i++) {
+    var ch = str.charAt(i);
+    if (ch === '(') depth++;
+    else if (ch === ')') depth--;
+    else if (ch === ',' && depth === 0) {
+      parts.push(current);
+      current = '';
+      continue;
+    }
+    current += ch;
+  }
+  if (current.trim()) parts.push(current);
+  return parts;
+}
+
 // ============================================================
 // PIVOT converter: Oracle PIVOT → SUM(CASE WHEN...) GROUP BY
 // ============================================================
@@ -665,17 +685,21 @@ function convertPivot(sql) {
   var aggIsStar = (aggExpr === '*');
 
   // Step 5: Determine GROUP BY columns from source query
-  // The source is a subquery — find columns that are NOT the pivot column and NOT the aggregated column
   var groupCols = [];
-  // Try to detect columns from SELECT in source
-  var selMatch = sourceQuery.match(/SELECT\s+(.*?)\s+FROM/i);
+  var selMatch = sourceQuery.match(/SELECT\s+([\s\S]*?)\s+FROM\s/i);
   if (selMatch) {
-    var cols = selMatch[1].split(',');
+    var cols = splitTopLevelCommas(selMatch[1]);
     for (var ci = 0; ci < cols.length; ci++) {
-      var c = cols[ci].trim().replace(/.*\./, ''); // remove table alias
-      if (c.toLowerCase() !== pivotCol.toLowerCase() && c.toLowerCase() !== aggExpr.toLowerCase() && c !== '*') {
-        groupCols.push(c);
-      }
+      var c = cols[ci].trim();
+      if (!c) continue;
+      var colName = c.replace(/.*\./g, '').trim();
+      var am = colName.match(/(?:AS\s+)?(\w+)\s*$/i);
+      if (am) colName = am[1];
+      var bare = c.trim().replace(/.*\s+(\w+)\s*$/i, '$1');
+      var skip = (colName.toLowerCase() === pivotCol.toLowerCase() || bare.toLowerCase() === pivotCol.toLowerCase());
+      if (!skip && aggExpr !== '*' && (colName.toLowerCase() === aggExpr.toLowerCase() || bare.toLowerCase() === aggExpr.toLowerCase())) skip = true;
+      if (c.trim() === '*') skip = true;
+      if (!skip) groupCols.push(colName);
     }
   }
   if (groupCols.length === 0) {
@@ -764,16 +788,25 @@ function convertUnpivot(sql) {
 
   // Build UNION ALL — each item selects its own column value
   // Detect non-unpivoted columns from source SELECT to carry forward
-  var sourceSelMatch = sourceQuery.match(/SELECT\s+(.*?)\s+FROM/i);
+  var sourceSelMatch = sourceQuery.match(/SELECT\s+([\s\S]*?)\s+FROM\s/i);
   var unpivotColNames = [];
   for (var ii = 0; ii < inItems.length; ii++) unpivotColNames.push(inItems[ii].column.toLowerCase());
   var carryCols = '';
   if (sourceSelMatch) {
-    var srcCols = sourceSelMatch[1].split(',');
+    var srcCols = splitTopLevelCommas(sourceSelMatch[1]);
     var carryParts = [];
     for (var ci = 0; ci < srcCols.length; ci++) {
-      var cc = srcCols[ci].trim().replace(/.*\./, '');
-      if (unpivotColNames.indexOf(cc.toLowerCase()) < 0) carryParts.push(cc);
+      var cc = srcCols[ci].trim();
+      if (!cc) continue;
+      // Extract alias if present: "expr AS alias" or "expr alias"
+      var colName = cc.replace(/.*\./g, '').trim();
+      var aliasMatch = colName.match(/(?:AS\s+)?(\w+)\s*$/i);
+      if (aliasMatch) colName = aliasMatch[1];
+      // Also try the last word before potential alias
+      var bareName = cc.trim().replace(/.*\s+(\w+)\s*$/i, '$1');
+      if (unpivotColNames.indexOf(colName.toLowerCase()) < 0 && unpivotColNames.indexOf(bareName.toLowerCase()) < 0) {
+        carryParts.push(cc.trim());
+      }
     }
     carryCols = carryParts.join(', ') + ', ';
   }

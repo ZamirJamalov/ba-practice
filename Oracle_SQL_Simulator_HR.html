@@ -12,7 +12,10 @@
     --green:#3fb950;--red:#f85149;--yellow:#d29922;--purple:#bc8cff;
     --editor-bg:#0d1117;--grid-header:#1c2333;--grid-row1:#161b22;--grid-row2:#0d1117;
     --editor-color:#e6edf3;--hover-row:rgba(56,139,253,.06);
-    --selection-bg:rgba(56,139,253,.3);--accent-hover:#79c0ff
+    --selection-bg:rgba(56,139,253,.3);--accent-hover:#79c0ff;
+    --sql-keyword:#569cd6;--sql-function:#dcdcaa;--sql-string:#ce9178;
+    --sql-number:#b5cea8;--sql-comment:#6a9955;
+    --row-selected:rgba(56,139,253,.15)
   }
   [data-theme="light"]{
     --bg:#f6f8fa;--surface:#ffffff;--surface2:#f0f2f5;--border:#d0d7de;
@@ -20,7 +23,10 @@
     --green:#1a7f37;--red:#d1242f;--yellow:#9a6700;--purple:#8250df;
     --editor-bg:#ffffff;--grid-header:#f0f2f5;--grid-row1:#ffffff;--grid-row2:#f6f8fa;
     --editor-color:#1f2328;--hover-row:rgba(9,105,218,.04);
-    --selection-bg:rgba(9,105,218,.15);--accent-hover:#0550ae
+    --selection-bg:rgba(9,105,218,.15);--accent-hover:#0550ae;
+    --sql-keyword:#0000ff;--sql-function:#795e26;--sql-string:#a31515;
+    --sql-number:#098658;--sql-comment:#008000;
+    --row-selected:rgba(9,105,218,.12)
   }
   body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
   .header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
@@ -33,7 +39,9 @@
   .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
   .theme-toggle svg{width:16px;height:16px;flex-shrink:0}
   .main{display:flex;flex:1;overflow:hidden}
-  .sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+  .sidebar-resizer{width:4px;cursor:col-resize;background:var(--border);flex-shrink:0;transition:background .15s;position:relative;z-index:5}
+  .sidebar-resizer:hover,.sidebar-resizer.active{background:var(--accent)}
   .sidebar-section{border-bottom:1px solid var(--border)}
   .sidebar-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none}
   .sidebar-header h3{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);font-weight:600}
@@ -78,9 +86,11 @@
   .editor-wrap{flex:1;display:flex;position:relative;overflow:hidden;min-height:180px}
   .editor-line-numbers{width:44px;background:var(--surface);padding:12px 0;text-align:right;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;color:var(--text-muted);overflow:hidden;user-select:none;flex-shrink:0;border-right:1px solid var(--border)}
   .editor-line-numbers div{padding-right:10px}
-  .sql-editor{flex:1;background:var(--editor-bg);color:var(--editor-color);border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:auto;white-space:pre;overflow-wrap:normal}
-  .sql-editor::selection{background:var(--selection-bg)}
+  .sql-editor{flex:1;background:var(--editor-bg);color:transparent;border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:auto;white-space:pre;overflow-wrap:normal;caret-color:var(--editor-color);position:relative;z-index:2}
+  .sql-editor::selection{background:var(--selection-bg);color:transparent}
   .sql-editor::placeholder{color:var(--text-muted)}
+  .sql-highlight-layer{position:absolute;top:0;left:0;right:0;bottom:0;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:auto;white-space:pre;overflow-wrap:normal;pointer-events:none;z-index:1;color:var(--editor-color);background:transparent;border:none;margin:0}
+  .sql-highlight-layer code{font-family:inherit;font-size:inherit;line-height:inherit;tab-size:inherit}
   .resizer{height:5px;background:var(--border);cursor:row-resize;flex-shrink:0;transition:background .15s}
   .resizer:hover,.resizer.active{background:var(--accent)}
   .error-bar{display:none;padding:8px 16px;background:rgba(248,81,73,.1);border-bottom:1px solid var(--red);color:var(--red);font-size:12px;font-family:monospace;flex-shrink:0;align-items:center;gap:8px}
@@ -103,6 +113,7 @@
   .results-table tr:nth-child(odd) td{background:var(--grid-row1)}
   .results-table tr:nth-child(even) td{background:var(--grid-row2)}
   .results-table tr:hover td{background:var(--hover-row)}
+  .results-table tr.row-selected td{background:var(--row-selected) !important}
   .results-table td.null-val{color:var(--text-muted);font-style:italic}
   .results-table td.number-val{color:var(--green);text-align:right}
   .results-table th.drag-over-left{box-shadow:inset 3px 0 0 var(--accent)}
@@ -121,6 +132,7 @@
   .statusbar .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:6px;display:inline-block}
   @media(max-width:768px){
     .sidebar{display:none}
+    .sidebar-resizer{display:none}
     .main{flex-direction:column}
   }
 </style>
@@ -141,7 +153,7 @@
   </div>
 </div>
 <div class="main">
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar" style="width:260px">
     <div class="sidebar-section">
       <div class="sidebar-header" onclick="toggleSection('tables')">
         <h3>Tables</h3>
@@ -151,12 +163,13 @@
     </div>
     <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
       <div class="sidebar-header" onclick="toggleSection('saved')">
-        <h3>Saved Queries</h3>
+        <h3>Query History</h3>
         <span class="arrow open" id="savedArrow">&#9660;</span>
       </div>
       <div class="saved-list" id="savedBody" style="flex:1;overflow-y:auto"></div>
     </div>
   </div>
+  <div class="sidebar-resizer" id="sidebarResizer"></div>
   <div class="editor-area">
     <div class="editor-toolbar">
       <button class="btn btn-run" id="runBtn" onclick="executeQuery()">&#9654; Run</button>
@@ -179,7 +192,10 @@
     </div>
     <div class="editor-wrap" id="editorWrap">
       <div class="editor-line-numbers" id="lineNumbers"><div>1</div></div>
-      <textarea class="sql-editor" id="sqlEditor" placeholder="Write your SQL query here...&#10;&#10;Example: SELECT * FROM employees" spellcheck="false"></textarea>
+      <div style="flex:1;position:relative;overflow:hidden">
+        <pre class="sql-highlight-layer" id="sqlHighlight"><code id="sqlHighlightCode"></code></pre>
+        <textarea class="sql-editor" id="sqlEditor" placeholder="Write your SQL query here...&#10;&#10;Example: SELECT * FROM employees" spellcheck="false"></textarea>
+      </div>
     </div>
     <div class="resizer" id="resizer"></div>
     <div class="error-bar" id="errorBar">
@@ -477,6 +493,7 @@ const TABLE_META = {
 let currentResult = null;
 let sortCol = null;
 let sortDir = 'asc';
+let selectedRow = null;
 
 // ============================================================
 // INIT - Load data into AlaSQL
@@ -559,10 +576,11 @@ function insertColumn(table, column) {
   ed.focus();
   ed.setSelectionRange(pos + insert.length, pos + insert.length);
   updateLineNumbers();
+  updateHighlight();
 }
 
 // ============================================================
-// SAVED QUERIES
+// SAVED QUERIES (Query History)
 // ============================================================
 var SAVED_KEY = 'sql-sim-saved-queries';
 
@@ -577,17 +595,63 @@ function saveQuery() {
   var sql = ed.value.trim();
   if (!sql) return;
 
+  // Download as .sql file
+  var now = new Date();
+  var ts = now.getFullYear().toString() +
+    String(now.getMonth()+1).padStart(2,'0') +
+    String(now.getDate()).padStart(2,'0') + '_' +
+    String(now.getHours()).padStart(2,'0') +
+    String(now.getMinutes()).padStart(2,'0') +
+    String(now.getSeconds()).padStart(2,'0');
+  var filename = 'query_' + ts + '.sql';
+  var blob = new Blob([sql], { type: 'text/sql;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function addQueryToHistory(sql) {
+  var trimmed = sql.trim();
+  if (!trimmed) return;
+
+  var saved = getSavedQueries();
+
+  // Check for duplicates - remove existing one if found
+  var existingIdx = -1;
+  for (var i = 0; i < saved.length; i++) {
+    if (saved[i].sql === trimmed) {
+      existingIdx = i;
+      break;
+    }
+  }
+
+  // Remove duplicate if exists
+  if (existingIdx >= 0) {
+    saved.splice(existingIdx, 1);
+  }
+
+  // Generate name
   var name = '';
-  var match = sql.match(/SELECT\s+(?:DISTINCT\s+)?(.+?)\s+FROM/i);
+  var match = trimmed.match(/SELECT\s+(?:DISTINCT\s+)?(.+?)\s+FROM/i);
   if (match) {
     name = match[1].replace(/\s+/g,' ').substring(0, 40);
   } else {
-    name = sql.substring(0, 40).replace(/\n/g,' ');
+    name = trimmed.substring(0, 40).replace(/\n/g,' ');
   }
 
-  var saved = getSavedQueries();
-  var id = Date.now();
-  saved.push({ id: id, name: name, sql: sql, date: new Date().toLocaleDateString() });
+  // Add at the beginning (most recent first)
+  saved.unshift({ id: Date.now(), name: name, sql: trimmed, date: new Date().toLocaleDateString() });
+
+  // Limit to 100 items
+  if (saved.length > 100) {
+    saved = saved.slice(0, 100);
+  }
+
   localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
   renderSavedQueries();
 }
@@ -605,6 +669,7 @@ function loadSavedQuery(id) {
   if (q) {
     document.getElementById('sqlEditor').value = q.sql;
     updateLineNumbers();
+    updateHighlight();
   }
 }
 
@@ -612,11 +677,12 @@ function renderSavedQueries() {
   var body = document.getElementById('savedBody');
   var saved = getSavedQueries();
   if (saved.length === 0) {
-    body.innerHTML = '<div class="saved-empty">No saved queries yet</div>';
+    body.innerHTML = '<div class="saved-empty">No query history yet</div>';
     return;
   }
   var html = '';
-  for (var i = saved.length - 1; i >= 0; i--) {
+  // saved is already ordered most-recent first
+  for (var i = 0; i < saved.length; i++) {
     var q = saved[i];
     var sqlPreview = q.sql.replace(/\n/g,' ').substring(0, 50);
     html += '<div class="saved-item" onclick="loadSavedQuery(' + q.id + ')">';
@@ -668,10 +734,13 @@ function changeEditorFontSize(size) {
   var sz = parseInt(size, 10);
   var ed = document.getElementById('sqlEditor');
   var ln = document.getElementById('lineNumbers');
+  var hl = document.getElementById('sqlHighlight');
   ed.style.fontSize = sz + 'px';
   ed.style.lineHeight = (sz * 1.6) + 'px';
   ln.style.fontSize = sz + 'px';
   ln.style.lineHeight = (sz * 1.6) + 'px';
+  hl.style.fontSize = sz + 'px';
+  hl.style.lineHeight = (sz * 1.6) + 'px';
   document.getElementById('fontSizeSelect').value = String(sz);
   localStorage.setItem('sql-sim-fontsize', String(sz));
 }
@@ -684,10 +753,130 @@ function initFontSize() {
 }
 
 // ============================================================
-// SQL EDITOR - Line numbers + shortcuts
+// SQL SYNTAX HIGHLIGHTING
+// ============================================================
+var SQL_KEYWORDS = [
+  'SELECT','FROM','WHERE','JOIN','LEFT','RIGHT','INNER','FULL','OUTER',
+  'ON','AND','OR','NOT','IN','BETWEEN','LIKE','IS','NULL','AS',
+  'ORDER','BY','GROUP','HAVING','DISTINCT','INSERT','UPDATE','DELETE',
+  'CREATE','DROP','TABLE','INTO','VALUES','SET','LIMIT','OFFSET',
+  'UNION','ALL','EXISTS','CASE','WHEN','THEN','ELSE','END',
+  'ASC','DESC','WITH','COUNT','SUM','AVG','MIN','MAX','ROUND'
+];
+
+var SQL_FUNCTIONS = [
+  'COUNT','SUM','AVG','MIN','MAX','ROUND','COALESCE','NULLIF','CAST',
+  'CONVERT','UPPER','LOWER','TRIM','SUBSTR','LENGTH','TO_DATE','TO_CHAR',
+  'NVL','DECODE'
+];
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightSQL(text) {
+  var result = '';
+  var i = 0;
+  var len = text.length;
+
+  // Build keyword regex pattern
+  var kwPattern = new RegExp('\\b(' + SQL_KEYWORDS.join('|') + ')\\b', 'i');
+  var funcPattern = new RegExp('\\b(' + SQL_FUNCTIONS.join('|') + ')\\b', 'i');
+
+  while (i < len) {
+    // Check for single-line comment --
+    if (text[i] === '-' && i + 1 < len && text[i + 1] === '-') {
+      var end = text.indexOf('\n', i);
+      if (end === -1) end = len;
+      result += '<span style="color:var(--sql-comment)">' + escapeHtml(text.substring(i, end)) + '</span>';
+      i = end;
+      continue;
+    }
+
+    // Check for multi-line comment /* */
+    if (text[i] === '/' && i + 1 < len && text[i + 1] === '*') {
+      var endC = text.indexOf('*/', i + 2);
+      if (endC === -1) endC = len;
+      else endC += 2;
+      result += '<span style="color:var(--sql-comment)">' + escapeHtml(text.substring(i, endC)) + '</span>';
+      i = endC;
+      continue;
+    }
+
+    // Check for string literal (single quotes)
+    if (text[i] === "'") {
+      var j = i + 1;
+      while (j < len) {
+        if (text[j] === "'" && j + 1 < len && text[j + 1] === "'") {
+          j += 2; // escaped quote
+        } else if (text[j] === "'") {
+          j++;
+          break;
+        } else {
+          j++;
+        }
+      }
+      result += '<span style="color:var(--sql-string)">' + escapeHtml(text.substring(i, j)) + '</span>';
+      i = j;
+      continue;
+    }
+
+    // Check for numbers
+    if (/\d/.test(text[i]) && (i === 0 || /[\s,;=<>+\-*/(]/.test(text[i-1]))) {
+      var numStart = i;
+      while (i < len && /[\d.]/.test(text[i])) i++;
+      // Check it's not part of an identifier (e.g. table name starting with digit)
+      if (i < len && /[a-zA-Z_]/.test(text[i])) {
+        // It's an identifier like 3M, backtrack
+        i = numStart;
+        result += escapeHtml(text[i]);
+        i++;
+        continue;
+      }
+      result += '<span style="color:var(--sql-number)">' + text.substring(numStart, i) + '</span>';
+      continue;
+    }
+
+    // Check for word (identifier or keyword)
+    if (/[a-zA-Z_]/.test(text[i])) {
+      var wordStart = i;
+      while (i < len && /[a-zA-Z0-9_]/.test(text[i])) i++;
+      var word = text.substring(wordStart, i);
+
+      // Check if it's a function (followed by '(')
+      var lookAhead = i;
+      while (lookAhead < len && text[lookAhead] === ' ') lookAhead++;
+      var isFunc = lookAhead < len && text[lookAhead] === '(';
+
+      if (isFunc && funcPattern.test(word)) {
+        result += '<span style="color:var(--sql-function)">' + escapeHtml(word) + '</span>';
+      } else if (kwPattern.test(word)) {
+        result += '<span style="color:var(--sql-keyword)">' + escapeHtml(word) + '</span>';
+      } else {
+        result += escapeHtml(word);
+      }
+      continue;
+    }
+
+    // Default: pass through character
+    result += escapeHtml(text[i]);
+    i++;
+  }
+
+  return result;
+}
+
+function updateHighlight() {
+  var code = document.getElementById('sqlHighlightCode');
+  code.innerHTML = highlightSQL(editor.value) + '\n';
+}
+
+// ============================================================
+// SQL EDITOR - Line numbers + shortcuts + highlighting
 // ============================================================
 var editor = document.getElementById('sqlEditor');
 var lineNums = document.getElementById('lineNumbers');
+var highlightLayer = document.getElementById('sqlHighlight');
 
 function updateLineNumbers() {
   var lines = editor.value.split('\n').length;
@@ -696,8 +885,15 @@ function updateLineNumbers() {
   lineNums.innerHTML = html;
 }
 
-editor.addEventListener('input', updateLineNumbers);
-editor.addEventListener('scroll', function() { lineNums.scrollTop = editor.scrollTop; });
+editor.addEventListener('input', function() {
+  updateLineNumbers();
+  updateHighlight();
+});
+editor.addEventListener('scroll', function() {
+  lineNums.scrollTop = editor.scrollTop;
+  highlightLayer.scrollTop = editor.scrollTop;
+  highlightLayer.scrollLeft = editor.scrollLeft;
+});
 
 editor.addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
@@ -711,6 +907,7 @@ editor.addEventListener('keydown', function(e) {
     this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
     this.selectionStart = this.selectionEnd = start + 2;
     updateLineNumbers();
+    updateHighlight();
   }
 });
 
@@ -840,20 +1037,28 @@ function executeQuery() {
           currentResult = result;
           sortCol = null;
           sortDir = 'asc';
+          selectedRow = null;
           renderResult(result);
+          // Auto-add to query history on success
+          addQueryToHistory(sql);
         } else {
           // Array of primitives or empty array
           currentResult = null;
           showScalarResult(result);
+          // Empty array results still count as success
+          addQueryToHistory(sql);
         }
       } else if (typeof result === 'object' && result !== null) {
         currentResult = [result];
         sortCol = null;
         sortDir = 'asc';
+        selectedRow = null;
         renderResult([result]);
+        addQueryToHistory(sql);
       } else {
         currentResult = null;
         showAffectedRows(result);
+        addQueryToHistory(sql);
       }
     } catch(err) {
       showError(err.message || String(err));
@@ -887,6 +1092,7 @@ function showScalarResult(data) {
   currentResult = converted;
   sortCol = null;
   sortDir = 'asc';
+  selectedRow = null;
   renderResult(converted);
 }
 
@@ -900,7 +1106,7 @@ function hideError() {
 }
 
 // ============================================================
-// RENDER RESULTS
+// RENDER RESULTS (with row selection)
 // ============================================================
 function renderResult(data) {
   var empty = document.getElementById('emptyState');
@@ -965,7 +1171,7 @@ function renderResult(data) {
   tableHtml += '</tr></thead><tbody>';
 
   for (var rowIdx = 0; rowIdx < data.length; rowIdx++) {
-    tableHtml += '<tr>';
+    tableHtml += '<tr onclick="toggleRowSelection(this)" data-row-idx="' + rowIdx + '">';
     tableHtml += '<td style="color:var(--text-muted);text-align:center;font-size:10px">' + (rowIdx + 1) + '</td>';
     for (var colIdx = 0; colIdx < headers.length; colIdx++) {
       var cellVal = data[rowIdx][headers[colIdx]];
@@ -992,6 +1198,32 @@ function renderResult(data) {
   // Attach column resize and drag listeners
   initColumnResize();
   initColumnDragDrop();
+  initRowSelection();
+}
+
+// ============================================================
+// ROW SELECTION
+// ============================================================
+function initRowSelection() {
+  var table = document.getElementById('resultsTable');
+  if (!table) return;
+  var tbody = table.querySelector('tbody');
+  if (!tbody) return;
+}
+
+function toggleRowSelection(tr) {
+  // Check if this row is already selected
+  if (tr.classList.contains('row-selected')) {
+    tr.classList.remove('row-selected');
+    selectedRow = null;
+  } else {
+    // Deselect previously selected row
+    var prev = document.querySelector('.results-table tr.row-selected');
+    if (prev) prev.classList.remove('row-selected');
+    // Select this row
+    tr.classList.add('row-selected');
+    selectedRow = tr.getAttribute('data-row-idx');
+  }
 }
 
 // ============================================================
@@ -1164,10 +1396,12 @@ function sortByColumn(col) {
 function clearEditor() {
   editor.value = '';
   updateLineNumbers();
+  updateHighlight();
   hideError();
   currentResult = null;
   sortCol = null;
   sortDir = 'asc';
+  selectedRow = null;
   document.getElementById('emptyState').style.display = 'flex';
   document.getElementById('emptyState').innerHTML = '<div class="es-icon">&#128450;</div><div class="es-title">No Results Yet</div><div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.<br>Select a sample query from the sidebar to get started.</div>';
   document.getElementById('resultsInfo').style.display = 'none';
@@ -1196,7 +1430,39 @@ function formatQuery() {
   sql = sql.replace(/^(\s*)(ON|AND|OR)/gm, '  $1$2');
   editor.value = sql;
   updateLineNumbers();
+  updateHighlight();
 }
+
+// ============================================================
+// SIDEBAR RESIZER
+// ============================================================
+(function() {
+  var resizer = document.getElementById('sidebarResizer');
+  var sidebar = document.getElementById('sidebar');
+  var startX, startW;
+
+  resizer.addEventListener('mousedown', function(e) {
+    if (e.button !== 0) return;
+    startX = e.clientX;
+    startW = sidebar.offsetWidth;
+    resizer.classList.add('active');
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    e.preventDefault();
+  });
+
+  function onMove(e) {
+    var delta = e.clientX - startX;
+    var newW = Math.max(150, Math.min(500, startW + delta));
+    sidebar.style.width = newW + 'px';
+  }
+
+  function onUp() {
+    resizer.classList.remove('active');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+})();
 
 // ============================================================
 // RESIZER (editor/results split)
@@ -1238,8 +1504,7 @@ initDB();
 buildSidebar();
 renderSavedQueries();
 updateLineNumbers();
-editor.value = 'SELECT e.last_name, d.department_name, j.job_title, e.salary\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id\nJOIN jobs j ON e.job_id = j.job_id\nORDER BY e.salary DESC';
-updateLineNumbers();
+updateHighlight();
 </script>
 </body>
 </html>

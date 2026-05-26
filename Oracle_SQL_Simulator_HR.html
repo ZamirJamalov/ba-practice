@@ -633,14 +633,14 @@ function convertPivot(sql) {
     if (sql.charAt(k) === '(') parenCount--;
     if (parenCount === 0) { sourceStart = k; break; }
   }
-  // Remove leading SELECT ... FROM if present (the outer SELECT *)
-  var outerSelect = '';
+  // Capture outer SELECT column list and source subquery
+  var outerSelectCols = '*';
   var sourcePart = sql.substring(0, sourceStart).trim();
   if (/^SELECT\s/i.test(sourcePart)) {
-    // Find FROM in the outer select
-    var fromMatch = sourcePart.match(/^SELECT\s+.*?\s+FROM\s+(.*)/i);
-    if (fromMatch) {
-      outerSelect = sourcePart;
+    var osm = sourcePart.match(/^SELECT\s+([\s\S]*?)\s+FROM\s*$/i);
+    if (osm) {
+      var oc = osm[1].trim();
+      if (oc && oc !== '*') outerSelectCols = oc;
     }
   }
   var sourceQuery = sql.substring(sourceStart, sourceEnd + 1);
@@ -727,10 +727,15 @@ function convertPivot(sql) {
     if (trailing.charAt(trailing.length - 1) === ';') trailing = trailing.substring(0, trailing.length - 1).trim();
     var clauseMatch = trailing.match(/^(WHERE|ORDER\s+BY|GROUP\s+BY|HAVING|LIMIT)\s+([\s\S]*)$/i);
     if (clauseMatch) {
-      result = 'SELECT * FROM (' + result + ')' + '\n' + clauseMatch[1] + ' ' + clauseMatch[2];
+      result = 'SELECT ' + outerSelectCols + ' FROM (' + result + ')' + '\n' + clauseMatch[1] + ' ' + clauseMatch[2];
     } else {
       result += ' ' + trailing;
     }
+  }
+
+  // If no trailing clause but outer SELECT had specific columns, still wrap
+  if (!trailing && outerSelectCols !== '*') {
+    result = 'SELECT ' + outerSelectCols + ' FROM (' + result + ')';
   }
 
   return result;
@@ -755,6 +760,14 @@ function convertUnpivot(sql) {
   }
   var sourcePart = sql.substring(0, sourceStart).trim();
   var sourceQuery = sql.substring(sourceStart, sourceEnd + 1);
+
+  // Extract outer SELECT column list (e.g., "SELECT employee_id, payment_category FROM")
+  var outerSelectCols = '*';
+  var outerSelMatch = sourcePart.match(/^SELECT\s+([\s\S]*?)\s+FROM\s*$/i);
+  if (outerSelMatch) {
+    var oc = outerSelMatch[1].trim();
+    if (oc && oc !== '*') outerSelectCols = oc;
+  }
 
   // Extract UNPIVOT body
   var unpivotContentStart = sql.indexOf('(', sql.indexOf('UNPIVOT', unpivotIdx)) + 1;
@@ -825,10 +838,15 @@ function convertUnpivot(sql) {
     // Detect clause type (WHERE, ORDER BY, GROUP BY, HAVING, LIMIT)
     var clauseMatch = trailing.match(/^(WHERE|ORDER\s+BY|GROUP\s+BY|HAVING|LIMIT)\s+([\s\S]*)$/i);
     if (clauseMatch) {
-      result = 'SELECT * FROM (' + result + ')' + '\n' + clauseMatch[1] + ' ' + clauseMatch[2];
+      result = 'SELECT ' + outerSelectCols + ' FROM (' + result + ')' + '\n' + clauseMatch[1] + ' ' + clauseMatch[2];
     } else {
       result += ' ' + trailing;
     }
+  }
+
+  // If no trailing clause but outer SELECT had specific columns (not *), still wrap
+  if (!trailing && outerSelectCols !== '*') {
+    result = 'SELECT ' + outerSelectCols + ' FROM (' + result + ')';
   }
 
   return result;

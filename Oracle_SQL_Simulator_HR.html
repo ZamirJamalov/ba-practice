@@ -539,6 +539,9 @@ function initDB() {
 // ORACLE SQL PREPROCESSOR - Convert Oracle syntax to SQLite
 // ============================================================
 function preprocessOracleSQL(sql) {
+  // Strip single-line SQL comments (-- ...) before parsing
+  sql = sql.replace(/--[^\n]*/g, '');
+
   // EXTRACT(YEAR FROM expr) → extract_year(expr)
   sql = sql.replace(/EXTRACT\s*\(\s*(YEAR|MONTH|DAY|HOUR|MINUTE|SECOND|QUARTER|WEEK|DOW|DOY)\s+FROM\s+/gi,
     function(match, part) {
@@ -636,21 +639,25 @@ function convertPivot(sql) {
   var pivotCol = forMatch[1];
   var inList = forMatch[2].trim();
 
-  // Parse IN list: 'val1' AS alias1, 'val2' AS alias2, ...
+  // Parse IN list: 'val1' AS alias1, 'val2' AS alias2, ... or 10 AS alias, unquoted ...
   var inItems = [];
-  var itemRe = /'([^']*)'\s*(?:AS\s+(\w+))?\s*,?/gi;
+  var itemRe = /(?:'([^']*)'|([\w.]+))\s*(?:AS\s+(\w+))?\s*,?/gi;
   var m;
   while ((m = itemRe.exec(inList)) !== null) {
-    inItems.push({ value: m[1], alias: m[2] || m[1] });
+    var v = m[1] !== undefined ? m[1] : m[2];
+    var a = m[3];
+    if (!v) continue;
+    inItems.push({ value: v, alias: a || v, quoted: m[1] !== undefined });
   }
   if (inItems.length === 0) return sql;
 
   // Extract aggregate function and expression (everything before FOR)
   var aggPart = pivotBody.substring(0, pivotBody.indexOf('FOR')).trim();
-  var aggMatch = aggPart.match(/(\w+)\s*\(\s*([\w\s.,]+?)\s*\)$/i);
+  var aggMatch = aggPart.match(/(\w+)\s*\(\s*([\w\s.,*]+?)\s*\)$/i);
   if (!aggMatch) return sql;
   var aggFunc = aggMatch[1].toUpperCase();
   var aggExpr = aggMatch[2].trim();
+  var aggIsStar = (aggExpr === '*');
 
   // Step 5: Determine GROUP BY columns from source query
   // The source is a subquery — find columns that are NOT the pivot column and NOT the aggregated column
@@ -676,7 +683,9 @@ function convertPivot(sql) {
   // Step 6: Build SUM(CASE WHEN...) SELECT
   var caseLines = [];
   for (var ii = 0; ii < inItems.length; ii++) {
-    caseLines.push('    ' + aggFunc + '(CASE WHEN ' + pivotCol + " = '" + inItems[ii].value + "' THEN " + aggExpr + ' END) AS ' + inItems[ii].alias);
+    var valStr = inItems[ii].quoted ? "'" + inItems[ii].value + "'" : inItems[ii].value;
+    var thenExpr = aggIsStar ? '1' : aggExpr;
+    caseLines.push('    ' + aggFunc + '(CASE WHEN ' + pivotCol + ' = ' + valStr + ' THEN ' + thenExpr + ' END) AS ' + inItems[ii].alias);
   }
   var groupByStr = groupCols.length > 0 && groupCols[0] !== '*' ? groupCols.join(', ') : pivotCol;
   if (groupCols[0] === '*') groupByStr = pivotCol;

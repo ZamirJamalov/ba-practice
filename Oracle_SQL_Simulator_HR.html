@@ -616,55 +616,45 @@ function splitTopLevelCommas(str) {
 
 // ============================================================
 // PIVOT converter: Oracle PIVOT → SUM(CASE WHEN...) GROUP BY
+// Uses inline replacement to preserve CTE structure
 // ============================================================
 function convertPivot(sql) {
-  // Find the PIVOT block: PIVOT ( ... ) at the end
-  // Step 1: Find position of PIVOT keyword
-  var pivotIdx = sql.search(/\)\s*PIVOT\s*\(/i);
+  // Find PIVOT keyword at any level
+  var pivotIdx = sql.search(/\bPIVOT\s*\(/i);
   if (pivotIdx < 0) return sql;
 
-  // Step 2: Extract the source subquery (everything before ") PIVOT")
-  var sourceEnd = sql.lastIndexOf(')', pivotIdx);
-  // Find matching opening paren for the source
-  var parenCount = 0;
-  var sourceStart = sourceEnd;
-  for (var k = sourceEnd; k >= 0; k--) {
-    if (sql.charAt(k) === ')') parenCount++;
-    if (sql.charAt(k) === '(') parenCount--;
-    if (parenCount === 0) { sourceStart = k; break; }
-  }
-  // Capture outer SELECT column list and source subquery
-  var outerSelectCols = '*';
-  var sourcePart = sql.substring(0, sourceStart).trim();
-  if (/^SELECT\s/i.test(sourcePart)) {
-    var osm = sourcePart.match(/^SELECT\s+([\s\S]*?)\s+FROM\s*$/i);
-    if (osm) {
-      var oc = osm[1].trim();
-      if (oc && oc !== '*') outerSelectCols = oc;
-    }
-  }
-  var sourceQuery = sql.substring(sourceStart, sourceEnd + 1);
+  // Find PIVOT body opening paren and matching close paren
+  var pivotOpenParen = sql.indexOf('(', pivotIdx);
+  var pivotCloseParen = findMatchingCloseParen(sql, pivotOpenParen);
+  if (pivotCloseParen < 0) return sql;
+  var pivotBody = sql.substring(pivotOpenParen + 1, pivotCloseParen).trim();
 
-  // Step 3: Extract PIVOT block content
-  var pivotContentStart = sql.indexOf('(', sql.indexOf('PIVOT', pivotIdx)) + 1;
-  // Find matching closing paren for PIVOT
-  parenCount = 0;
-  var pivotContentEnd = pivotContentStart;
-  for (var k = pivotContentStart; k < sql.length; k++) {
-    if (sql.charAt(k) === '(') parenCount++;
-    if (sql.charAt(k) === ')') parenCount--;
-    if (parenCount < 0) { pivotContentEnd = k; break; }
-  }
-  var pivotBody = sql.substring(pivotContentStart, pivotContentEnd).trim();
+  // Find source subquery: ) right before PIVOT keyword
+  var pos = pivotIdx - 1;
+  while (pos >= 0 && /\s/.test(sql.charAt(pos))) pos--;
+  if (pos < 0 || sql.charAt(pos) !== ')') return sql;
+  var srcClosePos = pos;
 
-  // Step 4: Parse PIVOT body: agg_func(expr) FOR col IN ('v1' AS a1, 'v2' AS a2, ...)
-  // First extract FOR col IN (...) section
+  // Find matching open paren for the source
+  var srcOpenPos = findMatchingOpenParen(sql, srcClosePos);
+  if (srcOpenPos < 0) return sql;
+  var sourceQuery = sql.substring(srcOpenPos, srcClosePos + 1);
+
+  // Find SELECT keyword before source (the outer SELECT feeding into PIVOT)
+  var selectStart = findLastTopLevelSelect(sql, srcOpenPos);
+  if (selectStart < 0) selectStart = srcOpenPos;
+
+  // Detect CTE context: is there content before our SELECT?
+  var beforeSelect = sql.substring(0, selectStart).trim();
+  var isCTE = beforeSelect.length > 0;
+
+  // Parse PIVOT body
   var forMatch = pivotBody.match(/\bFOR\s+(\w+)\s+IN\s*\(([\s\S]*)\)\s*$/i);
   if (!forMatch) return sql;
   var pivotCol = forMatch[1];
   var inList = forMatch[2].trim();
 
-  // Parse IN list: 'val1' AS alias1, 'val2' AS alias2, ... or 10 AS alias, unquoted ...
+  // Parse IN list
   var inItems = [];
   var itemRe = /(?:'([^']*)'|([\w.]+))\s*(?:AS\s+(\w+))?\s*,?/gi;
   var m;
@@ -676,25 +666,25 @@ function convertPivot(sql) {
   }
   if (inItems.length === 0) return sql;
 
-  // Extract aggregate functions (everything before FOR) — support multiple: SUM(x) AS a, COUNT(y) AS b
+  // Parse multiple aggregates: SUM(x) AS a, COUNT(y) AS b, ...
   var aggPart = pivotBody.substring(0, pivotBody.indexOf('FOR')).trim();
   var aggregates = [];
-  // Parse each aggregate: FUNC(expr) [AS alias], FUNC(expr) [AS alias], ...
   var aggRe = /(\w+)\s*\(([^()]*)\)\s*(?:AS\s+(\w+))?\s*,?/gi;
   var am;
   while ((am = aggRe.exec(aggPart)) !== null) {
-    var func = am[1].toUpperCase();
-    var expr = am[2].trim();
-    var alias = am[3] || (func + '_' + expr.replace(/[^a-zA-Z0-9_]/g, '_'));
-    aggregates.push({ func: func, expr: expr, alias: alias, isStar: expr === '*' });
+    aggregates.push({
+      func: am[1].toUpperCase(),
+      expr: am[2].trim(),
+      alias: am[3] || (am[1].toUpperCase() + '_' + am[2].trim().replace(/[^a-zA-Z0-9_]/g, '_')),
+      isStar: am[2].trim() === '*'
+    });
   }
   if (aggregates.length === 0) return sql;
 
-  // Step 5: Determine GROUP BY columns from source query
-  // Collect all aggregate expressions to exclude them from GROUP BY
+  // Determine GROUP BY columns from source query
   var aggExprs = [];
   for (var ai = 0; ai < aggregates.length; ai++) {
-    if (aggregates[ai].expr !== '*') aggExprs.push(aggregates[ai].expr.toLowerCase());
+    if (!aggregates[ai].isStar) aggExprs.push(aggregates[ai].expr.toLowerCase());
   }
   var groupCols = [];
   var selMatch = sourceQuery.match(/SELECT\s+([\s\S]*?)\s+FROM\s/i);
@@ -715,46 +705,86 @@ function convertPivot(sql) {
     }
   }
   if (groupCols.length === 0) {
-    // Fallback: use all columns except pivot and agg from source table
-    // Try to find table name
     var tblMatch = sourceQuery.match(/FROM\s+(\w+)/i);
-    if (tblMatch) groupCols.push('*');
+    if (tblMatch) groupCols.push(pivotCol);
   }
 
-  // Step 6: Build SUM(CASE WHEN...) SELECT for each aggregate × IN value combination
-  // Oracle generates columns as: valueAlias_aggAlias (e.g., MGR_TOTAL_PAY, MGR_HEADCOUNT)
+  // Build CASE WHEN lines for each aggregate × IN value
   var caseLines = [];
   for (var ii = 0; ii < inItems.length; ii++) {
     var valStr = inItems[ii].quoted ? "'" + inItems[ii].value + "'" : inItems[ii].value;
-    for (var ai = 0; ai < aggregates.length; ai++) {
-      var thenExpr = aggregates[ai].isStar ? '1' : aggregates[ai].expr;
-      var colName = inItems[ii].alias + '_' + aggregates[ai].alias.toUpperCase();
-      caseLines.push('    ' + aggregates[ai].func + '(CASE WHEN ' + pivotCol + ' = ' + valStr + ' THEN ' + thenExpr + ' END) AS ' + colName);
+    for (var ai2 = 0; ai2 < aggregates.length; ai2++) {
+      var thenExpr = aggregates[ai2].isStar ? '1' : aggregates[ai2].expr;
+      var colName = inItems[ii].alias + '_' + aggregates[ai2].alias.toUpperCase();
+      caseLines.push('    ' + aggregates[ai2].func + '(CASE WHEN ' + pivotCol + ' = ' + valStr + ' THEN ' + thenExpr + ' END) AS ' + colName);
     }
   }
-  var groupByStr = groupCols.length > 0 && groupCols[0] !== '*' ? groupCols.join(', ') : pivotCol;
-  if (groupCols[0] === '*') groupByStr = pivotCol;
+  var groupByStr = groupCols.length > 0 ? groupCols.join(', ') : pivotCol;
 
-  var result = 'SELECT ' + groupByStr + ',\n' + caseLines.join(',\n') + '\nFROM ' + sourceQuery + '\nGROUP BY ' + groupByStr;
+  // Build the converted query
+  var converted = 'SELECT ' + groupByStr + ',\n' + caseLines.join(',\n') + '\nFROM ' + sourceQuery + '\nGROUP BY ' + groupByStr;
 
-  // Handle trailing clauses (WHERE, ORDER BY, etc.) after PIVOT
-  var trailing = sql.substring(pivotContentEnd + 1).trim();
-  if (trailing) {
-    if (trailing.charAt(trailing.length - 1) === ';') trailing = trailing.substring(0, trailing.length - 1).trim();
-    var clauseMatch = trailing.match(/^(WHERE|ORDER\s+BY|GROUP\s+BY|HAVING|LIMIT)\s+([\s\S]*)$/i);
-    if (clauseMatch) {
-      result = 'SELECT ' + outerSelectCols + ' FROM (' + result + ')' + '\n' + clauseMatch[1] + ' ' + clauseMatch[2];
-    } else {
-      result += ' ' + trailing;
+  // Inline replacement: replace from SELECT start to PIVOT close paren
+  var afterPivot = sql.substring(pivotCloseParen + 1);
+
+  if (isCTE) {
+    // CTE context: just splice the converted query in place
+    return sql.substring(0, selectStart) + converted + afterPivot;
+  } else {
+    // Standalone query: handle trailing clauses (WHERE, ORDER BY, etc.)
+    var trailing = afterPivot.trim();
+    if (trailing) {
+      if (trailing.charAt(trailing.length - 1) === ';') trailing = trailing.substring(0, trailing.length - 1).trim();
+      var clauseMatch = trailing.match(/^(WHERE|ORDER\s+BY|GROUP\s+BY|HAVING|LIMIT)\s+([\s\S]*)$/i);
+      if (clauseMatch) {
+        converted = 'SELECT * FROM (' + converted + ')' + '\n' + clauseMatch[1] + ' ' + clauseMatch[2];
+      }
+      return sql.substring(0, selectStart) + converted + afterPivot;
+    }
+    return sql.substring(0, selectStart) + converted + afterPivot;
+  }
+}
+
+// Helper: find matching close paren for open paren at pos
+function findMatchingCloseParen(sql, openPos) {
+  var depth = 0;
+  for (var i = openPos; i < sql.length; i++) {
+    if (sql.charAt(i) === '(') depth++;
+    if (sql.charAt(i) === ')') { depth--; if (depth === 0) return i; }
+  }
+  return -1;
+}
+
+// Helper: find matching open paren for close paren at pos
+function findMatchingOpenParen(sql, closePos) {
+  var depth = 0;
+  for (var i = closePos; i >= 0; i--) {
+    if (sql.charAt(i) === ')') depth++;
+    if (sql.charAt(i) === '(') { depth--; if (depth === 0) return i; }
+  }
+  return -1;
+}
+
+// Helper: find the last SELECT keyword at the same paren depth as a given position
+function findLastTopLevelSelect(sql, limit) {
+  // First calculate the paren depth at limit position
+  var depthAtLimit = 0;
+  for (var i = 0; i < limit; i++) {
+    if (sql.charAt(i) === '(') depthAtLimit++;
+    if (sql.charAt(i) === ')') depthAtLimit--;
+  }
+  // Now search backward from limit for SELECT at depthAtLimit
+  var depth = 0;
+  var lastPos = -1;
+  for (var i = 0; i < limit; i++) {
+    if (sql.charAt(i) === '(') depth++;
+    if (sql.charAt(i) === ')') depth--;
+    if (depth === depthAtLimit && sql.substring(i, i + 6).toUpperCase() === 'SELECT' &&
+        (i === 0 || /[\s(,]/.test(sql.charAt(i - 1)))) {
+      lastPos = i;
     }
   }
-
-  // If no trailing clause but outer SELECT had specific columns, still wrap
-  if (!trailing && outerSelectCols !== '*') {
-    result = 'SELECT ' + outerSelectCols + ' FROM (' + result + ')';
-  }
-
-  return result;
+  return lastPos;
 }
 
 // ============================================================

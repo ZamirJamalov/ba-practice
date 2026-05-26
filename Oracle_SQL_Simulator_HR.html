@@ -10,22 +10,29 @@
     --bg:#0d1117;--surface:#161b22;--surface2:#1c2333;--border:#30363d;
     --text:#c9d1d9;--text-muted:#8b949e;--accent:#58a6ff;
     --green:#3fb950;--red:#f85149;--yellow:#d29922;--purple:#bc8cff;
-    --editor-bg:#0d1117;--grid-header:#1c2333;--grid-row1:#161b22;--grid-row2:#0d1117
+    --editor-bg:#0d1117;--grid-header:#1c2333;--grid-row1:#161b22;--grid-row2:#0d1117;
+    --editor-color:#e6edf3;--hover-row:rgba(56,139,253,.06);
+    --selection-bg:rgba(56,139,253,.3);--accent-hover:#79c0ff
+  }
+  [data-theme="light"]{
+    --bg:#f6f8fa;--surface:#ffffff;--surface2:#f0f2f5;--border:#d0d7de;
+    --text:#1f2328;--text-muted:#656d76;--accent:#0969da;
+    --green:#1a7f37;--red:#d1242f;--yellow:#9a6700;--purple:#8250df;
+    --editor-bg:#ffffff;--grid-header:#f0f2f5;--grid-row1:#ffffff;--grid-row2:#f6f8fa;
+    --editor-color:#1f2328;--hover-row:rgba(9,105,218,.04);
+    --selection-bg:rgba(9,105,218,.15);--accent-hover:#0550ae
   }
   body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
-
-  /* Header */
   .header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
   .header-left{display:flex;align-items:center;gap:12px}
   .logo{font-size:18px;font-weight:700;color:var(--accent)}
   .logo span{color:var(--text-muted);font-weight:400;font-size:13px;margin-left:6px}
   .header-right{display:flex;align-items:center;gap:10px}
   .schema-select{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer}
-
-  /* Main Layout */
+  .theme-toggle{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;gap:5px;transition:all .15s}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .theme-toggle svg{width:16px;height:16px;flex-shrink:0}
   .main{display:flex;flex:1;overflow:hidden}
-
-  /* Sidebar */
   .sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
   .sidebar-section{border-bottom:1px solid var(--border)}
   .sidebar-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none}
@@ -43,15 +50,11 @@
   .col-item:hover{color:var(--text);background:var(--surface2)}
   .col-item .col-pk{color:var(--yellow);margin-right:4px}
   .col-item .col-fk{color:var(--green);margin-right:4px}
-
-  /* Sample Queries */
   .sample-list{padding:4px 8px 8px;overflow-y:auto}
   .sample-item{padding:6px 10px;margin-bottom:3px;border-radius:4px;cursor:pointer;font-size:11px;color:var(--text);transition:background .15s;border:1px solid transparent;line-height:1.4}
   .sample-item:hover{background:var(--surface2);border-color:var(--border)}
   .sample-item .s-title{color:var(--green);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.3px}
   .sample-item .s-sql{color:var(--text-muted);font-family:'Cascadia Code','Fira Code',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-  /* Editor Area */
   .editor-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
   .editor-toolbar{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
   .btn{display:flex;align-items:center;gap:6px;padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
@@ -63,61 +66,54 @@
   .btn-format{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
   .btn-format:hover{color:var(--text);border-color:var(--text-muted)}
   .exec-time{margin-left:auto;font-size:11px;color:var(--text-muted);font-family:monospace}
-
-  /* SQL Editor */
+  .font-size-group{display:flex;align-items:center;gap:4px;margin-left:4px}
+  .font-size-label{font-size:11px;color:var(--text-muted);white-space:nowrap}
+  .font-size-select{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:4px 6px;border-radius:4px;font-size:11px;cursor:pointer;outline:none}
+  .font-size-select:focus{border-color:var(--accent)}
   .editor-wrap{flex:1;display:flex;position:relative;overflow:hidden;min-height:180px}
   .editor-line-numbers{width:44px;background:var(--surface);padding:12px 0;text-align:right;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;color:var(--text-muted);overflow:hidden;user-select:none;flex-shrink:0;border-right:1px solid var(--border)}
   .editor-line-numbers div{padding-right:10px}
-  .sql-editor{flex:1;background:var(--editor-bg);color:#e6edf3;border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:auto;white-space:pre;overflow-wrap:normal}
-  .sql-editor::selection{background:rgba(56,139,253,.3)}
+  .sql-editor{flex:1;background:var(--editor-bg);color:var(--editor-color);border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:auto;white-space:pre;overflow-wrap:normal}
+  .sql-editor::selection{background:var(--selection-bg)}
   .sql-editor::placeholder{color:var(--text-muted)}
-
-  /* Resizer */
   .resizer{height:5px;background:var(--border);cursor:row-resize;flex-shrink:0;transition:background .15s}
   .resizer:hover,.resizer.active{background:var(--accent)}
-
-  /* Error Display */
   .error-bar{display:none;padding:8px 16px;background:rgba(248,81,73,.1);border-bottom:1px solid var(--red);color:var(--red);font-size:12px;font-family:monospace;flex-shrink:0;align-items:center;gap:8px}
   .error-bar.show{display:flex}
-
-  /* Results */
   .results-area{flex:1;overflow:auto;display:flex;flex-direction:column}
   .results-info{display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;font-size:11px;color:var(--text-muted)}
   .results-info .ri-count{color:var(--green);font-weight:600}
   .results-grid{flex:1;overflow:auto;padding:0}
-  .results-table{width:100%;border-collapse:collapse;font-size:12px;font-family:'Cascadia Code','Fira Code','Consolas',monospace}
-  .results-table thead{position:sticky;top:0;z-index:1}
-  .results-table th{background:var(--grid-header);color:var(--accent);padding:8px 12px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
-  .results-table th:hover{color:#79c0ff}
-  .results-table th .sort-icon{margin-left:4px;font-size:9px;opacity:.5}
+  .results-table{border-collapse:collapse;font-size:12px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;table-layout:fixed}
+  .results-table thead{position:sticky;top:0;z-index:10}
+  .results-table th{background:var(--grid-header);color:var(--accent);padding:8px 12px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid var(--border);white-space:nowrap;position:relative;user-select:none;overflow:hidden}
+  .results-table th:hover{color:var(--accent-hover)}
+  .results-table th .th-content{display:flex;align-items:center;gap:4px;cursor:grab;min-width:0}
+  .results-table th .th-content:active{cursor:grabbing}
+  .results-table th .sort-icon{margin-left:auto;font-size:9px;opacity:.5;flex-shrink:0}
   .results-table th.sorted .sort-icon{opacity:1;color:var(--accent)}
+  .results-table th .col-resize-handle{position:absolute;top:0;right:0;bottom:0;width:6px;cursor:col-resize;z-index:2}
+  .results-table th .col-resize-handle:hover,.results-table th .col-resize-handle.active{background:var(--accent);opacity:.5}
   .results-table td{padding:6px 12px;border-bottom:1px solid var(--border);white-space:nowrap;max-width:300px;overflow:hidden;text-overflow:ellipsis}
   .results-table tr:nth-child(odd) td{background:var(--grid-row1)}
   .results-table tr:nth-child(even) td{background:var(--grid-row2)}
-  .results-table tr:hover td{background:rgba(56,139,253,.06)}
+  .results-table tr:hover td{background:var(--hover-row)}
   .results-table td.null-val{color:var(--text-muted);font-style:italic}
   .results-table td.number-val{color:var(--green);text-align:right}
-
-  /* Empty State */
+  .results-table th.drag-over-left{box-shadow:inset 3px 0 0 var(--accent)}
+  .results-table th.drag-over-right{box-shadow:inset -3px 0 0 var(--accent)}
+  .results-table th.dragging{opacity:.4}
   .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-muted);gap:12px;padding:40px}
   .empty-state .es-icon{font-size:48px;opacity:.3}
   .empty-state .es-title{font-size:16px;font-weight:600;color:var(--text)}
   .empty-state .es-desc{font-size:13px;text-align:center;max-width:400px;line-height:1.6}
-
-  /* Keyboard shortcut hint */
   kbd{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;font-family:monospace;color:var(--text-muted)}
-
-  /* Scrollbar */
   ::-webkit-scrollbar{width:8px;height:8px}
   ::-webkit-scrollbar-track{background:transparent}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
   ::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
-
-  /* Status bar */
   .statusbar{display:flex;align-items:center;justify-content:space-between;padding:4px 16px;background:var(--surface);border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);flex-shrink:0}
   .statusbar .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:6px;display:inline-block}
-
-  /* Responsive */
   @media(max-width:768px){
     .sidebar{display:none}
     .main{flex-direction:column}
@@ -125,8 +121,6 @@
 </style>
 </head>
 <body>
-
-<!-- Header -->
 <div class="header">
   <div class="header-left">
     <div class="logo">Oracle SQL Simulator <span>| HR Schema Practice</span></div>
@@ -135,15 +129,14 @@
     <select class="schema-select" id="schemaSelect">
       <option value="hr">HR Schema</option>
     </select>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
+      <svg id="themeIconDark" viewBox="0 0 20 20" fill="currentColor" style="display:none"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/></svg>
+      <svg id="themeIconLight" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+    </button>
   </div>
 </div>
-
-<!-- Main -->
 <div class="main">
-
-  <!-- Sidebar -->
   <div class="sidebar">
-    <!-- Tables -->
     <div class="sidebar-section">
       <div class="sidebar-header" onclick="toggleSection('tables')">
         <h3>Tables</h3>
@@ -151,7 +144,6 @@
       </div>
       <div class="sidebar-body" id="tablesBody"></div>
     </div>
-    <!-- Sample Queries -->
     <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
       <div class="sidebar-header" onclick="toggleSection('samples')">
         <h3>Sample Queries</h3>
@@ -160,34 +152,34 @@
       <div class="sample-list" id="samplesBody" style="flex:1;overflow-y:auto"></div>
     </div>
   </div>
-
-  <!-- Editor Area -->
   <div class="editor-area">
-    <!-- Toolbar -->
     <div class="editor-toolbar">
       <button class="btn btn-run" id="runBtn" onclick="executeQuery()">&#9654; Run</button>
       <button class="btn btn-clear" onclick="clearEditor()">&#10005; Clear</button>
       <button class="btn btn-format" onclick="formatQuery()">&#8677; Format</button>
+      <div class="font-size-group">
+        <span class="font-size-label">Font:</span>
+        <select class="font-size-select" id="fontSizeSelect" onchange="changeEditorFontSize(this.value)">
+          <option value="12">12px</option>
+          <option value="13" selected>13px</option>
+          <option value="14">14px</option>
+          <option value="16">16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+        </select>
+      </div>
       <span style="font-size:11px;color:var(--text-muted)"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> to run</span>
       <span class="exec-time" id="execTime"></span>
     </div>
-
-    <!-- SQL Editor -->
     <div class="editor-wrap" id="editorWrap">
       <div class="editor-line-numbers" id="lineNumbers"><div>1</div></div>
       <textarea class="sql-editor" id="sqlEditor" placeholder="Write your SQL query here...&#10;&#10;Example: SELECT * FROM employees" spellcheck="false"></textarea>
     </div>
-
-    <!-- Resizer -->
     <div class="resizer" id="resizer"></div>
-
-    <!-- Error Bar -->
     <div class="error-bar" id="errorBar">
       <span>&#9888;</span>
       <span id="errorText"></span>
     </div>
-
-    <!-- Results -->
     <div class="results-area" id="resultsArea">
       <div class="empty-state" id="emptyState">
         <div class="es-icon">&#128450;</div>
@@ -203,18 +195,13 @@
     </div>
   </div>
 </div>
-
-<!-- Status Bar -->
 <div class="statusbar">
   <span><span class="status-dot"></span>Ready - AlaSQL Engine | HR Schema Loaded</span>
   <span id="dbInfo"></span>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/alasql/4.5.0/alasql.min.js"></script>
 <script>
-// ============================================================
-// ORACLE HR SCHEMA DATA
-// ============================================================
+
 const HR_DATA = {
   regions: [
     {region_id:1,region_name:'Europe'},
@@ -447,9 +434,6 @@ const HR_DATA = {
   ]
 };
 
-// ============================================================
-// TABLE METADATA (columns, PKs, FKs)
-// ============================================================
 const TABLE_META = {
   employees: {
     pk:'employee_id', fks:{department_id:'departments.department_id', manager_id:'employees.employee_id', job_id:'jobs.job_id'},
@@ -481,9 +465,6 @@ const TABLE_META = {
   }
 };
 
-// ============================================================
-// SAMPLE QUERIES
-// ============================================================
 const SAMPLES = [
   {title:'Basic SELECT',cat:'Basics',sql:'SELECT * FROM employees'},
   {title:'SELECT with WHERE',cat:'Basics',sql:'SELECT first_name, last_name, salary\nFROM employees\nWHERE salary > 10000'},
@@ -512,7 +493,6 @@ let sortDir = 'asc';
 
 function initDB() {
   for (const [table, rows] of Object.entries(HR_DATA)) {
-    // Drop if exists, then create
     try { alasql(`DROP TABLE IF EXISTS ${table}`); } catch(e) {}
     if (rows.length > 0) {
       const cols = Object.keys(rows[0]);
@@ -529,7 +509,6 @@ function initDB() {
       }
     }
   }
-  // Update DB info
   const info = Object.entries(HR_DATA).map(([t,d])=>`${t}(${d.length})`).join(' | ');
   document.getElementById('dbInfo').textContent = info;
 }
@@ -558,7 +537,6 @@ function buildSidebar() {
   }
   body.innerHTML = html;
 
-  // Samples
   const sbody = document.getElementById('samplesBody');
   let shtml = '';
   for (const s of SAMPLES) {
@@ -572,11 +550,7 @@ function buildSidebar() {
 
 function toggleTable(table, el) {
   const cols = document.getElementById('cols_' + table);
-  if (cols.style.display === 'none') {
-    cols.style.display = 'block';
-  } else {
-    cols.style.display = 'none';
-  }
+  if (cols.style.display === 'none') { cols.style.display = 'block'; } else { cols.style.display = 'none'; }
 }
 
 function toggleSection(id) {
@@ -593,20 +567,69 @@ function toggleSection(id) {
 }
 
 function insertColumn(table, column) {
-  const editor = document.getElementById('sqlEditor');
-  const pos = editor.selectionStart;
-  const text = editor.value;
+  const ed = document.getElementById('sqlEditor');
+  const pos = ed.selectionStart;
+  const text = ed.value;
   const insert = `${table}.${column}`;
-  editor.value = text.substring(0, pos) + insert + text.substring(pos);
-  editor.focus();
-  editor.setSelectionRange(pos + insert.length, pos + insert.length);
+  ed.value = text.substring(0, pos) + insert + text.substring(pos);
+  ed.focus();
+  ed.setSelectionRange(pos + insert.length, pos + insert.length);
   updateLineNumbers();
 }
 
 function loadSample(el) {
-  const sql = decodeURIComponent(el.dataset.sql);
-  document.getElementById('sqlEditor').value = sql;
+  document.getElementById('sqlEditor').value = decodeURIComponent(el.dataset.sql);
   updateLineNumbers();
+}
+
+// ============================================================
+// THEME TOGGLE
+// ============================================================
+function initTheme() {
+  const saved = localStorage.getItem('sql-sim-theme');
+  if (saved === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.getElementById('themeIconDark').style.display = '';
+    document.getElementById('themeIconLight').style.display = 'none';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('themeIconDark').style.display = 'none';
+    document.getElementById('themeIconLight').style.display = '';
+  }
+}
+
+function toggleTheme() {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('sql-sim-theme', 'dark');
+    document.getElementById('themeIconDark').style.display = 'none';
+    document.getElementById('themeIconLight').style.display = '';
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+    localStorage.setItem('sql-sim-theme', 'light');
+    document.getElementById('themeIconDark').style.display = '';
+    document.getElementById('themeIconLight').style.display = 'none';
+  }
+}
+
+// ============================================================
+// FONT SIZE CONTROL
+// ============================================================
+function changeEditorFontSize(size) {
+  const ed = document.getElementById('sqlEditor');
+  const ln = document.getElementById('lineNumbers');
+  ed.style.fontSize = size + 'px';
+  ln.style.fontSize = size + 'px';
+  localStorage.setItem('sql-sim-fontsize', size);
+}
+
+function initFontSize() {
+  const saved = localStorage.getItem('sql-sim-fontsize');
+  if (saved) {
+    document.getElementById('fontSizeSelect').value = saved;
+    changeEditorFontSize(saved);
+  }
 }
 
 // ============================================================
@@ -623,17 +646,10 @@ function updateLineNumbers() {
 }
 
 editor.addEventListener('input', updateLineNumbers);
-editor.addEventListener('scroll', () => {
-  lineNums.scrollTop = editor.scrollTop;
-});
+editor.addEventListener('scroll', () => { lineNums.scrollTop = editor.scrollTop; });
 
 editor.addEventListener('keydown', function(e) {
-  // Ctrl+Enter to run
-  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-    e.preventDefault();
-    executeQuery();
-  }
-  // Tab support
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); executeQuery(); }
   if (e.key === 'Tab') {
     e.preventDefault();
     const start = this.selectionStart;
@@ -650,45 +666,33 @@ editor.addEventListener('keydown', function(e) {
 function executeQuery() {
   const sql = editor.value.trim();
   if (!sql) return;
-
   hideError();
   const btn = document.getElementById('runBtn');
   const timeEl = document.getElementById('execTime');
   btn.classList.add('running');
   btn.innerHTML = '&#8987; Running...';
   timeEl.textContent = '';
-
   setTimeout(() => {
     try {
       const t0 = performance.now();
       const result = alasql(sql);
       const elapsed = (performance.now() - t0).toFixed(1);
       timeEl.textContent = `${elapsed} ms`;
-
       if (Array.isArray(result)) {
         currentResult = result;
         sortCol = null;
         sortDir = 'asc';
         renderResult(result);
       } else if (typeof result === 'object' && result !== null) {
-        // Single value result
         currentResult = [[result]];
         renderResult([[result]]);
       } else {
-        // For INSERT/UPDATE/DELETE etc
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('resultsInfo').style.display = 'none';
         document.getElementById('resultsGrid').style.display = 'none';
-        document.getElementById('emptyState').innerHTML = `
-          <div class="es-icon">&#9989;</div>
-          <div class="es-title">Query Executed</div>
-          <div class="es-desc">Affected rows: <b>${result}</b></div>
-        `;
+        document.getElementById('emptyState').innerHTML = `<div class="es-icon">&#9989;</div><div class="es-title">Query Executed</div><div class="es-desc">Affected rows: <b>${result}</b></div>`;
       }
-    } catch(err) {
-      showError(err.message || String(err));
-    }
-
+    } catch(err) { showError(err.message || String(err)); }
     btn.classList.remove('running');
     btn.innerHTML = '&#9654; Run';
   }, 50);
@@ -709,58 +713,160 @@ function renderResult(data) {
   const empty = document.getElementById('emptyState');
   const info = document.getElementById('resultsInfo');
   const grid = document.getElementById('resultsGrid');
-
   if (!data || data.length === 0) {
     empty.style.display = 'flex';
-    empty.innerHTML = `
-      <div class="es-icon">&#128270;</div>
-      <div class="es-title">No Results</div>
-      <div class="es-desc">The query executed successfully but returned 0 rows.</div>
-    `;
+    empty.innerHTML = `<div class="es-icon">&#128270;</div><div class="es-title">No Results</div><div class="es-desc">The query executed successfully but returned 0 rows.</div>`;
     info.style.display = 'none';
     grid.style.display = 'none';
     return;
   }
-
   empty.style.display = 'none';
   info.style.display = 'flex';
   grid.style.display = 'block';
-
   const headers = Object.keys(data[0]);
   document.getElementById('rowCount').textContent = data.length;
   document.getElementById('colCount').textContent = headers.length;
-
-  let tableHtml = '<table class="results-table"><thead><tr>';
-  // Row number column
+  let tableHtml = '<table class="results-table" id="resultsTable"><colgroup>';
+  tableHtml += '<col style="width:40px">';
+  for (let ci = 0; ci < headers.length; ci++) {
+    let maxW = headers[ci].length * 9 + 30;
+    for (let ri = 0; ri < Math.min(data.length, 50); ri++) {
+      let val = data[ri][headers[ci]];
+      if (val === null || val === undefined) val = 'NULL';
+      else if (typeof val === 'number') { val = Number.isInteger(val) ? val.toLocaleString() : val.toFixed(2); }
+      maxW = Math.max(maxW, String(val).length * 8 + 24);
+    }
+    tableHtml += `<col style="width:${Math.min(Math.max(60, maxW), 350)}px" data-col-idx="${ci}">`;
+  }
+  tableHtml += '</colgroup><thead><tr>';
   tableHtml += '<th style="width:40px;text-align:center">#</th>';
-  for (const h of headers) {
-    tableHtml += `<th onclick="sortByColumn('${h}')">${h}<span class="sort-icon" id="sort_${h}"></span></th>`;
+  for (let ci = 0; ci < headers.length; ci++) {
+    const h = headers[ci];
+    const safeH = h.replace(/'/g, "\\'");
+    tableHtml += `<th data-col="${ci}" draggable="true"><div class="th-content" onclick="sortByColumn('${safeH}')">${h}<span class="sort-icon" id="sort_${h}"></span></div><div class="col-resize-handle"></div></th>`;
   }
   tableHtml += '</tr></thead><tbody>';
-
   for (let i = 0; i < data.length; i++) {
     tableHtml += '<tr>';
     tableHtml += `<td style="color:var(--text-muted);text-align:center;font-size:10px">${i + 1}</td>`;
     for (const h of headers) {
       let val = data[i][h];
       let cls = '';
-      if (val === null || val === undefined) {
-        val = 'NULL';
-        cls = 'null-val';
-      } else if (typeof val === 'number') {
-        cls = 'number-val';
-        if (Number.isInteger(val)) val = val.toLocaleString();
-        else val = val.toFixed(2);
-      } else if (typeof val === 'string' && val.match(/^\d{4}-\d{2}-\d{2}/)) {
-        // Keep date as-is
-      }
+      if (val === null || val === undefined) { val = 'NULL'; cls = 'null-val'; }
+      else if (typeof val === 'number') { cls = 'number-val'; if (Number.isInteger(val)) val = val.toLocaleString(); else val = val.toFixed(2); }
       tableHtml += `<td class="${cls}" title="${String(data[i][h] ?? 'NULL')}">${val}</td>`;
     }
     tableHtml += '</tr>';
   }
   tableHtml += '</tbody></table>';
-
   grid.innerHTML = tableHtml;
+  initColumnResize();
+  initColumnDragDrop();
+}
+
+// ============================================================
+// COLUMN RESIZE
+// ============================================================
+function initColumnResize() {
+  const table = document.getElementById('resultsTable');
+  if (!table) return;
+  const handles = table.querySelectorAll('.col-resize-handle');
+  handles.forEach(handle => {
+    const th = handle.parentElement;
+    const colIdx = parseInt(th.getAttribute('data-col'));
+    const colgroup = table.querySelector('colgroup');
+    const col = colgroup.children[colIdx + 1];
+    handle.addEventListener('mousedown', function(e) {
+      if (e.button !== 0) return;
+      e.stopPropagation();
+      e.preventDefault();
+      const startX = e.clientX;
+      const startW = col.offsetWidth;
+      handle.classList.add('active');
+      function onMove(ev) {
+        const delta = ev.clientX - startX;
+        col.style.width = Math.max(60, startW + delta) + 'px';
+      }
+      function onUp() {
+        handle.classList.remove('active');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+}
+
+// ============================================================
+// COLUMN DRAG & DROP REORDER
+// ============================================================
+let dragState = null;
+
+function initColumnDragDrop() {
+  const table = document.getElementById('resultsTable');
+  if (!table) return;
+  const ths = table.querySelectorAll('thead th[data-col]');
+  ths.forEach(th => {
+    th.addEventListener('dragstart', function(e) {
+      const colIdx = parseInt(this.getAttribute('data-col'));
+      dragState = { fromIdx: colIdx, th: this };
+      this.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(colIdx));
+    });
+    th.addEventListener('dragend', function() {
+      this.classList.remove('dragging');
+      document.querySelectorAll('.results-table th').forEach(t => {
+        t.classList.remove('drag-over-left', 'drag-over-right');
+      });
+      dragState = null;
+    });
+    th.addEventListener('dragover', function(e) {
+      if (!dragState) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const toIdx = parseInt(this.getAttribute('data-col'));
+      if (toIdx === dragState.fromIdx) return;
+      document.querySelectorAll('.results-table th').forEach(t => {
+        t.classList.remove('drag-over-left', 'drag-over-right');
+      });
+      const rect = this.getBoundingClientRect();
+      const midX = rect.left + rect.width / 2;
+      if (e.clientX < midX) { this.classList.add('drag-over-left'); }
+      else { this.classList.add('drag-over-right'); }
+    });
+    th.addEventListener('dragleave', function() {
+      this.classList.remove('drag-over-left', 'drag-over-right');
+    });
+    th.addEventListener('drop', function(e) {
+      e.preventDefault();
+      if (!dragState) return;
+      const toIdx = parseInt(this.getAttribute('data-col'));
+      if (toIdx === dragState.fromIdx) return;
+      const rect = this.getBoundingClientRect();
+      const midX = rect.left + rect.width / 2;
+      const insertBefore = e.clientX < midX;
+      reorderColumns(dragState.fromIdx, toIdx, insertBefore);
+      dragState = null;
+    });
+  });
+}
+
+function reorderColumns(fromIdx, toIdx, insertBefore) {
+  if (!currentResult || currentResult.length === 0) return;
+  const origKeys = Object.keys(currentResult[0]);
+  const movedKey = origKeys.splice(fromIdx, 1)[0];
+  let insertAt = toIdx > fromIdx ? toIdx - 1 : toIdx;
+  if (!insertBefore) insertAt++;
+  origKeys.splice(insertAt, 0, movedKey);
+  const newData = currentResult.map(row => {
+    const newRow = {};
+    origKeys.forEach(k => { newRow[k] = row[k]; });
+    return newRow;
+  });
+  currentResult = newData;
+  renderResult(currentResult);
 }
 
 // ============================================================
@@ -768,33 +874,22 @@ function renderResult(data) {
 // ============================================================
 function sortByColumn(col) {
   if (!currentResult || currentResult.length === 0) return;
-
-  if (sortCol === col) {
-    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortCol = col;
-    sortDir = 'asc';
-  }
-
+  if (sortCol === col) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+  else { sortCol = col; sortDir = 'asc'; }
   currentResult.sort((a, b) => {
     let va = a[col], vb = b[col];
     if (va === null || va === undefined) va = sortDir === 'asc' ? Infinity : -Infinity;
     if (vb === null || vb === undefined) vb = sortDir === 'asc' ? Infinity : -Infinity;
-    if (typeof va === 'number' && typeof vb === 'number') {
-      return sortDir === 'asc' ? va - vb : vb - va;
-    }
+    if (typeof va === 'number' && typeof vb === 'number') { return sortDir === 'asc' ? va - vb : vb - va; }
     va = String(va); vb = String(vb);
     return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
   });
-
-  // Update sort icons
   document.querySelectorAll('.results-table th').forEach(th => th.classList.remove('sorted'));
   const icon = document.getElementById('sort_' + col);
   if (icon) {
     icon.parentElement.classList.add('sorted');
     icon.textContent = sortDir === 'asc' ? ' \u25B2' : ' \u25BC';
   }
-
   document.getElementById('sortInfo').textContent = `Sorted by: ${col} (${sortDir === 'asc' ? 'ASC' : 'DESC'})`;
   renderResult(currentResult);
 }
@@ -807,11 +902,7 @@ function clearEditor() {
   updateLineNumbers();
   hideError();
   document.getElementById('emptyState').style.display = 'flex';
-  document.getElementById('emptyState').innerHTML = `
-    <div class="es-icon">&#128450;</div>
-    <div class="es-title">No Results Yet</div>
-    <div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.<br>Select a sample query from the sidebar to get started.</div>
-  `;
+  document.getElementById('emptyState').innerHTML = `<div class="es-icon">&#128450;</div><div class="es-title">No Results Yet</div><div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.<br>Select a sample query from the sidebar to get started.</div>`;
   document.getElementById('resultsInfo').style.display = 'none';
   document.getElementById('resultsGrid').style.display = 'none';
   document.getElementById('execTime').textContent = '';
@@ -821,15 +912,12 @@ function clearEditor() {
 
 function formatQuery() {
   let sql = editor.value.trim();
-  // Basic SQL formatting
   const keywords = ['SELECT','FROM','WHERE','JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN','FULL OUTER JOIN','INNER JOIN','ON','AND','OR','GROUP BY','ORDER BY','HAVING','LIMIT','AS','DISTINCT','UNION','INSERT','UPDATE','DELETE','SET','INTO','VALUES','CREATE','DROP','TABLE','NOT','IN','BETWEEN','LIKE','IS NULL','IS NOT NULL','ASC','DESC','COUNT','SUM','AVG','MIN','MAX','ROUND'];
   keywords.forEach(kw => {
     const regex = new RegExp('\\b' + kw.replace(/ /g,'\\s+') + '\\b', 'gi');
     sql = sql.replace(regex, '\n' + kw);
   });
-  // Clean up multiple newlines
   sql = sql.replace(/\n\n+/g, '\n').trim();
-  // Indent ON, AND, OR
   sql = sql.replace(/^(\s*)(ON|AND|OR)/gm, '  $1$2');
   editor.value = sql;
   updateLineNumbers();
@@ -841,26 +929,21 @@ function formatQuery() {
 (function() {
   const resizer = document.getElementById('resizer');
   const editorWrap = document.getElementById('editorWrap');
-  const resultsArea = document.getElementById('resultsArea');
   let startY, startH;
-
   resizer.addEventListener('mousedown', function(e) {
     startY = e.clientY;
     startH = editorWrap.offsetHeight;
     resizer.classList.add('active');
-
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
     e.preventDefault();
   });
-
   function onMove(e) {
     const delta = e.clientY - startY;
     const newH = Math.max(100, startH + delta);
     const maxH = editorWrap.parentElement.offsetHeight - 150;
     editorWrap.style.height = Math.min(newH, maxH) + 'px';
   }
-
   function onUp() {
     resizer.classList.remove('active');
     document.removeEventListener('mousemove', onMove);
@@ -871,13 +954,13 @@ function formatQuery() {
 // ============================================================
 // INIT
 // ============================================================
+initTheme();
+initFontSize();
 initDB();
 buildSidebar();
 updateLineNumbers();
-
-// Load a default query
 editor.value = 'SELECT e.last_name, d.department_name, j.job_title, e.salary\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id\nJOIN jobs j ON e.job_id = j.job_id\nORDER BY e.salary DESC';
 updateLineNumbers();
-</script>
-</body>
-</html>
+<\/script>
+<\/body>
+<\/html>

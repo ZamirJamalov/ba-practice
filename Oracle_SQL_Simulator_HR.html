@@ -542,6 +542,11 @@ function preprocessOracleSQL(sql) {
   // Strip single-line SQL comments (-- ...) before parsing
   sql = sql.replace(/--[^\n]*/g, '');
 
+  // Strip Oracle schema prefix: hr.employees → employees (SQLite has no schemas)
+  sql = sql.replace(/\bhr\.\w+/gi, function(m) { return m.substring(3); });
+  sql = sql.replace(/\bscott\.\w+/gi, function(m) { return m.substring(6); });
+  sql = sql.replace(/\bsys\.\w+/gi, function(m) { return m.substring(4); });
+
   // EXTRACT(YEAR FROM expr) → extract_year(expr)
   sql = sql.replace(/EXTRACT\s*\(\s*(YEAR|MONTH|DAY|HOUR|MINUTE|SECOND|QUARTER|WEEK|DOW|DOY)\s+FROM\s+/gi,
     function(match, part) {
@@ -692,9 +697,17 @@ function convertPivot(sql) {
 
   var result = 'SELECT ' + groupByStr + ',\n' + caseLines.join(',\n') + '\nFROM ' + sourceQuery + '\nGROUP BY ' + groupByStr;
 
-  // Handle trailing semicolons
+  // Handle trailing clauses (WHERE, ORDER BY, etc.) after PIVOT
   var trailing = sql.substring(pivotContentEnd + 1).trim();
-  if (trailing) result += ' ' + trailing;
+  if (trailing) {
+    if (trailing.charAt(trailing.length - 1) === ';') trailing = trailing.substring(0, trailing.length - 1).trim();
+    var clauseMatch = trailing.match(/^(WHERE|ORDER\s+BY|GROUP\s+BY|HAVING|LIMIT)\s+([\s\S]*)$/i);
+    if (clauseMatch) {
+      result = 'SELECT * FROM (' + result + ')' + '\n' + clauseMatch[1] + ' ' + clauseMatch[2];
+    } else {
+      result += ' ' + trailing;
+    }
+  }
 
   return result;
 }
@@ -770,8 +783,20 @@ function convertUnpivot(sql) {
   }
   var result = unions.join('\nUNION ALL\n');
 
+  // Handle trailing clauses (WHERE, ORDER BY, etc.) after UNPIVOT
+  // Wrap UNION ALL in a subquery and apply outer clause
   var trailing = sql.substring(unpivotContentEnd + 1).trim();
-  if (trailing) result += ' ' + trailing;
+  if (trailing) {
+    // Remove trailing semicolon
+    if (trailing.charAt(trailing.length - 1) === ';') trailing = trailing.substring(0, trailing.length - 1).trim();
+    // Detect clause type (WHERE, ORDER BY, GROUP BY, HAVING, LIMIT)
+    var clauseMatch = trailing.match(/^(WHERE|ORDER\s+BY|GROUP\s+BY|HAVING|LIMIT)\s+([\s\S]*)$/i);
+    if (clauseMatch) {
+      result = 'SELECT * FROM (' + result + ')' + '\n' + clauseMatch[1] + ' ' + clauseMatch[2];
+    } else {
+      result += ' ' + trailing;
+    }
+  }
 
   return result;
 }

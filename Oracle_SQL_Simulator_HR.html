@@ -87,10 +87,12 @@
   .editor-line-numbers{width:44px;background:var(--surface);padding:12px 0;text-align:right;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;color:var(--text-muted);overflow:hidden;user-select:none;flex-shrink:0;border-right:1px solid var(--border);scrollbar-width:none;-ms-overflow-style:none}
   .editor-line-numbers::-webkit-scrollbar{display:none}
   .editor-line-numbers div{padding-right:10px}
-  .sql-editor{position:absolute;top:0;left:0;width:100%;height:100%;background:var(--editor-bg);color:var(--editor-color);border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:scroll;overflow-x:scroll;white-space:pre;overflow-wrap:normal;z-index:1;scrollbar-width:none;-ms-overflow-style:none}
+  .sql-editor{position:absolute;top:0;left:0;width:100%;height:100%;background:transparent !important;color:transparent !important;border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:scroll;overflow-x:scroll;white-space:pre;overflow-wrap:normal;z-index:2;caret-color:var(--editor-color);scrollbar-width:none;-ms-overflow-style:none}
   .sql-editor::-webkit-scrollbar{display:none}
-  .sql-editor::selection{background:var(--selection-bg);color:var(--text)}
+  .sql-editor::selection{background:var(--selection-bg)}
   .sql-editor::placeholder{color:var(--text-muted)}
+  .sql-highlight-layer{position:absolute;top:0;left:0;width:100%;height:100%;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow:hidden;white-space:pre;overflow-wrap:normal;pointer-events:none;z-index:1;color:var(--editor-color);background:transparent;border:none;margin:0}
+  .sql-highlight-layer code{display:block;font-family:inherit;font-size:inherit;line-height:inherit;tab-size:inherit;white-space:pre;overflow-wrap:normal}
   .resizer{height:5px;background:var(--border);cursor:row-resize;flex-shrink:0;transition:background .15s}
   .resizer:hover,.resizer.active{background:var(--accent)}
   .error-bar{display:none;padding:8px 16px;background:rgba(248,81,73,.1);border-bottom:1px solid var(--red);color:var(--red);font-size:12px;font-family:monospace;flex-shrink:0;align-items:center;gap:8px}
@@ -193,6 +195,7 @@
     <div class="editor-wrap" id="editorWrap">
       <div class="editor-line-numbers" id="lineNumbers"><div>1</div></div>
       <div style="flex:1;position:relative;overflow:hidden;background:var(--editor-bg)">
+        <pre class="sql-highlight-layer" id="sqlHighlight"><code id="sqlHighlightCode"></code></pre>
         <textarea class="sql-editor" id="sqlEditor" placeholder="Write your SQL query here...&#10;&#10;Example: SELECT * FROM employees" spellcheck="false"></textarea>
       </div>
     </div>
@@ -733,10 +736,13 @@ function changeEditorFontSize(size) {
   var sz = parseInt(size, 10);
   var ed = document.getElementById('sqlEditor');
   var ln = document.getElementById('lineNumbers');
+  var hl = document.getElementById('sqlHighlight');
   ed.style.fontSize = sz + 'px';
   ed.style.lineHeight = (sz * 1.6) + 'px';
   ln.style.fontSize = sz + 'px';
   ln.style.lineHeight = (sz * 1.6) + 'px';
+  hl.style.fontSize = sz + 'px';
+  hl.style.lineHeight = (sz * 1.6) + 'px';
   document.getElementById('fontSizeSelect').value = String(sz);
   localStorage.setItem('sql-sim-fontsize', String(sz));
 }
@@ -863,14 +869,46 @@ function highlightSQL(text) {
 }
 
 function updateHighlight() {
-  // Syntax highlighting removed - textarea is directly visible
+  var code = document.getElementById('sqlHighlightCode');
+  code.innerHTML = highlightSQL(editor.value) + '\n';
 }
 
 // ============================================================
-// SQL EDITOR - Line numbers + shortcuts
+// SQL EDITOR - Line numbers + shortcuts + highlighting + auto-uppercase
 // ============================================================
 var editor = document.getElementById('sqlEditor');
 var lineNums = document.getElementById('lineNumbers');
+var hlCode = document.getElementById('sqlHighlightCode');
+
+var SQL_KEYWORDS_UPPER = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','IS','NULL','AS','ON','JOIN',
+'LEFT','RIGHT','INNER','OUTER','FULL','CROSS','GROUP','BY','ORDER','ASC','DESC','HAVING',
+'INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','ALTER','DROP','INDEX',
+'VIEW','TRIGGER','PROCEDURE','FUNCTION','BETWEEN','LIKE','EXISTS','UNION','ALL','DISTINCT',
+'CASE','WHEN','THEN','ELSE','END','WITH','REPLACE','GRANT','REVOKE','COMMIT','ROLLBACK',
+'LIMIT','OFFSET','FETCH','NEXT','ROWS','ONLY','ROWNUM','CONNECT','PRIOR','START','NATURAL',
+'USING','OVER','PARTITION','ROW','RANGE','INTERVAL','YEAR','MONTH','DAY','HOUR','MINUTE','SECOND',
+'TABLESPACE','SEQUENCE','SYNONYM','CONSTRAINT','PRIMARY','KEY','FOREIGN','REFERENCES',
+'CHECK','DEFAULT','UNIQUE','CLUSTER','IF','BEGIN','DECLARE','CURSOR','FOR','WHILE','LOOP',
+'EXIT','RETURN','EXCEPTION','RAISE','NO_DATA_FOUND','TOO_MANY_ROWS','OTHERS','MERGE','MATCHED',
+'PIVOT','UNPIVOT','FLASHBACK','RENAME','TRUNCATE','EXPLAIN','PLAN','ANALYZE','VALIDATE'];
+
+function autoUppercase(val, cursorPos) {
+  if (cursorPos <= 0) return { value: val, cursor: cursorPos };
+  var lastChar = val[cursorPos - 1];
+  if (!/[\s;(),.\n\r]/.test(lastChar)) return { value: val, cursor: cursorPos };
+  var wordEnd = cursorPos - 1;
+  var wordStart = wordEnd;
+  while (wordStart > 0 && /[a-zA-Z_]/.test(val[wordStart - 1])) wordStart--;
+  var word = val.substring(wordStart, wordEnd);
+  if (word.length < 2) return { value: val, cursor: cursorPos };
+  var upper = word.toUpperCase();
+  if (SQL_KEYWORDS_UPPER.indexOf(upper) === -1) return { value: val, cursor: cursorPos };
+  var diff = upper.length - word.length;
+  return {
+    value: val.substring(0, wordStart) + upper + val.substring(wordEnd),
+    cursor: cursorPos + diff
+  };
+}
 
 function updateLineNumbers() {
   var lines = editor.value.split('\n').length;
@@ -880,10 +918,19 @@ function updateLineNumbers() {
 }
 
 editor.addEventListener('input', function() {
+  var pos = this.selectionStart;
+  var result = autoUppercase(this.value, pos);
+  if (result.value !== this.value) {
+    this.value = result.value;
+    this.selectionStart = this.selectionEnd = result.cursor;
+  }
   updateLineNumbers();
+  updateHighlight();
 });
+
 editor.addEventListener('scroll', function() {
   lineNums.scrollTop = editor.scrollTop;
+  hlCode.style.transform = 'translate(' + (-editor.scrollLeft) + 'px,' + (-editor.scrollTop) + 'px)';
 });
 
 editor.addEventListener('keydown', function(e) {

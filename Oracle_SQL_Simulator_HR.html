@@ -485,15 +485,18 @@ const SAMPLES = [
 ];
 
 // ============================================================
-// INIT - Load data into AlaSQL
+// STATE
 // ============================================================
 let currentResult = null;
 let sortCol = null;
 let sortDir = 'asc';
 
+// ============================================================
+// INIT - Load data into AlaSQL
+// ============================================================
 function initDB() {
   for (const [table, rows] of Object.entries(HR_DATA)) {
-    try { alasql(`DROP TABLE IF EXISTS ${table}`); } catch(e) {}
+    try { alasql('DROP TABLE IF EXISTS ' + table); } catch(e) {}
     if (rows.length > 0) {
       const cols = Object.keys(rows[0]);
       const colDefs = cols.map(c => {
@@ -501,15 +504,15 @@ function initDB() {
         let t = 'STRING';
         if (typeof v === 'number') t = 'INT';
         else if (v === null && rows.some(r => r[c] !== null && typeof r[c] === 'number')) t = 'INT';
-        return `${c} ${t}`;
+        return c + ' ' + t;
       }).join(', ');
-      alasql(`CREATE TABLE ${table} (${colDefs})`);
+      alasql('CREATE TABLE ' + table + ' (' + colDefs + ')');
       for (const row of rows) {
-        alasql(`INSERT INTO ${table} SELECT * FROM ?`, [[row]]);
+        alasql('INSERT INTO ' + table + ' SELECT * FROM ?', [[row]]);
       }
     }
   }
-  const info = Object.entries(HR_DATA).map(([t,d])=>`${t}(${d.length})`).join(' | ');
+  const info = Object.entries(HR_DATA).map(function(pair) { return pair[0] + '(' + pair[1].length + ')'; }).join(' | ');
   document.getElementById('dbInfo').textContent = info;
 }
 
@@ -517,48 +520,53 @@ function initDB() {
 // UI - Build sidebar
 // ============================================================
 function buildSidebar() {
-  const body = document.getElementById('tablesBody');
-  let html = '';
-  for (const [table, meta] of Object.entries(TABLE_META)) {
-    const count = HR_DATA[table]?.length || 0;
-    html += `<div class="table-item" onclick="toggleTable('${table}', this)">
-      <span class="t-icon">&#9638;</span>
-      <span class="t-name">${table}</span>
-      <span class="t-count">${count}</span>
-    </div>
-    <div class="col-list" id="cols_${table}" style="display:none">
-      ${meta.columns.map(c => {
-        let badge = '';
-        if (c === meta.pk) badge = '<span class="col-pk">PK</span>';
-        else if (meta.fks[c]) badge = '<span class="col-fk">FK</span>';
-        return `<div class="col-item" onclick="insertColumn('${table}','${c}')">${badge}${c}</div>`;
-      }).join('')}
-    </div>`;
+  var body = document.getElementById('tablesBody');
+  var html = '';
+  var tables = Object.keys(TABLE_META);
+  for (var ti = 0; ti < tables.length; ti++) {
+    var table = tables[ti];
+    var meta = TABLE_META[table];
+    var count = (HR_DATA[table] && HR_DATA[table].length) || 0;
+    html += '<div class="table-item" onclick="toggleTable(\'' + table + '\', this)">';
+    html += '<span class="t-icon">&#9638;</span>';
+    html += '<span class="t-name">' + table + '</span>';
+    html += '<span class="t-count">' + count + '</span>';
+    html += '</div>';
+    html += '<div class="col-list" id="cols_' + table + '" style="display:none">';
+    for (var ci = 0; ci < meta.columns.length; ci++) {
+      var c = meta.columns[ci];
+      var badge = '';
+      if (c === meta.pk) badge = '<span class="col-pk">PK</span>';
+      else if (meta.fks[c]) badge = '<span class="col-fk">FK</span>';
+      html += '<div class="col-item" onclick="insertColumn(\'' + table + '\',\'' + c + '\')">' + badge + c + '</div>';
+    }
+    html += '</div>';
   }
   body.innerHTML = html;
 
-  const sbody = document.getElementById('samplesBody');
-  let shtml = '';
-  for (const s of SAMPLES) {
-    shtml += `<div class="sample-item" onclick="loadSample(this)" data-sql="${encodeURIComponent(s.sql)}">
-      <div class="s-title">${s.cat}</div>
-      <div class="s-sql">${s.sql.replace(/\n/g,' ').substring(0,60)}...</div>
-    </div>`;
+  var sbody = document.getElementById('samplesBody');
+  var shtml = '';
+  for (var si = 0; si < SAMPLES.length; si++) {
+    var s = SAMPLES[si];
+    shtml += '<div class="sample-item" onclick="loadSample(this)" data-sql="' + encodeURIComponent(s.sql) + '">';
+    shtml += '<div class="s-title">' + s.cat + '</div>';
+    shtml += '<div class="s-sql">' + s.sql.replace(/\n/g, ' ').substring(0, 60) + '...</div>';
+    shtml += '</div>';
   }
   sbody.innerHTML = shtml;
 }
 
 function toggleTable(table, el) {
-  const cols = document.getElementById('cols_' + table);
-  if (cols.style.display === 'none') { cols.style.display = 'block'; } else { cols.style.display = 'none'; }
+  var cols = document.getElementById('cols_' + table);
+  if (cols.style.display === 'none') { cols.style.display = 'block'; }
+  else { cols.style.display = 'none'; }
 }
 
 function toggleSection(id) {
-  const body = document.getElementById(id + 'Body');
-  const arrow = document.getElementById(id + 'Arrow');
+  var body = document.getElementById(id + 'Body');
+  var arrow = document.getElementById(id + 'Arrow');
   if (body.style.display === 'none') {
-    body.style.display = body.tagName === 'DIV' ? '' : 'block';
-    if (body.style.display === '') body.style.display = 'block';
+    body.style.display = 'block';
     arrow.classList.add('open');
   } else {
     body.style.display = 'none';
@@ -567,10 +575,10 @@ function toggleSection(id) {
 }
 
 function insertColumn(table, column) {
-  const ed = document.getElementById('sqlEditor');
-  const pos = ed.selectionStart;
-  const text = ed.value;
-  const insert = `${table}.${column}`;
+  var ed = document.getElementById('sqlEditor');
+  var pos = ed.selectionStart;
+  var text = ed.value;
+  var insert = table + '.' + column;
   ed.value = text.substring(0, pos) + insert + text.substring(pos);
   ed.focus();
   ed.setSelectionRange(pos + insert.length, pos + insert.length);
@@ -586,7 +594,7 @@ function loadSample(el) {
 // THEME TOGGLE
 // ============================================================
 function initTheme() {
-  const saved = localStorage.getItem('sql-sim-theme');
+  var saved = localStorage.getItem('sql-sim-theme');
   if (saved === 'light') {
     document.documentElement.setAttribute('data-theme', 'light');
     document.getElementById('themeIconDark').style.display = '';
@@ -599,7 +607,7 @@ function initTheme() {
 }
 
 function toggleTheme() {
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  var isLight = document.documentElement.getAttribute('data-theme') === 'light';
   if (isLight) {
     document.documentElement.removeAttribute('data-theme');
     localStorage.setItem('sql-sim-theme', 'dark');
@@ -617,17 +625,20 @@ function toggleTheme() {
 // FONT SIZE CONTROL
 // ============================================================
 function changeEditorFontSize(size) {
-  const ed = document.getElementById('sqlEditor');
-  const ln = document.getElementById('lineNumbers');
-  ed.style.fontSize = size + 'px';
-  ln.style.fontSize = size + 'px';
-  localStorage.setItem('sql-sim-fontsize', size);
+  var sz = parseInt(size, 10);
+  var ed = document.getElementById('sqlEditor');
+  var ln = document.getElementById('lineNumbers');
+  ed.style.fontSize = sz + 'px';
+  ed.style.lineHeight = (sz * 1.6) + 'px';
+  ln.style.fontSize = sz + 'px';
+  ln.style.lineHeight = (sz * 1.6) + 'px';
+  document.getElementById('fontSizeSelect').value = String(sz);
+  localStorage.setItem('sql-sim-fontsize', String(sz));
 }
 
 function initFontSize() {
-  const saved = localStorage.getItem('sql-sim-fontsize');
+  var saved = localStorage.getItem('sql-sim-fontsize');
   if (saved) {
-    document.getElementById('fontSizeSelect').value = saved;
     changeEditorFontSize(saved);
   }
 }
@@ -635,25 +646,28 @@ function initFontSize() {
 // ============================================================
 // SQL EDITOR - Line numbers + shortcuts
 // ============================================================
-const editor = document.getElementById('sqlEditor');
-const lineNums = document.getElementById('lineNumbers');
+var editor = document.getElementById('sqlEditor');
+var lineNums = document.getElementById('lineNumbers');
 
 function updateLineNumbers() {
-  const lines = editor.value.split('\n').length;
-  let html = '';
-  for (let i = 1; i <= lines; i++) html += `<div>${i}</div>`;
+  var lines = editor.value.split('\n').length;
+  var html = '';
+  for (var i = 1; i <= lines; i++) html += '<div>' + i + '</div>';
   lineNums.innerHTML = html;
 }
 
 editor.addEventListener('input', updateLineNumbers);
-editor.addEventListener('scroll', () => { lineNums.scrollTop = editor.scrollTop; });
+editor.addEventListener('scroll', function() { lineNums.scrollTop = editor.scrollTop; });
 
 editor.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); executeQuery(); }
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    executeQuery();
+  }
   if (e.key === 'Tab') {
     e.preventDefault();
-    const start = this.selectionStart;
-    const end = this.selectionEnd;
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
     this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
     this.selectionStart = this.selectionEnd = start + 2;
     updateLineNumbers();
@@ -661,47 +675,186 @@ editor.addEventListener('keydown', function(e) {
 });
 
 // ============================================================
+// CURSOR-BASED SQL STATEMENT DETECTION
+// ============================================================
+function getStatementAtCursor() {
+  var text = editor.value;
+  var selStart = editor.selectionStart;
+  var selEnd = editor.selectionEnd;
+
+  // If user has selected/highlighted text, execute only the selection
+  if (selEnd > selStart) {
+    return text.substring(selStart, selEnd).trim();
+  }
+
+  // Check if there's only one statement (no semicolons)
+  var semicolonCount = (text.match(/;/g) || []).length;
+  if (semicolonCount <= 1) {
+    // Single statement or no semicolons - execute everything
+    return text.trim();
+  }
+
+  // Multiple statements - find which one the cursor is in
+  // Split by semicolons and track positions
+  var statements = [];
+  var lastPos = 0;
+  for (var i = 0; i < text.length; i++) {
+    if (text[i] === ';') {
+      var stmt = text.substring(lastPos, i);
+      statements.push({ text: stmt, start: lastPos, end: i });
+      lastPos = i + 1;
+    }
+  }
+  // Add any remaining text after last semicolon
+  if (lastPos < text.length) {
+    var remaining = text.substring(lastPos);
+    if (remaining.trim().length > 0) {
+      statements.push({ text: remaining, start: lastPos, end: text.length });
+    }
+  }
+
+  if (statements.length === 0) return text.trim();
+
+  // Find which statement contains the cursor
+  var containingStmt = null;
+  var nearestBefore = null;
+  var nearestAfter = null;
+
+  for (var j = 0; j < statements.length; j++) {
+    var s = statements[j];
+    if (selStart >= s.start && selStart <= s.end) {
+      containingStmt = s;
+      break;
+    }
+    // Track nearest statements for when cursor is between them
+    if (s.end <= selStart) {
+      nearestBefore = s;
+    }
+    if (s.start >= selStart && nearestAfter === null) {
+      nearestAfter = s;
+    }
+  }
+
+  var target;
+  if (containingStmt) {
+    target = containingStmt;
+  } else if (nearestBefore) {
+    // Cursor is after the semicolon of nearestBefore
+    // Check if there's a nearestAfter and which is closer
+    if (nearestAfter) {
+      var distBefore = selStart - nearestBefore.end;
+      var distAfter = nearestAfter.start - selStart;
+      target = distBefore <= distAfter ? nearestBefore : nearestAfter;
+    } else {
+      target = nearestBefore;
+    }
+  } else if (nearestAfter) {
+    target = nearestAfter;
+  } else {
+    // Fallback
+    return text.trim();
+  }
+
+  var result = target.text.trim();
+  if (!result) {
+    // Empty statement at cursor - try the next non-empty one
+    var idx = statements.indexOf(target);
+    for (var k = idx + 1; k < statements.length; k++) {
+      if (statements[k].text.trim()) {
+        return statements[k].text.trim();
+      }
+    }
+    for (var m = idx - 1; m >= 0; m--) {
+      if (statements[m].text.trim()) {
+        return statements[m].text.trim();
+      }
+    }
+    return '';
+  }
+  return result;
+}
+
+// ============================================================
 // EXECUTE QUERY
 // ============================================================
 function executeQuery() {
-  const sql = editor.value.trim();
+  var sql = getStatementAtCursor();
   if (!sql) return;
+
   hideError();
-  const btn = document.getElementById('runBtn');
-  const timeEl = document.getElementById('execTime');
+  var btn = document.getElementById('runBtn');
+  var timeEl = document.getElementById('execTime');
   btn.classList.add('running');
   btn.innerHTML = '&#8987; Running...';
   timeEl.textContent = '';
-  setTimeout(() => {
+
+  setTimeout(function() {
     try {
-      const t0 = performance.now();
-      const result = alasql(sql);
-      const elapsed = (performance.now() - t0).toFixed(1);
-      timeEl.textContent = `${elapsed} ms`;
+      var t0 = performance.now();
+      var result = alasql(sql);
+      var elapsed = (performance.now() - t0).toFixed(1);
+      timeEl.textContent = elapsed + ' ms';
+
       if (Array.isArray(result)) {
-        currentResult = result;
+        if (result.length > 0 && typeof result[0] === 'object' && result[0] !== null) {
+          currentResult = result;
+          sortCol = null;
+          sortDir = 'asc';
+          renderResult(result);
+        } else {
+          // Array of primitives or empty array
+          currentResult = null;
+          showScalarResult(result);
+        }
+      } else if (typeof result === 'object' && result !== null) {
+        currentResult = [result];
         sortCol = null;
         sortDir = 'asc';
-        renderResult(result);
-      } else if (typeof result === 'object' && result !== null) {
-        currentResult = [[result]];
-        renderResult([[result]]);
+        renderResult([result]);
       } else {
-        document.getElementById('emptyState').style.display = 'flex';
-        document.getElementById('resultsInfo').style.display = 'none';
-        document.getElementById('resultsGrid').style.display = 'none';
-        document.getElementById('emptyState').innerHTML = `<div class="es-icon">&#9989;</div><div class="es-title">Query Executed</div><div class="es-desc">Affected rows: <b>${result}</b></div>`;
+        currentResult = null;
+        showAffectedRows(result);
       }
-    } catch(err) { showError(err.message || String(err)); }
+    } catch(err) {
+      showError(err.message || String(err));
+    }
     btn.classList.remove('running');
     btn.innerHTML = '&#9654; Run';
   }, 50);
+}
+
+function showAffectedRows(count) {
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('resultsInfo').style.display = 'none';
+  document.getElementById('resultsGrid').style.display = 'none';
+  document.getElementById('emptyState').innerHTML = '<div class="es-icon">&#9989;</div><div class="es-title">Query Executed</div><div class="es-desc">Affected rows: <b>' + count + '</b></div>';
+}
+
+function showScalarResult(data) {
+  if (!data || data.length === 0) {
+    document.getElementById('emptyState').style.display = 'flex';
+    document.getElementById('emptyState').innerHTML = '<div class="es-icon">&#128270;</div><div class="es-title">No Results</div><div class="es-desc">The query executed successfully but returned 0 rows.</div>';
+    document.getElementById('resultsInfo').style.display = 'none';
+    document.getElementById('resultsGrid').style.display = 'none';
+    return;
+  }
+  // Convert scalar array into objects
+  var converted = data.map(function(v, i) {
+    var o = {};
+    o['result'] = v;
+    return o;
+  });
+  currentResult = converted;
+  sortCol = null;
+  sortDir = 'asc';
+  renderResult(converted);
 }
 
 function showError(msg) {
   document.getElementById('errorBar').classList.add('show');
   document.getElementById('errorText').textContent = msg;
 }
+
 function hideError() {
   document.getElementById('errorBar').classList.remove('show');
 }
@@ -710,56 +863,93 @@ function hideError() {
 // RENDER RESULTS
 // ============================================================
 function renderResult(data) {
-  const empty = document.getElementById('emptyState');
-  const info = document.getElementById('resultsInfo');
-  const grid = document.getElementById('resultsGrid');
+  var empty = document.getElementById('emptyState');
+  var info = document.getElementById('resultsInfo');
+  var grid = document.getElementById('resultsGrid');
+
   if (!data || data.length === 0) {
     empty.style.display = 'flex';
-    empty.innerHTML = `<div class="es-icon">&#128270;</div><div class="es-title">No Results</div><div class="es-desc">The query executed successfully but returned 0 rows.</div>`;
+    empty.innerHTML = '<div class="es-icon">&#128270;</div><div class="es-title">No Results</div><div class="es-desc">The query executed successfully but returned 0 rows.</div>';
     info.style.display = 'none';
     grid.style.display = 'none';
     return;
   }
+
   empty.style.display = 'none';
   info.style.display = 'flex';
   grid.style.display = 'block';
-  const headers = Object.keys(data[0]);
+
+  var headers = Object.keys(data[0]);
   document.getElementById('rowCount').textContent = data.length;
   document.getElementById('colCount').textContent = headers.length;
-  let tableHtml = '<table class="results-table" id="resultsTable"><colgroup>';
+  document.getElementById('sortInfo').textContent = sortCol ? ('Sorted by: ' + sortCol + ' (' + (sortDir === 'asc' ? 'ASC' : 'DESC') + ')') : '';
+
+  var tableHtml = '<table class="results-table" id="resultsTable"><colgroup>';
   tableHtml += '<col style="width:40px">';
-  for (let ci = 0; ci < headers.length; ci++) {
-    let maxW = headers[ci].length * 9 + 30;
-    for (let ri = 0; ri < Math.min(data.length, 50); ri++) {
-      let val = data[ri][headers[ci]];
-      if (val === null || val === undefined) val = 'NULL';
-      else if (typeof val === 'number') { val = Number.isInteger(val) ? val.toLocaleString() : val.toFixed(2); }
-      maxW = Math.max(maxW, String(val).length * 8 + 24);
+
+  for (var ci = 0; ci < headers.length; ci++) {
+    var maxW = headers[ci].length * 9 + 30;
+    var sampleCount = Math.min(data.length, 50);
+    for (var ri = 0; ri < sampleCount; ri++) {
+      var val = data[ri][headers[ci]];
+      var displayVal;
+      if (val === null || val === undefined) {
+        displayVal = 'NULL';
+      } else if (typeof val === 'number') {
+        displayVal = Number.isInteger(val) ? val.toLocaleString() : val.toFixed(2);
+      } else {
+        displayVal = String(val);
+      }
+      maxW = Math.max(maxW, displayVal.length * 8 + 24);
     }
-    tableHtml += `<col style="width:${Math.min(Math.max(60, maxW), 350)}px" data-col-idx="${ci}">`;
+    tableHtml += '<col style="width:' + Math.min(Math.max(60, maxW), 350) + 'px" data-col-idx="' + ci + '">';
   }
+
   tableHtml += '</colgroup><thead><tr>';
-  tableHtml += '<th style="width:40px;text-align:center">#</th>';
-  for (let ci = 0; ci < headers.length; ci++) {
-    const h = headers[ci];
-    const safeH = h.replace(/'/g, "\\'");
-    tableHtml += `<th data-col="${ci}" draggable="true"><div class="th-content" onclick="sortByColumn('${safeH}')">${h}<span class="sort-icon" id="sort_${h}"></span></div><div class="col-resize-handle"></div></th>`;
+  tableHtml += '<th style="width:40px;text-align:center;cursor:default">#</th>';
+
+  for (var hi = 0; hi < headers.length; hi++) {
+    var h = headers[hi];
+    var safeH = h.replace(/'/g, "\\'");
+    var sortedClass = (sortCol === h) ? ' class="sorted"' : '';
+    var sortArrow = '';
+    if (sortCol === h) {
+      sortArrow = sortDir === 'asc' ? ' &#9650;' : ' &#9660;';
+    }
+    tableHtml += '<th data-col="' + hi + '" draggable="true"' + sortedClass + '>';
+    tableHtml += '<div class="th-content" onclick="sortByColumn(\'' + safeH + '\')">' + h + '<span class="sort-icon" id="sort_' + h + '">' + sortArrow + '</span></div>';
+    tableHtml += '<div class="col-resize-handle"></div>';
+    tableHtml += '</th>';
   }
+
   tableHtml += '</tr></thead><tbody>';
-  for (let i = 0; i < data.length; i++) {
+
+  for (var rowIdx = 0; rowIdx < data.length; rowIdx++) {
     tableHtml += '<tr>';
-    tableHtml += `<td style="color:var(--text-muted);text-align:center;font-size:10px">${i + 1}</td>`;
-    for (const h of headers) {
-      let val = data[i][h];
-      let cls = '';
-      if (val === null || val === undefined) { val = 'NULL'; cls = 'null-val'; }
-      else if (typeof val === 'number') { cls = 'number-val'; if (Number.isInteger(val)) val = val.toLocaleString(); else val = val.toFixed(2); }
-      tableHtml += `<td class="${cls}" title="${String(data[i][h] ?? 'NULL')}">${val}</td>`;
+    tableHtml += '<td style="color:var(--text-muted);text-align:center;font-size:10px">' + (rowIdx + 1) + '</td>';
+    for (var colIdx = 0; colIdx < headers.length; colIdx++) {
+      var cellVal = data[rowIdx][headers[colIdx]];
+      var cls = '';
+      var displayValue;
+      if (cellVal === null || cellVal === undefined) {
+        displayValue = 'NULL';
+        cls = 'null-val';
+      } else if (typeof cellVal === 'number') {
+        cls = 'number-val';
+        displayValue = Number.isInteger(cellVal) ? cellVal.toLocaleString() : cellVal.toFixed(2);
+      } else {
+        displayValue = String(cellVal);
+      }
+      var rawVal = (data[rowIdx][headers[colIdx]] === null || data[rowIdx][headers[colIdx]] === undefined) ? 'NULL' : String(data[rowIdx][headers[colIdx]]);
+      tableHtml += '<td class="' + cls + '" title="' + rawVal.replace(/"/g, '&quot;') + '">' + displayValue + '</td>';
     }
     tableHtml += '</tr>';
   }
+
   tableHtml += '</tbody></table>';
   grid.innerHTML = tableHtml;
+
+  // Attach column resize and drag listeners
   initColumnResize();
   initColumnDragDrop();
 }
@@ -768,103 +958,133 @@ function renderResult(data) {
 // COLUMN RESIZE
 // ============================================================
 function initColumnResize() {
-  const table = document.getElementById('resultsTable');
+  var table = document.getElementById('resultsTable');
   if (!table) return;
-  const handles = table.querySelectorAll('.col-resize-handle');
-  handles.forEach(handle => {
-    const th = handle.parentElement;
-    const colIdx = parseInt(th.getAttribute('data-col'));
-    const colgroup = table.querySelector('colgroup');
-    const col = colgroup.children[colIdx + 1];
-    handle.addEventListener('mousedown', function(e) {
-      if (e.button !== 0) return;
-      e.stopPropagation();
-      e.preventDefault();
-      const startX = e.clientX;
-      const startW = col.offsetWidth;
-      handle.classList.add('active');
-      function onMove(ev) {
-        const delta = ev.clientX - startX;
-        col.style.width = Math.max(60, startW + delta) + 'px';
-      }
-      function onUp() {
-        handle.classList.remove('active');
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-      }
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-    });
-  });
+
+  var handles = table.querySelectorAll('.col-resize-handle');
+  for (var i = 0; i < handles.length; i++) {
+    (function(handle) {
+      var th = handle.parentElement;
+      if (!th || !th.getAttribute('data-col')) return;
+      var colIdx = parseInt(th.getAttribute('data-col'), 10);
+      var colgroup = table.querySelector('colgroup');
+      if (!colgroup) return;
+      // colIdx is 0-based for data columns, colgroup has row# col at index 0
+      var col = colgroup.children[colIdx + 1];
+      if (!col) return;
+
+      handle.addEventListener('mousedown', function(e) {
+        if (e.button !== 0) return;
+        e.stopPropagation();
+        e.preventDefault();
+        var startX = e.clientX;
+        var startW = col.offsetWidth;
+        handle.classList.add('active');
+
+        function onMove(ev) {
+          var delta = ev.clientX - startX;
+          var newW = Math.max(60, startW + delta);
+          col.style.width = newW + 'px';
+        }
+
+        function onUp() {
+          handle.classList.remove('active');
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    })(handles[i]);
+  }
 }
 
 // ============================================================
 // COLUMN DRAG & DROP REORDER
 // ============================================================
-let dragState = null;
+var dragState = null;
 
 function initColumnDragDrop() {
-  const table = document.getElementById('resultsTable');
+  var table = document.getElementById('resultsTable');
   if (!table) return;
-  const ths = table.querySelectorAll('thead th[data-col]');
-  ths.forEach(th => {
-    th.addEventListener('dragstart', function(e) {
-      const colIdx = parseInt(this.getAttribute('data-col'));
-      dragState = { fromIdx: colIdx, th: this };
-      this.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', String(colIdx));
-    });
-    th.addEventListener('dragend', function() {
-      this.classList.remove('dragging');
-      document.querySelectorAll('.results-table th').forEach(t => {
-        t.classList.remove('drag-over-left', 'drag-over-right');
+
+  var ths = table.querySelectorAll('thead th[data-col]');
+  for (var i = 0; i < ths.length; i++) {
+    (function(th) {
+      th.addEventListener('dragstart', function(e) {
+        var colIdx = parseInt(this.getAttribute('data-col'), 10);
+        dragState = { fromIdx: colIdx, th: this };
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(colIdx));
       });
-      dragState = null;
-    });
-    th.addEventListener('dragover', function(e) {
-      if (!dragState) return;
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      const toIdx = parseInt(this.getAttribute('data-col'));
-      if (toIdx === dragState.fromIdx) return;
-      document.querySelectorAll('.results-table th').forEach(t => {
-        t.classList.remove('drag-over-left', 'drag-over-right');
+
+      th.addEventListener('dragend', function() {
+        this.classList.remove('dragging');
+        var allThs = document.querySelectorAll('.results-table th');
+        for (var j = 0; j < allThs.length; j++) {
+          allThs[j].classList.remove('drag-over-left', 'drag-over-right');
+        }
+        dragState = null;
       });
-      const rect = this.getBoundingClientRect();
-      const midX = rect.left + rect.width / 2;
-      if (e.clientX < midX) { this.classList.add('drag-over-left'); }
-      else { this.classList.add('drag-over-right'); }
-    });
-    th.addEventListener('dragleave', function() {
-      this.classList.remove('drag-over-left', 'drag-over-right');
-    });
-    th.addEventListener('drop', function(e) {
-      e.preventDefault();
-      if (!dragState) return;
-      const toIdx = parseInt(this.getAttribute('data-col'));
-      if (toIdx === dragState.fromIdx) return;
-      const rect = this.getBoundingClientRect();
-      const midX = rect.left + rect.width / 2;
-      const insertBefore = e.clientX < midX;
-      reorderColumns(dragState.fromIdx, toIdx, insertBefore);
-      dragState = null;
-    });
-  });
+
+      th.addEventListener('dragover', function(e) {
+        if (!dragState) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        var toIdx = parseInt(this.getAttribute('data-col'), 10);
+        if (toIdx === dragState.fromIdx) return;
+        // Clean up all indicator classes
+        var allThs = document.querySelectorAll('.results-table th');
+        for (var j = 0; j < allThs.length; j++) {
+          allThs[j].classList.remove('drag-over-left', 'drag-over-right');
+        }
+        var rect = this.getBoundingClientRect();
+        var midX = rect.left + rect.width / 2;
+        if (e.clientX < midX) {
+          this.classList.add('drag-over-left');
+        } else {
+          this.classList.add('drag-over-right');
+        }
+      });
+
+      th.addEventListener('dragleave', function() {
+        this.classList.remove('drag-over-left', 'drag-over-right');
+      });
+
+      th.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!dragState) return;
+        var toIdx = parseInt(this.getAttribute('data-col'), 10);
+        if (toIdx === dragState.fromIdx) { dragState = null; return; }
+        var rect = this.getBoundingClientRect();
+        var midX = rect.left + rect.width / 2;
+        var insertBefore = (e.clientX < midX);
+        reorderColumns(dragState.fromIdx, toIdx, insertBefore);
+        dragState = null;
+      });
+    })(ths[i]);
+  }
 }
 
 function reorderColumns(fromIdx, toIdx, insertBefore) {
   if (!currentResult || currentResult.length === 0) return;
-  const origKeys = Object.keys(currentResult[0]);
-  const movedKey = origKeys.splice(fromIdx, 1)[0];
-  let insertAt = toIdx > fromIdx ? toIdx - 1 : toIdx;
+  var origKeys = Object.keys(currentResult[0]);
+  var movedKey = origKeys.splice(fromIdx, 1)[0];
+  var insertAt = toIdx > fromIdx ? toIdx - 1 : toIdx;
   if (!insertBefore) insertAt++;
   origKeys.splice(insertAt, 0, movedKey);
-  const newData = currentResult.map(row => {
-    const newRow = {};
-    origKeys.forEach(k => { newRow[k] = row[k]; });
-    return newRow;
-  });
+
+  var newData = [];
+  for (var i = 0; i < currentResult.length; i++) {
+    var row = currentResult[i];
+    var newRow = {};
+    for (var k = 0; k < origKeys.length; k++) {
+      newRow[origKeys[k]] = row[origKeys[k]];
+    }
+    newData.push(newRow);
+  }
   currentResult = newData;
   renderResult(currentResult);
 }
@@ -874,23 +1094,27 @@ function reorderColumns(fromIdx, toIdx, insertBefore) {
 // ============================================================
 function sortByColumn(col) {
   if (!currentResult || currentResult.length === 0) return;
-  if (sortCol === col) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
-  else { sortCol = col; sortDir = 'asc'; }
-  currentResult.sort((a, b) => {
-    let va = a[col], vb = b[col];
+  if (sortCol === col) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortCol = col;
+    sortDir = 'asc';
+  }
+
+  currentResult.sort(function(a, b) {
+    var va = a[col];
+    var vb = b[col];
     if (va === null || va === undefined) va = sortDir === 'asc' ? Infinity : -Infinity;
     if (vb === null || vb === undefined) vb = sortDir === 'asc' ? Infinity : -Infinity;
-    if (typeof va === 'number' && typeof vb === 'number') { return sortDir === 'asc' ? va - vb : vb - va; }
-    va = String(va); vb = String(vb);
+    if (typeof va === 'number' && typeof vb === 'number') {
+      return sortDir === 'asc' ? va - vb : vb - va;
+    }
+    va = String(va);
+    vb = String(vb);
     return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
   });
-  document.querySelectorAll('.results-table th').forEach(th => th.classList.remove('sorted'));
-  const icon = document.getElementById('sort_' + col);
-  if (icon) {
-    icon.parentElement.classList.add('sorted');
-    icon.textContent = sortDir === 'asc' ? ' \u25B2' : ' \u25BC';
-  }
-  document.getElementById('sortInfo').textContent = `Sorted by: ${col} (${sortDir === 'asc' ? 'ASC' : 'DESC'})`;
+
+  // Re-render without changing currentResult reference for sort state
   renderResult(currentResult);
 }
 
@@ -901,22 +1125,33 @@ function clearEditor() {
   editor.value = '';
   updateLineNumbers();
   hideError();
+  currentResult = null;
+  sortCol = null;
+  sortDir = 'asc';
   document.getElementById('emptyState').style.display = 'flex';
-  document.getElementById('emptyState').innerHTML = `<div class="es-icon">&#128450;</div><div class="es-title">No Results Yet</div><div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.<br>Select a sample query from the sidebar to get started.</div>`;
+  document.getElementById('emptyState').innerHTML = '<div class="es-icon">&#128450;</div><div class="es-title">No Results Yet</div><div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.<br>Select a sample query from the sidebar to get started.</div>';
   document.getElementById('resultsInfo').style.display = 'none';
   document.getElementById('resultsGrid').style.display = 'none';
   document.getElementById('execTime').textContent = '';
-  currentResult = null;
   editor.focus();
 }
 
 function formatQuery() {
-  let sql = editor.value.trim();
-  const keywords = ['SELECT','FROM','WHERE','JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN','FULL OUTER JOIN','INNER JOIN','ON','AND','OR','GROUP BY','ORDER BY','HAVING','LIMIT','AS','DISTINCT','UNION','INSERT','UPDATE','DELETE','SET','INTO','VALUES','CREATE','DROP','TABLE','NOT','IN','BETWEEN','LIKE','IS NULL','IS NOT NULL','ASC','DESC','COUNT','SUM','AVG','MIN','MAX','ROUND'];
-  keywords.forEach(kw => {
-    const regex = new RegExp('\\b' + kw.replace(/ /g,'\\s+') + '\\b', 'gi');
+  var sql = editor.value.trim();
+  var keywords = [
+    'SELECT','FROM','WHERE','JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN',
+    'FULL OUTER JOIN','INNER JOIN','ON','AND','OR','GROUP BY','ORDER BY',
+    'HAVING','LIMIT','AS','DISTINCT','UNION','INSERT','UPDATE','DELETE',
+    'SET','INTO','VALUES','CREATE','DROP','TABLE','NOT','IN','BETWEEN',
+    'LIKE','IS NULL','IS NOT NULL','ASC','DESC','COUNT','SUM','AVG','MIN','MAX','ROUND'
+  ];
+  // Sort by length descending to match longer keywords first
+  keywords.sort(function(a, b) { return b.length - a.length; });
+  for (var i = 0; i < keywords.length; i++) {
+    var kw = keywords[i];
+    var regex = new RegExp('\\b' + kw.replace(/ /g, '\\s+') + '\\b', 'gi');
     sql = sql.replace(regex, '\n' + kw);
-  });
+  }
   sql = sql.replace(/\n\n+/g, '\n').trim();
   sql = sql.replace(/^(\s*)(ON|AND|OR)/gm, '  $1$2');
   editor.value = sql;
@@ -924,12 +1159,13 @@ function formatQuery() {
 }
 
 // ============================================================
-// RESIZER
+// RESIZER (editor/results split)
 // ============================================================
 (function() {
-  const resizer = document.getElementById('resizer');
-  const editorWrap = document.getElementById('editorWrap');
-  let startY, startH;
+  var resizer = document.getElementById('resizer');
+  var editorWrap = document.getElementById('editorWrap');
+  var startY, startH;
+
   resizer.addEventListener('mousedown', function(e) {
     startY = e.clientY;
     startH = editorWrap.offsetHeight;
@@ -938,12 +1174,14 @@ function formatQuery() {
     document.addEventListener('mouseup', onUp);
     e.preventDefault();
   });
+
   function onMove(e) {
-    const delta = e.clientY - startY;
-    const newH = Math.max(100, startH + delta);
-    const maxH = editorWrap.parentElement.offsetHeight - 150;
+    var delta = e.clientY - startY;
+    var newH = Math.max(100, startH + delta);
+    var maxH = editorWrap.parentElement.offsetHeight - 150;
     editorWrap.style.height = Math.min(newH, maxH) + 'px';
   }
+
   function onUp() {
     resizer.classList.remove('active');
     document.removeEventListener('mousemove', onMove);
@@ -961,6 +1199,6 @@ buildSidebar();
 updateLineNumbers();
 editor.value = 'SELECT e.last_name, d.department_name, j.job_title, e.salary\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id\nJOIN jobs j ON e.job_id = j.job_id\nORDER BY e.salary DESC';
 updateLineNumbers();
-<\/script>
-<\/body>
-<\/html>
+</script>
+</body>
+</html>

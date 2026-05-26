@@ -223,7 +223,7 @@
   <span><span class="status-dot"></span>Ready</span>
   <span id="dbInfo"></span>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/alasql/4.5.0/alasql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.js"></script>
 <script>
 
 const HR_DATA = {
@@ -498,28 +498,175 @@ let sortDir = 'asc';
 let selectedRow = null;
 
 // ============================================================
-// INIT - Load data into AlaSQL
+// INIT - Load data into sql.js (SQLite)
 // ============================================================
+var db = null;
+
 function initDB() {
-  for (const [table, rows] of Object.entries(HR_DATA)) {
-    try { alasql('DROP TABLE IF EXISTS ' + table); } catch(e) {}
-    if (rows.length > 0) {
-      const cols = Object.keys(rows[0]);
-      const colDefs = cols.map(c => {
-        const v = rows[0][c];
-        let t = 'STRING';
-        if (typeof v === 'number') t = 'INT';
-        else if (v === null && rows.some(r => r[c] !== null && typeof r[c] === 'number')) t = 'INT';
-        return c + ' ' + t;
-      }).join(', ');
-      alasql('CREATE TABLE ' + table + ' (' + colDefs + ')');
-      for (const row of rows) {
-        alasql('INSERT INTO ' + table + ' SELECT * FROM ?', [[row]]);
+  for (var tableName in HR_DATA) {
+    var rows = HR_DATA[tableName];
+    if (!rows || rows.length === 0) continue;
+    var cols = Object.keys(rows[0]);
+    // Determine SQLite types from first non-null values
+    var colDefs = cols.map(function(c) {
+      for (var r = 0; r < rows.length; r++) {
+        if (rows[r][c] !== null && rows[r][c] !== undefined) {
+          return typeof rows[r][c] === 'number' ? '"' + c + '" INTEGER' : '"' + c + '" TEXT';
+        }
+      }
+      return '"' + c + '" TEXT';
+    }).join(', ');
+    try { db.run('DROP TABLE IF EXISTS "' + tableName + '"'); } catch(e) {}
+    db.run('CREATE TABLE "' + tableName + '" (' + colDefs + ')');
+    // Bulk insert using parameterized query
+    var placeholders = cols.map(function() { return '?'; }).join(', ');
+    var quotedCols = cols.map(function(c) { return '"' + c + '"'; }).join(', ');
+    var insertSql = 'INSERT INTO "' + tableName + '" (' + quotedCols + ') VALUES (' + placeholders + ')';
+    var stmt = db.prepare(insertSql);
+    db.exec('BEGIN TRANSACTION');
+    for (var i = 0; i < rows.length; i++) {
+      var vals = cols.map(function(c) { return rows[i][c] === undefined ? null : rows[i][c]; });
+      stmt.run(vals);
+    }
+    db.exec('COMMIT');
+    stmt.free();
+  }
+  var info = Object.keys(HR_DATA).map(function(t) { return t + '(' + HR_DATA[t].length + ')'; }).join(' | ');
+  document.getElementById('dbInfo').textContent = info;
+}
+
+// ============================================================
+// ORACLE UDFs - Custom functions for Oracle compatibility
+// ============================================================
+function registerOracleFunctions() {
+  // NVL(expr1, expr2) - return first non-null
+  db.create_function('nvl', function(a, b) { return (a === null || a === undefined) ? b : a; });
+  db.create_function('nvl2', function(a, b, c) { return (a !== null && a !== undefined) ? b : c; });
+
+  // SYSDATE - current date/time
+  db.create_function('sysdate', function() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
+  });
+
+  // TRUNC(date) - truncate date to start of day
+  db.create_function('trunc', function(d) {
+    if (!d) return null;
+    var dt = new Date(d);
+    if (isNaN(dt.getTime())) return d;
+    return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+  });
+
+  // TO_CHAR(expr) - convert to string
+  db.create_function('to_char', function(val, fmt) {
+    if (val === null || val === undefined) return null;
+    if (typeof val === 'number') {
+      if (fmt) {
+        var s = fmt.replace(/,/g, ',').replace(/\./g, '.');
+        if (s.indexOf('L') >= 0 || s.indexOf('$') >= 0) return '$' + val.toLocaleString();
+        if (s.indexOf('9') >= 0) return String(val);
+      }
+      return String(val);
+    }
+    if (val instanceof Date || typeof val === 'string') {
+      var dt = new Date(val);
+      if (isNaN(dt.getTime())) return String(val);
+      if (!fmt || fmt === 'YYYY-MM-DD') return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+      if (fmt === 'YYYY') return String(dt.getFullYear());
+      if (fmt === 'MM') return String(dt.getMonth()+1).padStart(2,'0');
+      if (fmt === 'DD') return String(dt.getDate()).padStart(2,'0');
+      if (fmt === 'HH24:MI:SS') return String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0') + ':' + String(dt.getSeconds()).padStart(2,'0');
+      if (fmt === 'MON') return ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][dt.getMonth()];
+      if (fmt === 'MONTH') return ['January','February','March','April','May','June','July','August','September','October','November','December'][dt.getMonth()];
+      if (fmt === 'YYYY-MM-DD HH24:MI:SS') return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0') + ' ' + String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0') + ':' + String(dt.getSeconds()).padStart(2,'0');
+      return String(val);
+    }
+    return String(val);
+  });
+
+  // TO_DATE(str) - parse string to date string
+  db.create_function('to_date', function(s, fmt) {
+    if (!s) return null;
+    var d = new Date(s);
+    if (isNaN(d.getTime())) return s;
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  });
+
+  // ADD_MONTHS(date, n) - add months to date
+  db.create_function('add_months', function(d, n) {
+    if (!d) return null;
+    var dt = new Date(d);
+    if (isNaN(dt.getTime())) return d;
+    dt.setMonth(dt.getMonth() + (n || 0));
+    return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+  });
+
+  // MONTHS_BETWEEN(d1, d2) - months between two dates
+  db.create_function('months_between', function(d1, d2) {
+    if (!d1 || !d2) return null;
+    var a = new Date(d1), b = new Date(d2);
+    if (isNaN(a.getTime()) || isNaN(b.getTime())) return 0;
+    return (a.getFullYear() - b.getFullYear()) * 12 + (a.getMonth() - b.getMonth());
+  });
+
+  // LAST_DAY(date) - last day of month
+  db.create_function('last_day', function(d) {
+    if (!d) return null;
+    var dt = new Date(d);
+    if (isNaN(dt.getTime())) return d;
+    var last = new Date(dt.getFullYear(), dt.getMonth() + 1, 0);
+    return last.getFullYear() + '-' + String(last.getMonth()+1).padStart(2,'0') + '-' + String(last.getDate()).padStart(2,'0');
+  });
+
+  // ROUND(number, decimals) - for numbers
+  db.create_function('round', function(val, dec) {
+    if (val === null || val === undefined) return null;
+    var d = (dec === undefined || dec === null) ? 0 : dec;
+    var factor = Math.pow(10, d);
+    return Math.round(val * factor) / factor;
+  });
+
+  // INSTR(str, substr) - find position of substring (Oracle 1-based)
+  db.create_function('instr', function(str, sub, start, occ) {
+    if (!str || !sub) return 0;
+    var s = (start || 1) - 1; // convert to 0-based
+    if (s < 0) { str = str.split('').reverse().join(''); sub = sub.split('').reverse().join(''); s = -s - 1; }
+    var idx = str.indexOf(sub, s);
+    if (idx < 0) return 0;
+    if (occ && occ > 1) {
+      var count = 1;
+      while (count < occ) {
+        idx = str.indexOf(sub, idx + 1);
+        if (idx < 0) return 0;
+        count++;
       }
     }
-  }
-  const info = Object.entries(HR_DATA).map(function(pair) { return pair[0] + '(' + pair[1].length + ')'; }).join(' | ');
-  document.getElementById('dbInfo').textContent = info;
+    return idx + 1; // 1-based
+  });
+
+  // SUBSTR(str, start, length) - Oracle-style substr (1-based, negative start from end)
+  db.create_function('substr', function(str, start, len) {
+    if (str === null || str === undefined) return null;
+    var s = String(str);
+    if (start < 0) { start = s.length + start + 1; }
+    else { start = start - 1; } // convert to 0-based
+    if (start < 0) start = 0;
+    if (len !== undefined && len !== null) {
+      return s.substring(start, start + len);
+    }
+    return s.substring(start);
+  });
+
+  // LENGTH(str) - Oracle LENGTH
+  db.create_function('length', function(s) {
+    return (s === null || s === undefined) ? null : String(s).length;
+  });
+
+  // UPPER / LOWER are built into SQLite, no need to add
+
+  // COALESCE is built into SQLite
+
+  // DECODE can be handled by CASE WHEN in queries
 }
 
 // ============================================================
@@ -1066,36 +1213,38 @@ function executeQuery() {
   setTimeout(function() {
     try {
       var t0 = performance.now();
-      var result = alasql(sql);
+      var sqlResults = db.exec(sql);
       var elapsed = (performance.now() - t0).toFixed(1);
       timeEl.textContent = elapsed + ' ms';
 
-      if (Array.isArray(result)) {
-        if (result.length > 0 && typeof result[0] === 'object' && result[0] !== null) {
-          currentResult = result;
-          sortCol = null;
-          sortDir = 'asc';
-          selectedRow = null;
-          renderResult(result);
-          // Auto-add to query history on success
-          addQueryToHistory(sql);
-        } else {
-          // Array of primitives or empty array
-          currentResult = null;
-          showScalarResult(result);
-          // Empty array results still count as success
-          addQueryToHistory(sql);
-        }
-      } else if (typeof result === 'object' && result !== null) {
-        currentResult = [result];
+      // sql.js returns [{columns:[...], values:[[...],[...]]}] or [] for non-SELECT
+      if (sqlResults.length > 0) {
+        var res = sqlResults[sqlResults.length - 1]; // use last result set
+        var columns = res.columns;
+        var values = res.values;
+        // Convert to array of objects for renderResult
+        var data = values.map(function(row) {
+          var obj = {};
+          for (var c = 0; c < columns.length; c++) {
+            obj[columns[c]] = row[c];
+          }
+          return obj;
+        });
+        currentResult = data;
         sortCol = null;
         sortDir = 'asc';
         selectedRow = null;
-        renderResult([result]);
+        renderResult(data);
         addQueryToHistory(sql);
       } else {
+        // Non-SELECT statement (INSERT, UPDATE, DELETE, CREATE, etc.)
         currentResult = null;
-        showAffectedRows(result);
+        var changes = db.getRowsModified();
+        if (changes > 0) {
+          showAffectedRows(changes);
+        } else {
+          showAffectedRows(0);
+        }
         addQueryToHistory(sql);
       }
     } catch(err) {
@@ -1534,15 +1683,31 @@ function formatQuery() {
 })();
 
 // ============================================================
-// INIT
+// INIT - Async sql.js initialization
 // ============================================================
 initTheme();
 initFontSize();
-initDB();
-buildSidebar();
 renderSavedQueries();
 updateLineNumbers();
-updateHighlight();
+
+// Show loading state
+document.getElementById('dbInfo').textContent = 'Loading sql.js engine...';
+
+initSqlJs({
+  locateFile: function(file) {
+    return 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/' + file;
+  }
+}).then(function(SQL) {
+  db = new SQL.Database();
+  registerOracleFunctions();
+  initDB();
+  buildSidebar();
+  document.getElementById('dbInfo').textContent = Object.keys(HR_DATA).map(function(t) { return t + '(' + HR_DATA[t].length + ')'; }).join(' | ');
+  updateHighlight();
+}).catch(function(err) {
+  document.getElementById('dbInfo').textContent = 'Error: ' + err.message;
+  console.error('sql.js init failed:', err);
+});
 </script>
 </body>
 </html>

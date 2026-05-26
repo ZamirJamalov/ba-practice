@@ -87,12 +87,10 @@
   .editor-line-numbers{width:44px;background:var(--surface);padding:12px 0;text-align:right;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;color:var(--text-muted);overflow:hidden;user-select:none;flex-shrink:0;border-right:1px solid var(--border);scrollbar-width:none;-ms-overflow-style:none}
   .editor-line-numbers::-webkit-scrollbar{display:none}
   .editor-line-numbers div{padding-right:10px}
-  .sql-editor{position:absolute;top:0;left:0;right:0;bottom:0;background:transparent;color:transparent;border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:scroll;overflow-x:scroll;white-space:pre;overflow-wrap:normal;caret-color:var(--editor-color);z-index:2;scrollbar-width:none;-ms-overflow-style:none}
+  .sql-editor{position:absolute;top:0;left:0;width:100%;height:100%;background:var(--editor-bg);color:var(--editor-color);border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:scroll;overflow-x:scroll;white-space:pre;overflow-wrap:normal;z-index:1;scrollbar-width:none;-ms-overflow-style:none}
   .sql-editor::-webkit-scrollbar{display:none}
-  .sql-editor::selection{background:var(--selection-bg);color:transparent}
+  .sql-editor::selection{background:var(--selection-bg);color:var(--text)}
   .sql-editor::placeholder{color:var(--text-muted)}
-  .sql-highlight-layer{position:absolute;top:0;left:0;right:0;bottom:0;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow:hidden;white-space:pre;overflow-wrap:normal;pointer-events:none;z-index:1;color:var(--editor-color);background:transparent;border:none;margin:0}
-  .sql-highlight-layer code{font-family:inherit;font-size:inherit;line-height:inherit;tab-size:inherit}
   .resizer{height:5px;background:var(--border);cursor:row-resize;flex-shrink:0;transition:background .15s}
   .resizer:hover,.resizer.active{background:var(--accent)}
   .error-bar{display:none;padding:8px 16px;background:rgba(248,81,73,.1);border-bottom:1px solid var(--red);color:var(--red);font-size:12px;font-family:monospace;flex-shrink:0;align-items:center;gap:8px}
@@ -195,7 +193,6 @@
     <div class="editor-wrap" id="editorWrap">
       <div class="editor-line-numbers" id="lineNumbers"><div>1</div></div>
       <div style="flex:1;position:relative;overflow:hidden;background:var(--editor-bg)">
-        <pre class="sql-highlight-layer" id="sqlHighlight"><code id="sqlHighlightCode"></code></pre>
         <textarea class="sql-editor" id="sqlEditor" placeholder="Write your SQL query here...&#10;&#10;Example: SELECT * FROM employees" spellcheck="false"></textarea>
       </div>
     </div>
@@ -736,13 +733,10 @@ function changeEditorFontSize(size) {
   var sz = parseInt(size, 10);
   var ed = document.getElementById('sqlEditor');
   var ln = document.getElementById('lineNumbers');
-  var hl = document.getElementById('sqlHighlight');
   ed.style.fontSize = sz + 'px';
   ed.style.lineHeight = (sz * 1.6) + 'px';
   ln.style.fontSize = sz + 'px';
   ln.style.lineHeight = (sz * 1.6) + 'px';
-  hl.style.fontSize = sz + 'px';
-  hl.style.lineHeight = (sz * 1.6) + 'px';
   document.getElementById('fontSizeSelect').value = String(sz);
   localStorage.setItem('sql-sim-fontsize', String(sz));
 }
@@ -869,16 +863,14 @@ function highlightSQL(text) {
 }
 
 function updateHighlight() {
-  var code = document.getElementById('sqlHighlightCode');
-  code.innerHTML = highlightSQL(editor.value) + '\n';
+  // Syntax highlighting removed - textarea is directly visible
 }
 
 // ============================================================
-// SQL EDITOR - Line numbers + shortcuts + highlighting
+// SQL EDITOR - Line numbers + shortcuts
 // ============================================================
 var editor = document.getElementById('sqlEditor');
 var lineNums = document.getElementById('lineNumbers');
-var highlightLayer = document.getElementById('sqlHighlight');
 
 function updateLineNumbers() {
   var lines = editor.value.split('\n').length;
@@ -889,12 +881,9 @@ function updateLineNumbers() {
 
 editor.addEventListener('input', function() {
   updateLineNumbers();
-  updateHighlight();
 });
 editor.addEventListener('scroll', function() {
   lineNums.scrollTop = editor.scrollTop;
-  var code = document.getElementById('sqlHighlightCode');
-  code.style.transform = 'translate(' + (-editor.scrollLeft) + 'px,' + (-editor.scrollTop) + 'px)';
 });
 
 editor.addEventListener('keydown', function(e) {

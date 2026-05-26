@@ -566,7 +566,205 @@ function preprocessOracleSQL(sql) {
   // REGEXP_LIKE(str, pattern) → (str LIKE pattern) approximation
   // SQLite doesn't have built-in regex, but sql.js may support REGEXP
 
+  // ============================================================
+  // PIVOT → SUM(CASE WHEN ...) GROUP BY conversion
+  // ============================================================
+  // Pattern: ... ) PIVOT ( agg(expr) FOR col IN ('v1' AS a1, 'v2' AS a2, ...) )
+  var pivotRe = /\)\s*PIVOT\s*\(\s*/gi;
+  if (pivotRe.test(sql)) {
+    sql = convertPivot(sql);
+  }
+
+  // ============================================================
+  // UNPIVOT → UNION ALL conversion
+  // ============================================================
+  var unpivotRe = /\)\s*UNPIVOT\s*\(\s*/gi;
+  if (unpivotRe.test(sql)) {
+    sql = convertUnpivot(sql);
+  }
+
   return sql;
+}
+
+// ============================================================
+// PIVOT converter: Oracle PIVOT → SUM(CASE WHEN...) GROUP BY
+// ============================================================
+function convertPivot(sql) {
+  // Find the PIVOT block: PIVOT ( ... ) at the end
+  // Step 1: Find position of PIVOT keyword
+  var pivotIdx = sql.search(/\)\s*PIVOT\s*\(/i);
+  if (pivotIdx < 0) return sql;
+
+  // Step 2: Extract the source subquery (everything before ") PIVOT")
+  var sourceEnd = sql.lastIndexOf(')', pivotIdx);
+  // Find matching opening paren for the source
+  var parenCount = 0;
+  var sourceStart = sourceEnd;
+  for (var k = sourceEnd; k >= 0; k--) {
+    if (sql.charAt(k) === ')') parenCount++;
+    if (sql.charAt(k) === '(') parenCount--;
+    if (parenCount === 0) { sourceStart = k; break; }
+  }
+  // Remove leading SELECT ... FROM if present (the outer SELECT *)
+  var outerSelect = '';
+  var sourcePart = sql.substring(0, sourceStart).trim();
+  if (/^SELECT\s/i.test(sourcePart)) {
+    // Find FROM in the outer select
+    var fromMatch = sourcePart.match(/^SELECT\s+.*?\s+FROM\s+(.*)/i);
+    if (fromMatch) {
+      outerSelect = sourcePart;
+    }
+  }
+  var sourceQuery = sql.substring(sourceStart, sourceEnd + 1);
+
+  // Step 3: Extract PIVOT block content
+  var pivotContentStart = sql.indexOf('(', sql.indexOf('PIVOT', pivotIdx)) + 1;
+  // Find matching closing paren for PIVOT
+  parenCount = 0;
+  var pivotContentEnd = pivotContentStart;
+  for (var k = pivotContentStart; k < sql.length; k++) {
+    if (sql.charAt(k) === '(') parenCount++;
+    if (sql.charAt(k) === ')') parenCount--;
+    if (parenCount < 0) { pivotContentEnd = k; break; }
+  }
+  var pivotBody = sql.substring(pivotContentStart, pivotContentEnd).trim();
+
+  // Step 4: Parse PIVOT body: agg_func(expr) FOR col IN ('v1' AS a1, 'v2' AS a2, ...)
+  // First extract FOR col IN (...) section
+  var forMatch = pivotBody.match(/\bFOR\s+(\w+)\s+IN\s*\(([\s\S]*)\)\s*$/i);
+  if (!forMatch) return sql;
+  var pivotCol = forMatch[1];
+  var inList = forMatch[2].trim();
+
+  // Parse IN list: 'val1' AS alias1, 'val2' AS alias2, ...
+  var inItems = [];
+  var itemRe = /'([^']*)'\s*(?:AS\s+(\w+))?\s*,?/gi;
+  var m;
+  while ((m = itemRe.exec(inList)) !== null) {
+    inItems.push({ value: m[1], alias: m[2] || m[1] });
+  }
+  if (inItems.length === 0) return sql;
+
+  // Extract aggregate function and expression (everything before FOR)
+  var aggPart = pivotBody.substring(0, pivotBody.indexOf('FOR')).trim();
+  var aggMatch = aggPart.match(/(\w+)\s*\(\s*([\w\s.,]+?)\s*\)$/i);
+  if (!aggMatch) return sql;
+  var aggFunc = aggMatch[1].toUpperCase();
+  var aggExpr = aggMatch[2].trim();
+
+  // Step 5: Determine GROUP BY columns from source query
+  // The source is a subquery — find columns that are NOT the pivot column and NOT the aggregated column
+  var groupCols = [];
+  // Try to detect columns from SELECT in source
+  var selMatch = sourceQuery.match(/SELECT\s+(.*?)\s+FROM/i);
+  if (selMatch) {
+    var cols = selMatch[1].split(',');
+    for (var ci = 0; ci < cols.length; ci++) {
+      var c = cols[ci].trim().replace(/.*\./, ''); // remove table alias
+      if (c.toLowerCase() !== pivotCol.toLowerCase() && c.toLowerCase() !== aggExpr.toLowerCase() && c !== '*') {
+        groupCols.push(c);
+      }
+    }
+  }
+  if (groupCols.length === 0) {
+    // Fallback: use all columns except pivot and agg from source table
+    // Try to find table name
+    var tblMatch = sourceQuery.match(/FROM\s+(\w+)/i);
+    if (tblMatch) groupCols.push('*');
+  }
+
+  // Step 6: Build SUM(CASE WHEN...) SELECT
+  var caseLines = [];
+  for (var ii = 0; ii < inItems.length; ii++) {
+    caseLines.push('    ' + aggFunc + '(CASE WHEN ' + pivotCol + " = '" + inItems[ii].value + "' THEN " + aggExpr + ' END) AS ' + inItems[ii].alias);
+  }
+  var groupByStr = groupCols.length > 0 && groupCols[0] !== '*' ? groupCols.join(', ') : pivotCol;
+  if (groupCols[0] === '*') groupByStr = pivotCol;
+
+  var result = 'SELECT ' + groupByStr + ',\n' + caseLines.join(',\n') + '\nFROM ' + sourceQuery + '\nGROUP BY ' + groupByStr;
+
+  // Handle trailing semicolons
+  var trailing = sql.substring(pivotContentEnd + 1).trim();
+  if (trailing) result += ' ' + trailing;
+
+  return result;
+}
+
+// ============================================================
+// UNPIVOT converter: Oracle UNPIVOT → UNION ALL
+// ============================================================
+function convertUnpivot(sql) {
+  // Pattern: ... ) UNPIVOT ( val_col FOR piv_col IN (col1 AS 'a1', col2 AS 'a2', ...) )
+  var unpivotIdx = sql.search(/\)\s*UNPIVOT\s*\(/i);
+  if (unpivotIdx < 0) return sql;
+
+  // Extract source (before ") UNPIVOT")
+  var sourceEnd = sql.lastIndexOf(')', unpivotIdx);
+  var parenCount = 0;
+  var sourceStart = sourceEnd;
+  for (var k = sourceEnd; k >= 0; k--) {
+    if (sql.charAt(k) === ')') parenCount++;
+    if (sql.charAt(k) === '(') parenCount--;
+    if (parenCount === 0) { sourceStart = k; break; }
+  }
+  var sourcePart = sql.substring(0, sourceStart).trim();
+  var sourceQuery = sql.substring(sourceStart, sourceEnd + 1);
+
+  // Extract UNPIVOT body
+  var unpivotContentStart = sql.indexOf('(', sql.indexOf('UNPIVOT', unpivotIdx)) + 1;
+  parenCount = 0;
+  var unpivotContentEnd = unpivotContentStart;
+  for (var k = unpivotContentStart; k < sql.length; k++) {
+    if (sql.charAt(k) === '(') parenCount++;
+    if (sql.charAt(k) === ')') parenCount--;
+    if (parenCount < 0) { unpivotContentEnd = k; break; }
+  }
+  var unpivotBody = sql.substring(unpivotContentStart, unpivotContentEnd).trim();
+
+  // Parse: value_col FOR pivot_col IN (col1 AS 'alias1', col2 AS 'alias2')
+  var forMatch = unpivotBody.match(/\bFOR\s+(\w+)\s+IN\s*\(([\s\S]*)\)\s*$/i);
+  if (!forMatch) return sql;
+
+  var firstPart = unpivotBody.substring(0, unpivotBody.indexOf('FOR')).trim();
+  // value_col may have optional INCLUDE/EXCLUDE NULLS
+  var valCol = firstPart.replace(/\s*(INCLUDE|EXCLUDE)\s+NULLS\s*/gi, '').trim();
+  var pivCol = forMatch[1];
+  var inList = forMatch[2].trim();
+
+  // Parse IN list: col1 AS 'a1', col2 AS 'a2', ...  (or without AS)
+  var inItems = [];
+  var itemRe = /(\w+)\s*(?:AS\s+'([^']*)')?\s*,?/gi;
+  var m;
+  while ((m = itemRe.exec(inList)) !== null) {
+    inItems.push({ column: m[1], alias: m[2] || m[1] });
+  }
+  if (inItems.length === 0) return sql;
+
+  // Build UNION ALL — each item selects its own column value
+  // Detect non-unpivoted columns from source SELECT to carry forward
+  var sourceSelMatch = sourceQuery.match(/SELECT\s+(.*?)\s+FROM/i);
+  var unpivotColNames = [];
+  for (var ii = 0; ii < inItems.length; ii++) unpivotColNames.push(inItems[ii].column.toLowerCase());
+  var carryCols = '';
+  if (sourceSelMatch) {
+    var srcCols = sourceSelMatch[1].split(',');
+    var carryParts = [];
+    for (var ci = 0; ci < srcCols.length; ci++) {
+      var cc = srcCols[ci].trim().replace(/.*\./, '');
+      if (unpivotColNames.indexOf(cc.toLowerCase()) < 0) carryParts.push(cc);
+    }
+    carryCols = carryParts.join(', ') + ', ';
+  }
+  var unions = [];
+  for (var ii = 0; ii < inItems.length; ii++) {
+    unions.push('SELECT ' + carryCols + inItems[ii].column + ' AS ' + valCol + ', ' + "'" + inItems[ii].alias + "' AS " + pivCol + ' FROM ' + sourceQuery + ' WHERE ' + inItems[ii].column + ' IS NOT NULL');
+  }
+  var result = unions.join('\nUNION ALL\n');
+
+  var trailing = sql.substring(unpivotContentEnd + 1).trim();
+  if (trailing) result += ' ' + trailing;
+
+  return result;
 }
 
 // ============================================================

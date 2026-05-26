@@ -545,6 +545,27 @@ function preprocessOracleSQL(sql) {
       return 'extract_' + part.toLowerCase() + '(';
     }
   );
+
+  // DATE 'YYYY-MM-DD' literal → 'YYYY-MM-DD'
+  sql = sql.replace(/DATE\s*'(\d{4}-\d{2}-\d{2})'/gi, "'$1'");
+
+  // TIMESTAMP 'YYYY-MM-DD HH:MI:SS' literal → 'YYYY-MM-DD HH:MI:SS'
+  sql = sql.replace(/TIMESTAMP\s*'([^']+)'/gi, "'$1'");
+
+  // FROM DUAL → remove (SQLite allows SELECT without FROM)
+  sql = sql.replace(/\s+FROM\s+DUAL\s*$/gi, '');
+  sql = sql.replace(/\s+FROM\s+DUAL\s*([);,])/gi, '$1');
+
+  // (+) old Oracle outer join syntax: WHERE a.id = b.id(+) → handled as LEFT JOIN hint
+  // Not auto-converted, but users can use standard LEFT JOIN instead
+
+  // LISTAGG(expr, delimiter) WITHIN GROUP (ORDER BY ...) → group_concat(expr, delimiter)
+  sql = sql.replace(/LISTAGG\s*\(/gi, 'group_concat(');
+  sql = sql.replace(/\s+WITHIN\s+GROUP\s*\(\s*ORDER\s+BY[^)]*\)/gi, '');
+
+  // REGEXP_LIKE(str, pattern) → (str LIKE pattern) approximation
+  // SQLite doesn't have built-in regex, but sql.js may support REGEXP
+
   return sql;
 }
 
@@ -705,7 +726,129 @@ function registerOracleFunctions() {
 
   // COALESCE is built into SQLite
 
-  // DECODE can be handled by CASE WHEN in queries
+  // ============================================================
+  // ADDITIONAL ORACLE FUNCTIONS
+  // ============================================================
+
+  // CONCAT(str1, str2, ...) - Oracle CONCAT (also supports || operator natively in SQLite)
+  db.create_function('concat', function() {
+    var result = '';
+    for (var i = 0; i < arguments.length; i++) {
+      if (arguments[i] !== null && arguments[i] !== undefined) result += String(arguments[i]);
+    }
+    return result || null;
+  });
+
+  // LPAD(str, len, pad) - left pad string
+  db.create_function('lpad', function(str, len, pad) {
+    if (str === null || str === undefined) return null;
+    var s = String(str);
+    var p = (pad !== null && pad !== undefined) ? String(pad) : ' ';
+    var targetLen = len || 0;
+    while (s.length < targetLen) {
+      s = p + s;
+    }
+    return s.substring(0, targetLen);
+  });
+
+  // RPAD(str, len, pad) - right pad string
+  db.create_function('rpad', function(str, len, pad) {
+    if (str === null || str === undefined) return null;
+    var s = String(str);
+    var p = (pad !== null && pad !== undefined) ? String(pad) : ' ';
+    var targetLen = len || 0;
+    while (s.length < targetLen) {
+      s = s + p;
+    }
+    return s.substring(0, targetLen);
+  });
+
+  // INITCAP(str) - capitalize first letter of each word
+  db.create_function('initcap', function(str) {
+    if (str === null || str === undefined) return null;
+    return String(str).replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+  });
+
+  // GREATEST(val1, val2, ...) - return largest value
+  db.create_function('greatest', function() {
+    var max = null;
+    for (var i = 0; i < arguments.length; i++) {
+      if (arguments[i] !== null && arguments[i] !== undefined) {
+        if (max === null || arguments[i] > max) max = arguments[i];
+      }
+    }
+    return max;
+  });
+
+  // LEAST(val1, val2, ...) - return smallest value
+  db.create_function('least', function() {
+    var min = null;
+    for (var i = 0; i < arguments.length; i++) {
+      if (arguments[i] !== null && arguments[i] !== undefined) {
+        if (min === null || arguments[i] < min) min = arguments[i];
+      }
+    }
+    return min;
+  });
+
+  // FLOOR(number) - floor (SQLite has this natively but just in case)
+  db.create_function('floor', function(n) {
+    return (n === null || n === undefined) ? null : Math.floor(n);
+  });
+
+  // CEIL / CEILING(number) - ceiling
+  db.create_function('ceil', function(n) {
+    return (n === null || n === undefined) ? null : Math.ceil(n);
+  });
+  db.create_function('ceiling', function(n) {
+    return (n === null || n === undefined) ? null : Math.ceil(n);
+  });
+
+  // ABS(number) - absolute value
+  db.create_function('abs', function(n) {
+    return (n === null || n === undefined) ? null : Math.abs(n);
+  });
+
+  // MOD(a, b) - modulo
+  db.create_function('mod', function(a, b) {
+    if (a === null || b === null || b === undefined) return null;
+    return a % b;
+  });
+
+  // POWER(base, exp) - power
+  db.create_function('power', function(base, exp) {
+    if (base === null || exp === null) return null;
+    return Math.pow(base, exp);
+  });
+
+  // SQRT(n) - square root
+  db.create_function('sqrt', function(n) {
+    return (n === null || n === undefined) ? null : Math.sqrt(n);
+  });
+
+  // SIGN(n) - sign of number (-1, 0, 1)
+  db.create_function('sign', function(n) {
+    if (n === null || n === undefined) return null;
+    if (n > 0) return 1;
+    if (n < 0) return -1;
+    return 0;
+  });
+
+  // TRIM(str) / LTRIM(str) / RTRIM(str) - trim spaces (SQLite has these natively)
+
+  // REPLACE(str, old, new) - built into SQLite
+
+  // REVERSE(str) - reverse string
+  db.create_function('reverse', function(str) {
+    if (str === null || str === undefined) return null;
+    return String(str).split('').reverse().join('');
+  });
+
+  // NULLIF(a, b) - built into SQLite
+
+  // COALESCE - built into SQLite
+
+  // DECODE(expr, s1, r1, s2, r2, ..., default) - Oracle DECODE → handled by preprocessor
 }
 
 // ============================================================

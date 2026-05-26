@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oracle SQL Simulator - HR Schema</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0d1117;--surface:#161b22;--surface2:#1c2333;--border:#30363d;
+    --text:#c9d1d9;--text-muted:#8b949e;--accent:#58a6ff;
+    --green:#3fb950;--red:#f85149;--yellow:#d29922;--purple:#bc8cff;
+    --editor-bg:#0d1117;--grid-header:#1c2333;--grid-row1:#161b22;--grid-row2:#0d1117
+  }
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+  /* Header */
+  .header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+  .header-left{display:flex;align-items:center;gap:12px}
+  .logo{font-size:18px;font-weight:700;color:var(--accent)}
+  .logo span{color:var(--text-muted);font-weight:400;font-size:13px;margin-left:6px}
+  .header-right{display:flex;align-items:center;gap:10px}
+  .schema-select{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer}
+
+  /* Main Layout */
+  .main{display:flex;flex:1;overflow:hidden}
+
+  /* Sidebar */
+  .sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+  .sidebar-section{border-bottom:1px solid var(--border)}
+  .sidebar-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none}
+  .sidebar-header h3{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);font-weight:600}
+  .sidebar-header .arrow{color:var(--text-muted);font-size:10px;transition:transform .2s}
+  .sidebar-header .arrow.open{transform:rotate(180deg)}
+  .sidebar-body{padding:4px 8px 8px;overflow-y:auto}
+  .table-item{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;color:var(--text);transition:background .15s}
+  .table-item:hover{background:var(--surface2)}
+  .table-item .t-icon{color:var(--yellow);font-size:11px;flex-shrink:0}
+  .table-item .t-name{font-weight:600;color:var(--accent)}
+  .table-item .t-count{color:var(--text-muted);margin-left:auto;font-size:10px}
+  .col-list{padding:2px 0 4px 28px}
+  .col-item{padding:3px 10px;font-size:11px;color:var(--text-muted);border-radius:3px;cursor:pointer}
+  .col-item:hover{color:var(--text);background:var(--surface2)}
+  .col-item .col-pk{color:var(--yellow);margin-right:4px}
+  .col-item .col-fk{color:var(--green);margin-right:4px}
+
+  /* Sample Queries */
+  .sample-list{padding:4px 8px 8px;overflow-y:auto}
+  .sample-item{padding:6px 10px;margin-bottom:3px;border-radius:4px;cursor:pointer;font-size:11px;color:var(--text);transition:background .15s;border:1px solid transparent;line-height:1.4}
+  .sample-item:hover{background:var(--surface2);border-color:var(--border)}
+  .sample-item .s-title{color:var(--green);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.3px}
+  .sample-item .s-sql{color:var(--text-muted);font-family:'Cascadia Code','Fira Code',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* Editor Area */
+  .editor-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .editor-toolbar{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+  .btn{display:flex;align-items:center;gap:6px;padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+  .btn-run{background:#238636;color:#fff}
+  .btn-run:hover{background:#2ea043}
+  .btn-run.running{opacity:.7;pointer-events:none}
+  .btn-clear{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
+  .btn-clear:hover{color:var(--text);border-color:var(--text-muted)}
+  .btn-format{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
+  .btn-format:hover{color:var(--text);border-color:var(--text-muted)}
+  .exec-time{margin-left:auto;font-size:11px;color:var(--text-muted);font-family:monospace}
+
+  /* SQL Editor */
+  .editor-wrap{flex:1;display:flex;position:relative;overflow:hidden;min-height:180px}
+  .editor-line-numbers{width:44px;background:var(--surface);padding:12px 0;text-align:right;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;color:var(--text-muted);overflow:hidden;user-select:none;flex-shrink:0;border-right:1px solid var(--border)}
+  .editor-line-numbers div{padding-right:10px}
+  .sql-editor{flex:1;background:var(--editor-bg);color:#e6edf3;border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:auto;white-space:pre;overflow-wrap:normal}
+  .sql-editor::selection{background:rgba(56,139,253,.3)}
+  .sql-editor::placeholder{color:var(--text-muted)}
+
+  /* Resizer */
+  .resizer{height:5px;background:var(--border);cursor:row-resize;flex-shrink:0;transition:background .15s}
+  .resizer:hover,.resizer.active{background:var(--accent)}
+
+  /* Error Display */
+  .error-bar{display:none;padding:8px 16px;background:rgba(248,81,73,.1);border-bottom:1px solid var(--red);color:var(--red);font-size:12px;font-family:monospace;flex-shrink:0;align-items:center;gap:8px}
+  .error-bar.show{display:flex}
+
+  /* Results */
+  .results-area{flex:1;overflow:auto;display:flex;flex-direction:column}
+  .results-info{display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;font-size:11px;color:var(--text-muted)}
+  .results-info .ri-count{color:var(--green);font-weight:600}
+  .results-grid{flex:1;overflow:auto;padding:0}
+  .results-table{width:100%;border-collapse:collapse;font-size:12px;font-family:'Cascadia Code','Fira Code','Consolas',monospace}
+  .results-table thead{position:sticky;top:0;z-index:1}
+  .results-table th{background:var(--grid-header);color:var(--accent);padding:8px 12px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+  .results-table th:hover{color:#79c0ff}
+  .results-table th .sort-icon{margin-left:4px;font-size:9px;opacity:.5}
+  .results-table th.sorted .sort-icon{opacity:1;color:var(--accent)}
+  .results-table td{padding:6px 12px;border-bottom:1px solid var(--border);white-space:nowrap;max-width:300px;overflow:hidden;text-overflow:ellipsis}
+  .results-table tr:nth-child(odd) td{background:var(--grid-row1)}
+  .results-table tr:nth-child(even) td{background:var(--grid-row2)}
+  .results-table tr:hover td{background:rgba(56,139,253,.06)}
+  .results-table td.null-val{color:var(--text-muted);font-style:italic}
+  .results-table td.number-val{color:var(--green);text-align:right}
+
+  /* Empty State */
+  .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-muted);gap:12px;padding:40px}
+  .empty-state .es-icon{font-size:48px;opacity:.3}
+  .empty-state .es-title{font-size:16px;font-weight:600;color:var(--text)}
+  .empty-state .es-desc{font-size:13px;text-align:center;max-width:400px;line-height:1.6}
+
+  /* Keyboard shortcut hint */
+  kbd{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;font-family:monospace;color:var(--text-muted)}
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+
+  /* Status bar */
+  .statusbar{display:flex;align-items:center;justify-content:space-between;padding:4px 16px;background:var(--surface);border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);flex-shrink:0}
+  .statusbar .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:6px;display:inline-block}
+
+  /* Responsive */
+  @media(max-width:768px){
+    .sidebar{display:none}
+    .main{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">Oracle SQL Simulator <span>| HR Schema Practice</span></div>
+  </div>
+  <div class="header-right">
+    <select class="schema-select" id="schemaSelect">
+      <option value="hr">HR Schema</option>
+    </select>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Tables -->
+    <div class="sidebar-section">
+      <div class="sidebar-header" onclick="toggleSection('tables')">
+        <h3>Tables</h3>
+        <span class="arrow open" id="tablesArrow">&#9660;</span>
+      </div>
+      <div class="sidebar-body" id="tablesBody"></div>
+    </div>
+    <!-- Sample Queries -->
+    <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div class="sidebar-header" onclick="toggleSection('samples')">
+        <h3>Sample Queries</h3>
+        <span class="arrow open" id="samplesArrow">&#9660;</span>
+      </div>
+      <div class="sample-list" id="samplesBody" style="flex:1;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <!-- Editor Area -->
+  <div class="editor-area">
+    <!-- Toolbar -->
+    <div class="editor-toolbar">
+      <button class="btn btn-run" id="runBtn" onclick="executeQuery()">&#9654; Run</button>
+      <button class="btn btn-clear" onclick="clearEditor()">&#10005; Clear</button>
+      <button class="btn btn-format" onclick="formatQuery()">&#8677; Format</button>
+      <span style="font-size:11px;color:var(--text-muted)"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> to run</span>
+      <span class="exec-time" id="execTime"></span>
+    </div>
+
+    <!-- SQL Editor -->
+    <div class="editor-wrap" id="editorWrap">
+      <div class="editor-line-numbers" id="lineNumbers"><div>1</div></div>
+      <textarea class="sql-editor" id="sqlEditor" placeholder="Write your SQL query here...&#10;&#10;Example: SELECT * FROM employees" spellcheck="false"></textarea>
+    </div>
+
+    <!-- Resizer -->
+    <div class="resizer" id="resizer"></div>
+
+    <!-- Error Bar -->
+    <div class="error-bar" id="errorBar">
+      <span>&#9888;</span>
+      <span id="errorText"></span>
+    </div>
+
+    <!-- Results -->
+    <div class="results-area" id="resultsArea">
+      <div class="empty-state" id="emptyState">
+        <div class="es-icon">&#128450;</div>
+        <div class="es-title">No Results Yet</div>
+        <div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.<br>Select a sample query from the sidebar to get started.</div>
+      </div>
+      <div class="results-info" id="resultsInfo" style="display:none">
+        <span>Rows: <span class="ri-count" id="rowCount">0</span></span>
+        <span>Columns: <span id="colCount">0</span></span>
+        <span id="sortInfo" style="margin-left:auto"></span>
+      </div>
+      <div class="results-grid" id="resultsGrid" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Bar -->
+<div class="statusbar">
+  <span><span class="status-dot"></span>Ready - AlaSQL Engine | HR Schema Loaded</span>
+  <span id="dbInfo"></span>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/alasql/4.5.0/alasql.min.js"></script>
+<script>
+// ============================================================
+// ORACLE HR SCHEMA DATA
+// ============================================================
+const HR_DATA = {
+  regions: [
+    {region_id:1,region_name:'Europe'},
+    {region_id:2,region_name:'Americas'},
+    {region_id:3,region_name:'Asia'},
+    {region_id:4,region_name:'Middle East and Africa'}
+  ],
+  countries: [
+    {country_id:'IT',country_name:'Italy',region_id:1},
+    {country_id:'JP',country_name:'Japan',region_id:3},
+    {country_id:'US',country_name:'United States of America',region_id:2},
+    {country_id:'CA',country_name:'Canada',region_id:2},
+    {country_id:'DE',country_name:'Germany',region_id:1},
+    {country_id:'UK',country_name:'United Kingdom',region_id:1},
+    {country_id:'FR',country_name:'France',region_id:1},
+    {country_id:'CN',country_name:'China',region_id:3},
+    {country_id:'AU',country_name:'Australia',region_id:3},
+    {country_id:'BR',country_name:'Brazil',region_id:2},
+    {country_id:'IN',country_name:'India',region_id:3},
+    {country_id:'MX',country_name:'Mexico',region_id:2},
+    {country_id:'ZA',country_name:'South Africa',region_id:4},
+    {country_id:'NG',country_name:'Nigeria',region_id:4},
+    {country_id:'AR',country_name:'Argentina',region_id:2},
+    {country_id:'SA',country_name:'Saudi Arabia',region_id:4},
+    {country_id:'EG',country_name:'Egypt',region_id:4},
+    {country_id:'NL',country_name:'Netherlands',region_id:1},
+    {country_id:'SG',country_name:'Singapore',region_id:3},
+    {country_id:'KR',country_name:'South Korea',region_id:3},
+    {country_id:'SE',country_name:'Sweden',region_id:1},
+    {country_id:'CH',country_name:'Switzerland',region_id:1},
+    {country_id:'ES',country_name:'Spain',region_id:1},
+    {country_id:'PL',country_name:'Poland',region_id:1},
+    {country_id:'TR',country_name:'Turkey',region_id:4}
+  ],
+  locations: [
+    {location_id:1000,street_address:'1297 Via Cola di Rie',postal_code:'00984',city:'Roma',state_province:'',country_id:'IT'},
+    {location_id:1100,street_address:'93091 Calle della Testa',postal_code:'10934',city:'Venice',state_province:'',country_id:'IT'},
+    {location_id:1200,street_address:'2017 Shinjuku-ku',postal_code:'1689',city:'Tokyo',state_province:'Tokyo Prefecture',country_id:'JP'},
+    {location_id:1300,street_address:'9450 Kamiya-cho',postal_code:'6823',city:'Hiroshima',state_province:'',country_id:'JP'},
+    {location_id:1400,street_address:'2014 Jabberwocky Rd',postal_code:'26192',city:'Southlake',state_province:'Texas',country_id:'US'},
+    {location_id:1500,street_address:'2011 Interiors Blvd',postal_code:'99236',city:'South San Francisco',state_province:'California',country_id:'US'},
+    {location_id:1600,street_address:'2007 Zagora St',postal_code:'50090',city:'South Brunswick',state_province:'New Jersey',country_id:'US'},
+    {location_id:1700,street_address:'2004 Charade Rd',postal_code:'98199',city:'Seattle',state_province:'Washington',country_id:'US'},
+    {location_id:1800,street_address:'147 Spadina Ave',postal_code:'M5V 2L7',city:'Toronto',state_province:'Ontario',country_id:'CA'},
+    {location_id:1900,street_address:'1909 Avenida Republica',postal_code:'17011',city:'Mexico City',state_province:'Distrito Federal',country_id:'MX'},
+    {location_id:2000,street_address:'5400 Hamburg Way',postal_code:'10021',city:'Munich',state_province:'Bavaria',country_id:'DE'},
+    {location_id:2100,street_address:'Magdalen Centre, The Oxford Science Park',postal_code:'OX9 9ZB',city:'Oxford',state_province:'Oxford',country_id:'UK'},
+    {location_id:2200,street_address:'1st Floor, Optician House',postal_code:'NW1 8JR',city:'London',state_province:'England',country_id:'UK'},
+    {location_id:2300,street_address:'1366 Baring Blvd',postal_code:'93210',city:'Fresno',state_province:'California',country_id:'US'},
+    {location_id:2400,street_address:'8204 Arthur St',postal_code:'91032',city:'Los Angeles',state_province:'California',country_id:'US'},
+    {location_id:2500,street_address:'Schillerstrasse 10',postal_code:'40210',city:'Dusseldorf',state_province:'Nordrhein-Westfalen',country_id:'DE'},
+    {location_id:2600,street_address:'9702 Via Bologna',postal_code:'21020',city:'Milan',state_province:'',country_id:'IT'},
+    {location_id:2700,street_address:'Schwanthalerstr. 7031',postal_code:'80325',city:'Munich',state_province:'Bavaria',country_id:'DE'},
+    {location_id:2800,street_address:'Rua Frei Caneca 1365 ',postal_code:'01307-002',city:'Sao Paulo',state_province:'Sao Paulo',country_id:'BR'},
+    {location_id:2900,street_address:'20 Rue des Corps-Saints',postal_code:'17034',city:'Geneva',state_province:'Geneve',country_id:'CH'},
+    {location_id:3000,street_address:'Murtenstrasse 921',postal_code:'3008',city:'Bern',state_province:'BE',country_id:'CH'},
+    {location_id:3100,street_address:'7521 Marquette Ave',postal_code:'71210',city:'Paris',state_province:'Ile de France',country_id:'FR'},
+    {location_id:3200,street_address:'6854 Las Palmas Dr',postal_code:'85755',city:'Tucson',state_province:'Arizona',country_id:'US'}
+  ],
+  departments: [
+    {department_id:10,department_name:'Administration',manager_id:200,location_id:1700},
+    {department_id:20,department_name:'Marketing',manager_id:201,location_id:1800},
+    {department_id:30,department_name:'Purchasing',manager_id:114,location_id:1700},
+    {department_id:40,department_name:'Human Resources',manager_id:203,location_id:2400},
+    {department_id:50,department_name:'Shipping',manager_id:121,location_id:1500},
+    {department_id:60,department_name:'IT',manager_id:103,location_id:1400},
+    {department_id:70,department_name:'Public Relations',manager_id:204,location_id:2700},
+    {department_id:80,department_name:'Sales',manager_id:145,location_id:2500},
+    {department_id:90,department_name:'Executive',manager_id:100,location_id:1700},
+    {department_id:100,department_name:'Finance',manager_id:108,location_id:1700},
+    {department_id:110,department_name:'Accounting',manager_id:205,location_id:1700},
+    {department_id:120,department_name:'Treasury',manager_id:null,location_id:1700},
+    {department_id:130,department_name:'Corporate Tax',manager_id:null,location_id:1700},
+    {department_id:140,department_name:'Control And Credit',manager_id:null,location_id:1700},
+    {department_id:150,department_name:'Shareholder Services',manager_id:null,location_id:1700},
+    {department_id:160,department_name:'Benefits',manager_id:null,location_id:1700},
+    {department_id:170,department_name:'Manufacturing',manager_id:null,location_id:1800},
+    {department_id:180,department_name:'Construction',manager_id:null,location_id:1700},
+    {department_id:190,department_name:'Contracting',manager_id:null,location_id:1700},
+    {department_id:200,department_name:'Operations',manager_id:null,location_id:1800},
+    {department_id:210,department_name:'IT Support',manager_id:null,location_id:1700},
+    {department_id:220,department_id:220,department_name:'NOC',manager_id:null,location_id:1700},
+    {department_id:230,department_name:'IT Helpdesk',manager_id:null,location_id:1700},
+    {department_id:240,department_name:'Government Sales',manager_id:null,location_id:1700},
+    {department_id:250,department_name:'Retail Sales',manager_id:null,location_id:1700},
+    {department_id:260,department_name:'Recruiting',manager_id:null,location_id:1700},
+    {department_id:270,department_name:'Payroll',manager_id:null,location_id:1700}
+  ],
+  jobs: [
+    {job_id:'AD_PRES',job_title:'President',min_salary:20080,max_salary:40000},
+    {job_id:'AD_VP',job_title:'Administration Vice President',min_salary:15000,max_salary:30000},
+    {job_id:'AD_ASST',job_title:'Administration Assistant',min_salary:3000,max_salary:6000},
+    {job_id:'FI_MGR',job_title:'Finance Manager',min_salary:8200,max_salary:16000},
+    {job_id:'FI_ACCOUNT',job_title:'Accountant',min_salary:4200,max_salary:9000},
+    {job_id:'AC_MGR',job_title:'Accounting Manager',min_salary:8200,max_salary:16000},
+    {job_id:'AC_ACCOUNT',job_title:'Public Accountant',min_salary:4200,max_salary:9000},
+    {job_id:'SA_MAN',job_title:'Sales Manager',min_salary:10000,max_salary:20080},
+    {job_id:'SA_REP',job_title:'Sales Representative',min_salary:6000,max_salary:12008},
+    {job_id:'PU_MAN',job_title:'Purchasing Manager',min_salary:8000,max_salary:15000},
+    {job_id:'PU_CLERK',job_title:'Purchasing Clerk',min_salary:2500,max_salary:5500},
+    {job_id:'ST_MAN',job_title:'Stock Manager',min_salary:5500,max_salary:8500},
+    {job_id:'ST_CLERK',job_title:'Stock Clerk',min_salary:2008,max_salary:5000},
+    {job_id:'SH_CLERK',job_title:'Shipping Clerk',min_salary:2500,max_salary:5500},
+    {job_id:'IT_PROG',job_title:'Programmer',min_salary:4000,max_salary:10000},
+    {job_id:'MK_MAN',job_title:'Marketing Manager',min_salary:9000,max_salary:15000},
+    {job_id:'MK_REP',job_title:'Marketing Representative',min_salary:4000,max_salary:9000},
+    {job_id:'HR_REP',job_title:'Human Resources Representative',min_salary:4000,max_salary:9000},
+    {job_id:'PR_REP',job_title:'Public Relations Representative',min_salary:4500,max_salary:10500},
+    {job_id:'MK_MAN',job_title:'Marketing Manager',min_salary:9000,max_salary:15000}
+  ],
+  employees: [
+    {employee_id:100,first_name:'Steven',last_name:'King',email:'SKING',phone_number:'515.123.4567',hire_date:'2003-06-17',job_id:'AD_PRES',salary:24000,commission_pct:null,manager_id:null,department_id:90},
+    {employee_id:101,first_name:'Neena',last_name:'Kochhar',email:'NKOCHHAR',phone_number:'515.123.4568',hire_date:'2005-09-21',job_id:'AD_VP',salary:17000,commission_pct:null,manager_id:100,department_id:90},
+    {employee_id:102,first_name:'Lex',last_name:'De Haan',email:'LDEHAAN',phone_number:'515.123.4569',hire_date:'2001-01-13',job_id:'AD_VP',salary:17000,commission_pct:null,manager_id:100,department_id:90},
+    {employee_id:103,first_name:'Alexander',last_name:'Hunold',email:'AHUNOLD',phone_number:'590.423.4567',hire_date:'2006-01-03',job_id:'IT_PROG',salary:9000,commission_pct:null,manager_id:102,department_id:60},
+    {employee_id:104,first_name:'Bruce',last_name:'Ernst',email:'BERNST',phone_number:'590.423.4568',hire_date:'2007-05-21',job_id:'IT_PROG',salary:6000,commission_pct:null,manager_id:103,department_id:60},
+    {employee_id:105,first_name:'David',last_name:'Austin',email:'DAUSTIN',phone_number:'590.423.4569',hire_date:'2005-06-25',job_id:'IT_PROG',salary:4800,commission_pct:null,manager_id:103,department_id:60},
+    {employee_id:106,first_name:'Valli',last_name:'Pataballa',email:'VPATABAL',phone_number:'590.423.4560',hire_date:'2006-02-05',job_id:'IT_PROG',salary:4800,commission_pct:null,manager_id:103,department_id:60},
+    {employee_id:107,first_name:'Diana',last_name:'Lorentz',email:'DLORENTZ',phone_number:'590.423.5567',hire_date:'2007-02-07',job_id:'IT_PROG',salary:4200,commission_pct:null,manager_id:103,department_id:60},
+    {employee_id:108,first_name:'Nancy',last_name:'Greenberg',email:'NGREENBE',phone_number:'515.124.4569',hire_date:'2002-08-17',job_id:'FI_MGR',salary:12008,commission_pct:null,manager_id:101,department_id:100},
+    {employee_id:109,first_name:'Daniel',last_name:'Faviet',email:'DFAVIET',phone_number:'515.124.4169',hire_date:'2002-08-16',job_id:'FI_ACCOUNT',salary:9000,commission_pct:null,manager_id:108,department_id:100},
+    {employee_id:110,first_name:'John',last_name:'Chen',email:'JCHEN',phone_number:'515.124.4269',hire_date:'2005-09-28',job_id:'FI_ACCOUNT',salary:8200,commission_pct:null,manager_id:108,department_id:100},
+    {employee_id:111,first_name:'Ismael',last_name:'Sciarra',email:'ISCIARRA',phone_number:'515.124.4369',hire_date:'2005-09-30',job_id:'FI_ACCOUNT',salary:7700,commission_pct:null,manager_id:108,department_id:100},
+    {employee_id:112,first_name:'Jose Manuel',last_name:'Urman',email:'JMURMAN',phone_number:'515.124.4469',hire_date:'2006-03-07',job_id:'FI_ACCOUNT',salary:7800,commission_pct:null,manager_id:108,department_id:100},
+    {employee_id:113,first_name:'Luis',last_name:'Popp',email:'LPOPP',phone_number:'515.124.4567',hire_date:'2007-12-07',job_id:'FI_ACCOUNT',salary:6900,commission_pct:null,manager_id:108,department_id:100},
+    {employee_id:114,first_name:'Den',last_name:'Raphaely',email:'DRAPHEAL',phone_number:'515.127.4561',hire_date:'2002-12-07',job_id:'PU_MAN',salary:11000,commission_pct:null,manager_id:100,department_id:30},
+    {employee_id:115,first_name:'Alexander',last_name:'Khoo',email:'AKHOO',phone_number:'515.127.4562',hire_date:'2003-05-18',job_id:'PU_CLERK',salary:3100,commission_pct:null,manager_id:114,department_id:30},
+    {employee_id:116,first_name:'Shelli',last_name:'Baida',email:'SBAIDA',phone_number:'515.127.4563',hire_date:'2005-12-24',job_id:'PU_CLERK',salary:2900,commission_pct:null,manager_id:114,department_id:30},
+    {employee_id:117,first_name:'Sigal',last_name:'Tobias',email:'STOBIAS',phone_number:'515.127.4564',hire_date:'2005-07-24',job_id:'PU_CLERK',salary:2800,commission_pct:null,manager_id:114,department_id:30},
+    {employee_id:118,first_name:'Guy',last_name:'Himuro',email:'GHIMURO',phone_number:'515.127.4565',hire_date:'2006-11-15',job_id:'PU_CLERK',salary:2600,commission_pct:null,manager_id:114,department_id:30},
+    {employee_id:119,first_name:'Karen',last_name:'Colmenares',email:'KCOLMENA',phone_number:'515.127.4566',hire_date:'2007-08-10',job_id:'PU_CLERK',salary:2500,commission_pct:null,manager_id:114,department_id:30},
+    {employee_id:120,first_name:'Matthew',last_name:'Weiss',email:'MWEISS',phone_number:'650.123.1234',hire_date:'2004-07-16',job_id:'ST_MAN',salary:8000,commission_pct:null,manager_id:100,department_id:50},
+    {employee_id:121,first_name:'Adam',last_name:'Fripp',email:'AFRIPP',phone_number:'650.123.2234',hire_date:'2005-04-10',job_id:'ST_MAN',salary:8200,commission_pct:null,manager_id:100,department_id:50},
+    {employee_id:122,first_name:'Payam',last_name:'Kaufling',email:'PKAUFLIN',phone_number:'650.123.3234',hire_date:'2003-05-01',job_id:'ST_MAN',salary:7900,commission_pct:null,manager_id:100,department_id:50},
+    {employee_id:123,first_name:'Shanta',last_name:'Vollman',email:'SVOLLMAN',phone_number:'650.123.4234',hire_date:'2005-10-10',job_id:'ST_MAN',salary:6500,commission_pct:null,manager_id:100,department_id:50},
+    {employee_id:124,first_name:'Kevin',last_name:'Mourgos',email:'KMOURGOS',phone_number:'650.123.5234',hire_date:'2007-11-16',job_id:'ST_MAN',salary:5800,commission_pct:null,manager_id:100,department_id:50},
+    {employee_id:125,first_name:'Julia',last_name:'Nayer',email:'JNAYER',phone_number:'650.124.1214',hire_date:'2005-07-16',job_id:'ST_CLERK',salary:3200,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:126,first_name:'Irene',last_name:'Mikkilineni',email:'IMIKKILI',phone_number:'650.124.1224',hire_date:'2006-09-28',job_id:'ST_CLERK',salary:2700,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:127,first_name:'James',last_name:'Landry',email:'JLANDRY',phone_number:'650.124.1334',hire_date:'2007-01-14',job_id:'ST_CLERK',salary:2400,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:128,first_name:'Steven',last_name:'Markle',email:'SMARKLE',phone_number:'650.124.1434',hire_date:'2008-03-08',job_id:'ST_CLERK',salary:2200,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:129,first_name:'Laura',last_name:'Bissot',email:'LBISSOT',phone_number:'650.124.5234',hire_date:'2005-08-20',job_id:'ST_CLERK',salary:3300,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:130,first_name:'Mozhe',last_name:'Atkinson',email:'MATKINSON',phone_number:'650.124.6234',hire_date:'2005-10-30',job_id:'ST_CLERK',salary:2800,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:131,first_name:'James',last_name:'Marlow',email:'JAMRLOW',phone_number:'650.124.7234',hire_date:'2005-02-16',job_id:'ST_CLERK',salary:2500,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:132,first_name:'TJ',last_name:'Olson',email:'TJOLSON',phone_number:'650.124.8234',hire_date:'2007-04-10',job_id:'ST_CLERK',salary:2100,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:133,first_name:'Jason',last_name:'Mallin',email:'JMALLIN',phone_number:'650.127.1934',hire_date:'2004-06-14',job_id:'ST_CLERK',salary:3300,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:134,first_name:'Michael',last_name:'Rogers',email:'MROGERS',phone_number:'650.127.1834',hire_date:'2006-08-26',job_id:'ST_CLERK',salary:2900,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:135,first_name:'Ki',last_name:'Gee',email:'KGEE',phone_number:'650.127.1734',hire_date:'2007-12-12',job_id:'ST_CLERK',salary:2400,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:136,first_name:'Hazel',last_name:'Philtanker',email:'HPHILTAN',phone_number:'650.127.1634',hire_date:'2008-02-06',job_id:'ST_CLERK',salary:2200,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:137,first_name:'Renske',last_name:'Ladwig',email:'RLADWIG',phone_number:'650.121.1234',hire_date:'2003-07-14',job_id:'ST_CLERK',salary:3600,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:138,first_name:'Stephen',last_name:'Stiles',email:'SSTILES',phone_number:'650.121.2034',hire_date:'2005-10-26',job_id:'ST_CLERK',salary:3200,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:139,first_name:'John',last_name:'Seo',email:'JSEO',phone_number:'650.121.2019',hire_date:'2006-02-12',job_id:'ST_CLERK',salary:2700,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:140,first_name:'Joshua',last_name:'Patel',email:'JPATEL',phone_number:'650.121.1834',hire_date:'2006-04-06',job_id:'ST_CLERK',salary:2500,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:141,first_name:'Trenna',last_name:'Rajs',email:'TRAJS',phone_number:'650.121.8009',hire_date:'2003-10-17',job_id:'ST_CLERK',salary:3500,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:142,first_name:'Curtis',last_name:'Davies',email:'CDAVIES',phone_number:'650.121.2994',hire_date:'2005-01-29',job_id:'ST_CLERK',salary:3100,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:143,first_name:'Randall',last_name:'Matos',email:'RMATOS',phone_number:'650.121.2874',hire_date:'2006-03-15',job_id:'ST_CLERK',salary:2600,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:144,first_name:'Peter',last_name:'Vargas',email:'PVARGAS',phone_number:'650.121.2004',hire_date:'2006-07-09',job_id:'ST_CLERK',salary:2500,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:145,first_name:'John',last_name:'Russell',email:'JRUSSEL',phone_number:'011.44.1344.429268',hire_date:'2004-10-01',job_id:'SA_MAN',salary:14000,commission_pct:0.4,manager_id:100,department_id:80},
+    {employee_id:146,first_name:'Karen',last_name:'Partners',email:'KPARTNER',phone_number:'011.44.1344.467268',hire_date:'2005-01-05',job_id:'SA_MAN',salary:13500,commission_pct:0.3,manager_id:145,department_id:80},
+    {employee_id:147,first_name:'Alberto',last_name:'Errazuriz',email:'AERRAZUR',phone_number:'011.44.1344.429278',hire_date:'2005-03-10',job_id:'SA_MAN',salary:12000,commission_pct:0.3,manager_id:145,department_id:80},
+    {employee_id:148,first_name:'Gerald',last_name:'Cambrault',email:'GCAMBRAU',phone_number:'011.44.1344.619268',hire_date:'2007-10-15',job_id:'SA_MAN',salary:11000,commission_pct:0.3,manager_id:145,department_id:80},
+    {employee_id:149,first_name:'Eleni',last_name:'Zlotkey',email:'EZLOTKEY',phone_number:'011.44.1344.429018',hire_date:'2008-01-29',job_id:'SA_MAN',salary:10500,commission_pct:0.2,manager_id:145,department_id:80},
+    {employee_id:150,first_name:'Peter',last_name:'Tucker',email:'PTUCKER',phone_number:'011.44.1344.129268',hire_date:'2005-01-30',job_id:'SA_REP',salary:10000,commission_pct:0.3,manager_id:145,department_id:80},
+    {employee_id:151,first_name:'David',last_name:'Bernstein',email:'DBERNSTE',phone_number:'011.44.1344.345268',hire_date:'2005-03-24',job_id:'SA_REP',salary:9500,commission_pct:0.25,manager_id:146,department_id:80},
+    {employee_id:152,first_name:'Peter',last_name:'Hall',email:'PHALL',phone_number:'011.44.1344.478968',hire_date:'2005-08-20',job_id:'SA_REP',salary:9000,commission_pct:0.25,manager_id:146,department_id:80},
+    {employee_id:153,first_name:'Christopher',last_name:'Olsen',email:'COLSEN',phone_number:'011.44.1344.498718',hire_date:'2006-03-30',job_id:'SA_REP',salary:8000,commission_pct:0.2,manager_id:146,department_id:80},
+    {employee_id:154,first_name:'Nanette',last_name:'Cambrault',email:'NCAMBRAU',phone_number:'011.44.1344.987668',hire_date:'2006-12-07',job_id:'SA_REP',salary:7500,commission_pct:0.2,manager_id:146,department_id:80},
+    {employee_id:155,first_name:'Oliver',last_name:'Tuvault',email:'OTUVAULT',phone_number:'011.44.1344.486508',hire_date:'2007-11-23',job_id:'SA_REP',salary:7000,commission_pct:0.15,manager_id:146,department_id:80},
+    {employee_id:156,first_name:'Janette',last_name:'King',email:'JKING',phone_number:'011.44.1345.429268',hire_date:'2004-01-30',job_id:'SA_REP',salary:10000,commission_pct:0.35,manager_id:146,department_id:80},
+    {employee_id:157,first_name:'Patrick',last_name:'Sully',email:'PSULLY',phone_number:'011.44.1345.929268',hire_date:'2004-03-04',job_id:'SA_REP',salary:9500,commission_pct:0.35,manager_id:146,department_id:80},
+    {employee_id:158,first_name:'Allan',last_name:'McEwen',email:'AMCEWEN',phone_number:'011.44.1345.829268',hire_date:'2004-08-01',job_id:'SA_REP',salary:9000,commission_pct:0.35,manager_id:146,department_id:80},
+    {employee_id:159,first_name:'Lindsey',last_name:'Smith',email:'LSMITH',phone_number:'011.44.1345.729268',hire_date:'2005-03-10',job_id:'SA_REP',salary:8000,commission_pct:0.3,manager_id:146,department_id:80},
+    {employee_id:160,first_name:'Louise',last_name:'Doran',email:'LDORAN',phone_number:'011.44.1345.629268',hire_date:'2005-12-15',job_id:'SA_REP',salary:7500,commission_pct:0.3,manager_id:146,department_id:80},
+    {employee_id:161,first_name:'Sarath',last_name:'Sewall',email:'SSEWALL',phone_number:'011.44.1345.529268',hire_date:'2006-11-03',job_id:'SA_REP',salary:7000,commission_pct:0.25,manager_id:146,department_id:80},
+    {employee_id:162,first_name:'Clara',last_name:'Vishney',email:'CVISHNEY',phone_number:'011.44.1346.129268',hire_date:'2005-11-11',job_id:'SA_REP',salary:10500,commission_pct:0.25,manager_id:147,department_id:80},
+    {employee_id:163,first_name:'Danielle',last_name:'Greene',email:'DGREENE',phone_number:'011.44.1346.229268',hire_date:'2007-03-19',job_id:'SA_REP',salary:9500,commission_pct:0.15,manager_id:147,department_id:80},
+    {employee_id:164,first_name:'Mattea',last_name:'Marvins',email:'MMARVINS',phone_number:'011.44.1346.329268',hire_date:'2008-01-24',job_id:'SA_REP',salary:7200,commission_pct:0.1,manager_id:147,department_id:80},
+    {employee_id:165,first_name:'David',last_name:'Lee',email:'DLEE',phone_number:'011.44.1346.529268',hire_date:'2008-02-23',job_id:'SA_REP',salary:6800,commission_pct:0.1,manager_id:147,department_id:80},
+    {employee_id:166,first_name:'Sundar',last_name:'Ande',email:'SANDE',phone_number:'011.44.1346.629268',hire_date:'2008-03-24',job_id:'SA_REP',salary:6400,commission_pct:0.1,manager_id:147,department_id:80},
+    {employee_id:167,first_name:'Amit',last_name:'Banda',email:'ABANDA',phone_number:'011.44.1346.729268',hire_date:'2008-04-21',job_id:'SA_REP',salary:6200,commission_pct:0.1,manager_id:147,department_id:80},
+    {employee_id:168,first_name:'Lisa',last_name:'Ozer',email:'LOZER',phone_number:'011.44.1343.929268',hire_date:'2005-03-11',job_id:'SA_REP',salary:11500,commission_pct:0.25,manager_id:148,department_id:80},
+    {employee_id:169,first_name:'Harrison',last_name:'Bloom',email:'HBLOOM',phone_number:'011.44.1343.829268',hire_date:'2006-03-23',job_id:'SA_REP',salary:10000,commission_pct:0.2,manager_id:148,department_id:80},
+    {employee_id:170,first_name:'Tayler',last_name:'Fox',email:'TFOX',phone_number:'011.44.1343.729268',hire_date:'2006-01-24',job_id:'SA_REP',salary:9600,commission_pct:0.2,manager_id:148,department_id:80},
+    {employee_id:171,first_name:'William',last_name:'Smith',email:'WSMITH',phone_number:'011.44.1343.629268',hire_date:'2007-02-23',job_id:'SA_REP',salary:7400,commission_pct:0.15,manager_id:148,department_id:80},
+    {employee_id:172,first_name:'Elizabeth',last_name:'Bates',email:'EBATES',phone_number:'011.44.1343.529268',hire_date:'2007-03-24',job_id:'SA_REP',salary:7300,commission_pct:0.15,manager_id:148,department_id:80},
+    {employee_id:173,first_name:'Sundita',last_name:'Kumar',email:'SKUMAR',phone_number:'011.44.1343.329268',hire_date:'2008-04-21',job_id:'SA_REP',salary:6100,commission_pct:0.1,manager_id:148,department_id:80},
+    {employee_id:174,first_name:'Ellen',last_name:'Abel',email:'EABEL',phone_number:'011.44.1644.429267',hire_date:'2004-05-11',job_id:'SA_REP',salary:11000,commission_pct:0.3,manager_id:149,department_id:80},
+    {employee_id:175,first_name:'Alyssa',last_name:'Hutton',email:'AHUTTON',phone_number:'011.44.1644.429017',hire_date:'2005-03-19',job_id:'SA_REP',salary:8800,commission_pct:0.25,manager_id:149,department_id:80},
+    {employee_id:176,first_name:'Jonathon',last_name:'Taylor',email:'JTAYLOR',phone_number:'011.44.1644.929268',hire_date:'2006-03-24',job_id:'SA_REP',salary:8600,commission_pct:0.2,manager_id:149,department_id:80},
+    {employee_id:177,first_name:'Jack',last_name:'Livingston',email:'JLIVINGS',phone_number:'011.44.1644.829268',hire_date:'2006-04-23',job_id:'SA_REP',salary:8400,commission_pct:0.2,manager_id:149,department_id:80},
+    {employee_id:178,first_name:'Kimberely',last_name:'Grant',email:'KGRANT',phone_number:'011.44.1643.429267',hire_date:'2007-05-24',job_id:'SA_REP',salary:7000,commission_pct:0.15,manager_id:149,department_id:null},
+    {employee_id:179,first_name:'Charles',last_name:'Johnson',email:'CJOHNSON',phone_number:'011.44.1644.292658',hire_date:'2008-01-02',job_id:'SA_REP',salary:6200,commission_pct:0.1,manager_id:149,department_id:80},
+    {employee_id:180,first_name:'Winston',last_name:'Taylor',email:'WTAYLOR',phone_number:'650.507.9876',hire_date:'2006-01-24',job_id:'SH_CLERK',salary:3200,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:181,first_name:'Jean',last_name:'Fleaur',email:'JFLEAUR',phone_number:'650.507.9877',hire_date:'2006-02-23',job_id:'SH_CLERK',salary:3100,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:182,first_name:'Martha',last_name:'Sullivan',email:'MSULLIVA',phone_number:'650.507.9878',hire_date:'2007-06-21',job_id:'SH_CLERK',salary:2500,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:183,first_name:'Girard',last_name:'Geoni',email:'GGEONI',phone_number:'650.507.9879',hire_date:'2008-02-03',job_id:'SH_CLERK',salary:2800,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:184,first_name:'Nandita',last_name:'Sarchand',email:'NSARCHAN',phone_number:'650.509.1876',hire_date:'2004-01-27',job_id:'SH_CLERK',salary:4200,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:185,first_name:'Alexis',last_name:'Bull',email:'ABULL',phone_number:'650.509.2876',hire_date:'2005-02-20',job_id:'SH_CLERK',salary:4100,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:186,first_name:'Julia',last_name:'Dellinger',email:'JDELLING',phone_number:'650.509.3876',hire_date:'2006-06-24',job_id:'SH_CLERK',salary:3400,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:187,first_name:'Anthony',last_name:'Cabrio',email:'ACABRIO',phone_number:'650.509.4876',hire_date:'2007-02-07',job_id:'SH_CLERK',salary:3000,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:188,first_name:'Kelly',last_name:'Chung',email:'KCHUNG',phone_number:'650.505.1876',hire_date:'2005-06-14',job_id:'SH_CLERK',salary:3800,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:189,first_name:'Jennifer',last_name:'Dilly',email:'JDILLY',phone_number:'650.505.2876',hire_date:'2005-08-13',job_id:'SH_CLERK',salary:3600,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:190,first_name:'Timothy',last_name:'Gates',email:'TGATES',phone_number:'650.505.3876',hire_date:'2006-07-11',job_id:'SH_CLERK',salary:2900,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:191,first_name:'Randall',last_name:'Perkins',email:'RPERKINS',phone_number:'650.505.4876',hire_date:'2007-12-19',job_id:'SH_CLERK',salary:2500,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:192,first_name:'Sarah',last_name:'Bell',email:'SBELL',phone_number:'650.501.1876',hire_date:'2004-02-04',job_id:'SH_CLERK',salary:4000,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:193,first_name:'Britney',last_name:'Everett',email:'BEVERETT',phone_number:'650.501.2876',hire_date:'2005-03-03',job_id:'SH_CLERK',salary:3900,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:194,first_name:'Samuel',last_name:'McCain',email:'SMCCAIN',phone_number:'650.501.3876',hire_date:'2006-07-01',job_id:'SH_CLERK',salary:3200,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:195,first_name:'Vance',last_name:'Jones',email:'VJONES',phone_number:'650.501.4876',hire_date:'2007-03-17',job_id:'SH_CLERK',salary:2800,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:196,first_name:'Alana',last_name:'Walsh',email:'AWALSH',phone_number:'650.507.9811',hire_date:'2006-04-24',job_id:'SH_CLERK',salary:3100,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:197,first_name:'Kevin',last_name:'Feeney',email:'KFEENEY',phone_number:'650.507.9822',hire_date:'2006-05-23',job_id:'SH_CLERK',salary:3000,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:198,first_name:'Donald',last_name:'OConnell',email:'DOCONNEL',phone_number:'650.507.9833',hire_date:'2007-06-21',job_id:'SH_CLERK',salary:2600,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:199,first_name:'Douglas',last_name:'Grant',email:'DGRANT',phone_number:'650.507.9844',hire_date:'2008-01-13',job_id:'SH_CLERK',salary:2600,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:200,first_name:'Jennifer',last_name:'Whalen',email:'JWHALEN',phone_number:'515.123.4444',hire_date:'2003-09-17',job_id:'AD_ASST',salary:4400,commission_pct:null,manager_id:101,department_id:10},
+    {employee_id:201,first_name:'Michael',last_name:'Hartstein',email:'MHARTSTE',phone_number:'515.123.5555',hire_date:'2004-02-17',job_id:'MK_MAN',salary:13000,commission_pct:null,manager_id:100,department_id:20},
+    {employee_id:202,first_name:'Pat',last_name:'Fay',email:'PFAY',phone_number:'603.123.6666',hire_date:'2005-08-17',job_id:'MK_REP',salary:6000,commission_pct:null,manager_id:201,department_id:20},
+    {employee_id:203,first_name:'Susan',last_name:'Mavris',email:'SMAVRIS',phone_number:'515.123.7777',hire_date:'2002-06-07',job_id:'HR_REP',salary:6500,commission_pct:null,manager_id:101,department_id:40},
+    {employee_id:204,first_name:'Hermann',last_name:'Baer',email:'HBAER',phone_number:'515.123.8888',hire_date:'2002-06-07',job_id:'PR_REP',salary:10000,commission_pct:null,manager_id:101,department_id:70},
+    {employee_id:205,first_name:'Shelley',last_name:'Higgins',email:'SHIGGINS',phone_number:'515.123.8080',hire_date:'2002-06-07',job_id:'AC_MGR',salary:12008,commission_pct:null,manager_id:101,department_id:110},
+    {employee_id:206,first_name:'William',last_name:'Gietz',email:'WGIETZ',phone_number:'515.123.8181',hire_date:'2002-06-07',job_id:'AC_ACCOUNT',salary:8300,commission_pct:null,manager_id:205,department_id:110}
+  ],
+  job_history: [
+    {employee_id:101,start_date:'1997-09-21',end_date:'2001-10-27',job_id:'AC_ACCOUNT',department_id:110},
+    {employee_id:101,start_date:'2001-10-28',end_date:'2005-03-15',job_id:'AC_MGR',department_id:110},
+    {employee_id:102,start_date:'2001-01-13',end_date:'2006-07-24',job_id:'IT_PROG',department_id:60},
+    {employee_id:114,start_date:'2006-03-24',end_date:'2007-12-31',job_id:'ST_CLERK',department_id:50},
+    {employee_id:122,start_date:'2007-01-01',end_date:'2007-12-31',job_id:'ST_CLERK',department_id:50},
+    {employee_id:176,start_date:'2006-03-24',end_date:'2006-12-31',job_id:'SA_REP',department_id:80},
+    {employee_id:200,start_date:'1995-09-17',end_date:'2001-06-17',job_id:'AD_ASST',department_id:90},
+    {employee_id:200,start_date:'2001-07-01',end_date:'2002-12-31',job_id:'AC_ACCOUNT',department_id:110},
+    {employee_id:201,start_date:'2004-02-17',end_date:'2007-12-19',job_id:'MK_REP',department_id:20}
+  ]
+};
+
+// ============================================================
+// TABLE METADATA (columns, PKs, FKs)
+// ============================================================
+const TABLE_META = {
+  employees: {
+    pk:'employee_id', fks:{department_id:'departments.department_id', manager_id:'employees.employee_id', job_id:'jobs.job_id'},
+    columns:['employee_id','first_name','last_name','email','phone_number','hire_date','job_id','salary','commission_pct','manager_id','department_id']
+  },
+  departments: {
+    pk:'department_id', fks:{manager_id:'employees.employee_id', location_id:'locations.location_id'},
+    columns:['department_id','department_name','manager_id','location_id']
+  },
+  jobs: {
+    pk:'job_id', fks:{},
+    columns:['job_id','job_title','min_salary','max_salary']
+  },
+  locations: {
+    pk:'location_id', fks:{country_id:'countries.country_id'},
+    columns:['location_id','street_address','postal_code','city','state_province','country_id']
+  },
+  countries: {
+    pk:'country_id', fks:{region_id:'regions.region_id'},
+    columns:['country_id','country_name','region_id']
+  },
+  regions: {
+    pk:'region_id', fks:{},
+    columns:['region_id','region_name']
+  },
+  job_history: {
+    pk:'[employee_id, start_date]', fks:{employee_id:'employees.employee_id', job_id:'jobs.job_id', department_id:'departments.department_id'},
+    columns:['employee_id','start_date','end_date','job_id','department_id']
+  }
+};
+
+// ============================================================
+// SAMPLE QUERIES
+// ============================================================
+const SAMPLES = [
+  {title:'Basic SELECT',cat:'Basics',sql:'SELECT * FROM employees'},
+  {title:'SELECT with WHERE',cat:'Basics',sql:'SELECT first_name, last_name, salary\nFROM employees\nWHERE salary > 10000'},
+  {title:'ORDER BY',cat:'Basics',sql:'SELECT last_name, salary\nFROM employees\nORDER BY salary DESC'},
+  {title:'INNER JOIN',cat:'JOINs',sql:'SELECT e.last_name, d.department_name\nFROM employees e\nJOIN departments d\n  ON e.department_id = d.department_id'},
+  {title:'LEFT JOIN',cat:'JOINs',sql:'SELECT e.last_name, d.department_name\nFROM employees e\nLEFT JOIN departments d\n  ON e.department_id = d.department_id'},
+  {title:'RIGHT JOIN',cat:'JOINs',sql:'SELECT e.last_name, d.department_name\nFROM employees e\nRIGHT JOIN departments d\n  ON e.department_id = d.department_id'},
+  {title:'3-Table JOIN',cat:'JOINs',sql:'SELECT e.last_name, d.department_name, j.job_title\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id\nJOIN jobs j ON e.job_id = j.job_id'},
+  {title:'4-Table JOIN',cat:'JOINs',sql:'SELECT e.last_name, d.department_name, j.job_title, l.city\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id\nJOIN jobs j ON e.job_id = j.job_id\nJOIN locations l ON d.location_id = l.location_id'},
+  {title:'5-Table JOIN Chain',cat:'JOINs',sql:'SELECT e.last_name, d.department_name, l.city,\n       c.country_name, r.region_name\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id\nJOIN locations l ON d.location_id = l.location_id\nJOIN countries c ON l.country_id = c.country_id\nJOIN regions r ON c.region_id = r.region_id\nORDER BY r.region_name, c.country_name'},
+  {title:'SELF JOIN (Employee-Manager)',cat:'JOINs',sql:'SELECT e.last_name AS employee,\n       m.last_name AS manager\nFROM employees e\nLEFT JOIN employees m\n  ON e.manager_id = m.employee_id'},
+  {title:'GROUP BY + COUNT',cat:'Aggregate',sql:'SELECT d.department_name, COUNT(*) AS emp_count\nFROM departments d\nLEFT JOIN employees e\n  ON d.department_id = e.department_id\nGROUP BY d.department_name\nORDER BY emp_count DESC'},
+  {title:'GROUP BY + AVG',cat:'Aggregate',sql:'SELECT d.department_name,\n       ROUND(AVG(e.salary)) AS avg_salary\nFROM departments d\nJOIN employees e\n  ON d.department_id = e.department_id\nGROUP BY d.department_name\nORDER BY avg_salary DESC'},
+  {title:'HAVING',cat:'Aggregate',sql:'SELECT d.department_name, COUNT(*) AS cnt\nFROM departments d\nJOIN employees e ON d.department_id = e.department_id\nGROUP BY d.department_name\nHAVING COUNT(*) > 5'},
+  {title:'Find NULL values',cat:'Advanced',sql:'SELECT last_name, department_id\nFROM employees\nWHERE department_id IS NULL'},
+  {title:'LEFT JOIN + IS NULL',cat:'Advanced',sql:'SELECT d.department_name\nFROM departments d\nLEFT JOIN employees e\n  ON d.department_id = e.department_id\nWHERE e.employee_id IS NULL'},
+  {title:'6-Table Full Report',cat:'Advanced',sql:'SELECT e.last_name, j.job_title,\n       d.department_name, l.city,\n       c.country_name, r.region_name\nFROM employees e\nLEFT JOIN jobs j ON e.job_id = j.job_id\nLEFT JOIN departments d ON e.department_id = d.department_id\nLEFT JOIN locations l ON d.location_id = l.location_id\nLEFT JOIN countries c ON l.country_id = c.country_id\nLEFT JOIN regions r ON c.region_id = r.region_id\nORDER BY d.department_name, e.last_name'}
+];
+
+// ============================================================
+// INIT - Load data into AlaSQL
+// ============================================================
+let currentResult = null;
+let sortCol = null;
+let sortDir = 'asc';
+
+function initDB() {
+  for (const [table, rows] of Object.entries(HR_DATA)) {
+    // Drop if exists, then create
+    try { alasql(`DROP TABLE IF EXISTS ${table}`); } catch(e) {}
+    if (rows.length > 0) {
+      const cols = Object.keys(rows[0]);
+      const colDefs = cols.map(c => {
+        const v = rows[0][c];
+        let t = 'STRING';
+        if (typeof v === 'number') t = 'INT';
+        else if (v === null && rows.some(r => r[c] !== null && typeof r[c] === 'number')) t = 'INT';
+        return `${c} ${t}`;
+      }).join(', ');
+      alasql(`CREATE TABLE ${table} (${colDefs})`);
+      for (const row of rows) {
+        alasql(`INSERT INTO ${table} SELECT * FROM ?`, [[row]]);
+      }
+    }
+  }
+  // Update DB info
+  const info = Object.entries(HR_DATA).map(([t,d])=>`${t}(${d.length})`).join(' | ');
+  document.getElementById('dbInfo').textContent = info;
+}
+
+// ============================================================
+// UI - Build sidebar
+// ============================================================
+function buildSidebar() {
+  const body = document.getElementById('tablesBody');
+  let html = '';
+  for (const [table, meta] of Object.entries(TABLE_META)) {
+    const count = HR_DATA[table]?.length || 0;
+    html += `<div class="table-item" onclick="toggleTable('${table}', this)">
+      <span class="t-icon">&#9638;</span>
+      <span class="t-name">${table}</span>
+      <span class="t-count">${count}</span>
+    </div>
+    <div class="col-list" id="cols_${table}" style="display:none">
+      ${meta.columns.map(c => {
+        let badge = '';
+        if (c === meta.pk) badge = '<span class="col-pk">PK</span>';
+        else if (meta.fks[c]) badge = '<span class="col-fk">FK</span>';
+        return `<div class="col-item" onclick="insertColumn('${table}','${c}')">${badge}${c}</div>`;
+      }).join('')}
+    </div>`;
+  }
+  body.innerHTML = html;
+
+  // Samples
+  const sbody = document.getElementById('samplesBody');
+  let shtml = '';
+  for (const s of SAMPLES) {
+    shtml += `<div class="sample-item" onclick="loadSample(this)" data-sql="${encodeURIComponent(s.sql)}">
+      <div class="s-title">${s.cat}</div>
+      <div class="s-sql">${s.sql.replace(/\n/g,' ').substring(0,60)}...</div>
+    </div>`;
+  }
+  sbody.innerHTML = shtml;
+}
+
+function toggleTable(table, el) {
+  const cols = document.getElementById('cols_' + table);
+  if (cols.style.display === 'none') {
+    cols.style.display = 'block';
+  } else {
+    cols.style.display = 'none';
+  }
+}
+
+function toggleSection(id) {
+  const body = document.getElementById(id + 'Body');
+  const arrow = document.getElementById(id + 'Arrow');
+  if (body.style.display === 'none') {
+    body.style.display = body.tagName === 'DIV' ? '' : 'block';
+    if (body.style.display === '') body.style.display = 'block';
+    arrow.classList.add('open');
+  } else {
+    body.style.display = 'none';
+    arrow.classList.remove('open');
+  }
+}
+
+function insertColumn(table, column) {
+  const editor = document.getElementById('sqlEditor');
+  const pos = editor.selectionStart;
+  const text = editor.value;
+  const insert = `${table}.${column}`;
+  editor.value = text.substring(0, pos) + insert + text.substring(pos);
+  editor.focus();
+  editor.setSelectionRange(pos + insert.length, pos + insert.length);
+  updateLineNumbers();
+}
+
+function loadSample(el) {
+  const sql = decodeURIComponent(el.dataset.sql);
+  document.getElementById('sqlEditor').value = sql;
+  updateLineNumbers();
+}
+
+// ============================================================
+// SQL EDITOR - Line numbers + shortcuts
+// ============================================================
+const editor = document.getElementById('sqlEditor');
+const lineNums = document.getElementById('lineNumbers');
+
+function updateLineNumbers() {
+  const lines = editor.value.split('\n').length;
+  let html = '';
+  for (let i = 1; i <= lines; i++) html += `<div>${i}</div>`;
+  lineNums.innerHTML = html;
+}
+
+editor.addEventListener('input', updateLineNumbers);
+editor.addEventListener('scroll', () => {
+  lineNums.scrollTop = editor.scrollTop;
+});
+
+editor.addEventListener('keydown', function(e) {
+  // Ctrl+Enter to run
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    executeQuery();
+  }
+  // Tab support
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const start = this.selectionStart;
+    const end = this.selectionEnd;
+    this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+    this.selectionStart = this.selectionEnd = start + 2;
+    updateLineNumbers();
+  }
+});
+
+// ============================================================
+// EXECUTE QUERY
+// ============================================================
+function executeQuery() {
+  const sql = editor.value.trim();
+  if (!sql) return;
+
+  hideError();
+  const btn = document.getElementById('runBtn');
+  const timeEl = document.getElementById('execTime');
+  btn.classList.add('running');
+  btn.innerHTML = '&#8987; Running...';
+  timeEl.textContent = '';
+
+  setTimeout(() => {
+    try {
+      const t0 = performance.now();
+      const result = alasql(sql);
+      const elapsed = (performance.now() - t0).toFixed(1);
+      timeEl.textContent = `${elapsed} ms`;
+
+      if (Array.isArray(result)) {
+        currentResult = result;
+        sortCol = null;
+        sortDir = 'asc';
+        renderResult(result);
+      } else if (typeof result === 'object' && result !== null) {
+        // Single value result
+        currentResult = [[result]];
+        renderResult([[result]]);
+      } else {
+        // For INSERT/UPDATE/DELETE etc
+        document.getElementById('emptyState').style.display = 'flex';
+        document.getElementById('resultsInfo').style.display = 'none';
+        document.getElementById('resultsGrid').style.display = 'none';
+        document.getElementById('emptyState').innerHTML = `
+          <div class="es-icon">&#9989;</div>
+          <div class="es-title">Query Executed</div>
+          <div class="es-desc">Affected rows: <b>${result}</b></div>
+        `;
+      }
+    } catch(err) {
+      showError(err.message || String(err));
+    }
+
+    btn.classList.remove('running');
+    btn.innerHTML = '&#9654; Run';
+  }, 50);
+}
+
+function showError(msg) {
+  document.getElementById('errorBar').classList.add('show');
+  document.getElementById('errorText').textContent = msg;
+}
+function hideError() {
+  document.getElementById('errorBar').classList.remove('show');
+}
+
+// ============================================================
+// RENDER RESULTS
+// ============================================================
+function renderResult(data) {
+  const empty = document.getElementById('emptyState');
+  const info = document.getElementById('resultsInfo');
+  const grid = document.getElementById('resultsGrid');
+
+  if (!data || data.length === 0) {
+    empty.style.display = 'flex';
+    empty.innerHTML = `
+      <div class="es-icon">&#128270;</div>
+      <div class="es-title">No Results</div>
+      <div class="es-desc">The query executed successfully but returned 0 rows.</div>
+    `;
+    info.style.display = 'none';
+    grid.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  info.style.display = 'flex';
+  grid.style.display = 'block';
+
+  const headers = Object.keys(data[0]);
+  document.getElementById('rowCount').textContent = data.length;
+  document.getElementById('colCount').textContent = headers.length;
+
+  let tableHtml = '<table class="results-table"><thead><tr>';
+  // Row number column
+  tableHtml += '<th style="width:40px;text-align:center">#</th>';
+  for (const h of headers) {
+    tableHtml += `<th onclick="sortByColumn('${h}')">${h}<span class="sort-icon" id="sort_${h}"></span></th>`;
+  }
+  tableHtml += '</tr></thead><tbody>';
+
+  for (let i = 0; i < data.length; i++) {
+    tableHtml += '<tr>';
+    tableHtml += `<td style="color:var(--text-muted);text-align:center;font-size:10px">${i + 1}</td>`;
+    for (const h of headers) {
+      let val = data[i][h];
+      let cls = '';
+      if (val === null || val === undefined) {
+        val = 'NULL';
+        cls = 'null-val';
+      } else if (typeof val === 'number') {
+        cls = 'number-val';
+        if (Number.isInteger(val)) val = val.toLocaleString();
+        else val = val.toFixed(2);
+      } else if (typeof val === 'string' && val.match(/^\d{4}-\d{2}-\d{2}/)) {
+        // Keep date as-is
+      }
+      tableHtml += `<td class="${cls}" title="${String(data[i][h] ?? 'NULL')}">${val}</td>`;
+    }
+    tableHtml += '</tr>';
+  }
+  tableHtml += '</tbody></table>';
+
+  grid.innerHTML = tableHtml;
+}
+
+// ============================================================
+// SORT
+// ============================================================
+function sortByColumn(col) {
+  if (!currentResult || currentResult.length === 0) return;
+
+  if (sortCol === col) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortCol = col;
+    sortDir = 'asc';
+  }
+
+  currentResult.sort((a, b) => {
+    let va = a[col], vb = b[col];
+    if (va === null || va === undefined) va = sortDir === 'asc' ? Infinity : -Infinity;
+    if (vb === null || vb === undefined) vb = sortDir === 'asc' ? Infinity : -Infinity;
+    if (typeof va === 'number' && typeof vb === 'number') {
+      return sortDir === 'asc' ? va - vb : vb - va;
+    }
+    va = String(va); vb = String(vb);
+    return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+
+  // Update sort icons
+  document.querySelectorAll('.results-table th').forEach(th => th.classList.remove('sorted'));
+  const icon = document.getElementById('sort_' + col);
+  if (icon) {
+    icon.parentElement.classList.add('sorted');
+    icon.textContent = sortDir === 'asc' ? ' \u25B2' : ' \u25BC';
+  }
+
+  document.getElementById('sortInfo').textContent = `Sorted by: ${col} (${sortDir === 'asc' ? 'ASC' : 'DESC'})`;
+  renderResult(currentResult);
+}
+
+// ============================================================
+// TOOLBAR ACTIONS
+// ============================================================
+function clearEditor() {
+  editor.value = '';
+  updateLineNumbers();
+  hideError();
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('emptyState').innerHTML = `
+    <div class="es-icon">&#128450;</div>
+    <div class="es-title">No Results Yet</div>
+    <div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.<br>Select a sample query from the sidebar to get started.</div>
+  `;
+  document.getElementById('resultsInfo').style.display = 'none';
+  document.getElementById('resultsGrid').style.display = 'none';
+  document.getElementById('execTime').textContent = '';
+  currentResult = null;
+  editor.focus();
+}
+
+function formatQuery() {
+  let sql = editor.value.trim();
+  // Basic SQL formatting
+  const keywords = ['SELECT','FROM','WHERE','JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN','FULL OUTER JOIN','INNER JOIN','ON','AND','OR','GROUP BY','ORDER BY','HAVING','LIMIT','AS','DISTINCT','UNION','INSERT','UPDATE','DELETE','SET','INTO','VALUES','CREATE','DROP','TABLE','NOT','IN','BETWEEN','LIKE','IS NULL','IS NOT NULL','ASC','DESC','COUNT','SUM','AVG','MIN','MAX','ROUND'];
+  keywords.forEach(kw => {
+    const regex = new RegExp('\\b' + kw.replace(/ /g,'\\s+') + '\\b', 'gi');
+    sql = sql.replace(regex, '\n' + kw);
+  });
+  // Clean up multiple newlines
+  sql = sql.replace(/\n\n+/g, '\n').trim();
+  // Indent ON, AND, OR
+  sql = sql.replace(/^(\s*)(ON|AND|OR)/gm, '  $1$2');
+  editor.value = sql;
+  updateLineNumbers();
+}
+
+// ============================================================
+// RESIZER
+// ============================================================
+(function() {
+  const resizer = document.getElementById('resizer');
+  const editorWrap = document.getElementById('editorWrap');
+  const resultsArea = document.getElementById('resultsArea');
+  let startY, startH;
+
+  resizer.addEventListener('mousedown', function(e) {
+    startY = e.clientY;
+    startH = editorWrap.offsetHeight;
+    resizer.classList.add('active');
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    e.preventDefault();
+  });
+
+  function onMove(e) {
+    const delta = e.clientY - startY;
+    const newH = Math.max(100, startH + delta);
+    const maxH = editorWrap.parentElement.offsetHeight - 150;
+    editorWrap.style.height = Math.min(newH, maxH) + 'px';
+  }
+
+  function onUp() {
+    resizer.classList.remove('active');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+})();
+
+// ============================================================
+// INIT
+// ============================================================
+initDB();
+buildSidebar();
+updateLineNumbers();
+
+// Load a default query
+editor.value = 'SELECT e.last_name, d.department_name, j.job_title, e.salary\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id\nJOIN jobs j ON e.job_id = j.job_id\nORDER BY e.salary DESC';
+updateLineNumbers();
+</script>
+</body>
+</html>

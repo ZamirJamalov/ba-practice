@@ -84,9 +84,11 @@
   .font-size-select{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:4px 6px;border-radius:4px;font-size:11px;cursor:pointer;outline:none}
   .font-size-select:focus{border-color:var(--accent)}
   .editor-wrap{flex:1;display:flex;position:relative;overflow:hidden;min-height:180px}
-  .editor-line-numbers{width:44px;background:var(--surface);padding:12px 0;text-align:right;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;color:var(--text-muted);overflow:hidden;user-select:none;flex-shrink:0;border-right:1px solid var(--border)}
+  .editor-line-numbers{width:44px;background:var(--surface);padding:12px 0;text-align:right;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;color:var(--text-muted);overflow:hidden;user-select:none;flex-shrink:0;border-right:1px solid var(--border);scrollbar-width:none;-ms-overflow-style:none}
+  .editor-line-numbers::-webkit-scrollbar{display:none}
   .editor-line-numbers div{padding-right:10px}
-  .sql-editor{flex:1;background:var(--editor-bg);color:transparent;border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:auto;white-space:pre;overflow-wrap:normal;caret-color:var(--editor-color);position:relative;z-index:2}
+  .sql-editor{flex:1;background:var(--editor-bg);color:transparent;border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:scroll;overflow-x:hidden;white-space:pre;overflow-wrap:normal;caret-color:var(--editor-color);position:relative;z-index:2;scrollbar-width:none;-ms-overflow-style:none}
+  .sql-editor::-webkit-scrollbar{display:none}
   .sql-editor::selection{background:var(--selection-bg);color:transparent}
   .sql-editor::placeholder{color:var(--text-muted)}
   .sql-highlight-layer{position:absolute;top:0;left:0;right:0;bottom:0;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow:hidden;white-space:pre;overflow-wrap:normal;pointer-events:none;z-index:1;color:var(--editor-color);background:transparent;border:none;margin:0}

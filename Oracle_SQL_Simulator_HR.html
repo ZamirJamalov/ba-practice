@@ -87,7 +87,7 @@
   .editor-line-numbers{width:44px;background:var(--surface);padding:12px 0;text-align:right;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;color:var(--text-muted);overflow:hidden;user-select:none;flex-shrink:0;border-right:1px solid var(--border);scrollbar-width:none;-ms-overflow-style:none}
   .editor-line-numbers::-webkit-scrollbar{display:none}
   .editor-line-numbers div{padding-right:10px}
-  .sql-editor{flex:1;background:var(--editor-bg);color:transparent;border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:scroll;overflow-x:hidden;white-space:pre;overflow-wrap:normal;caret-color:var(--editor-color);position:relative;z-index:2;scrollbar-width:none;-ms-overflow-style:none}
+  .sql-editor{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--editor-bg);color:transparent;border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:scroll;overflow-x:scroll;white-space:pre;overflow-wrap:normal;caret-color:var(--editor-color);z-index:2;scrollbar-width:none;-ms-overflow-style:none}
   .sql-editor::-webkit-scrollbar{display:none}
   .sql-editor::selection{background:var(--selection-bg);color:transparent}
   .sql-editor::placeholder{color:var(--text-muted)}
@@ -194,7 +194,7 @@
     </div>
     <div class="editor-wrap" id="editorWrap">
       <div class="editor-line-numbers" id="lineNumbers"><div>1</div></div>
-      <div style="flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column">
+      <div style="flex:1;position:relative;overflow:hidden">
         <pre class="sql-highlight-layer" id="sqlHighlight"><code id="sqlHighlightCode"></code></pre>
         <textarea class="sql-editor" id="sqlEditor" placeholder="Write your SQL query here...&#10;&#10;Example: SELECT * FROM employees" spellcheck="false"></textarea>
       </div>

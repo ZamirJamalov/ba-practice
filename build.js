@@ -13,15 +13,47 @@ if (!match) {
 }
 
 const rawJS = match[1];
-const scriptTag = '<script>' + match[0] + '</script>';
 
-const reserved = [
-  'runQuery','formatSql','clearEditor','loadSavedQueries','saveQuery','deleteQuery',
-  'toggleSidebar','toggleTable','copyResult','exportCSV','sortByColumn','reorderColumns',
-  'switchTab','closeTab','splitMultipleStatements','renderResultTabs',
-  'activeTabIdx','resultTabs','currentResult','sortCol','sortDir','selectedRow',
-  'db','editor','showTable','onBodyClick','handleDragStart','handleDragOver','handleDrop'
+// ━━ ALL function names used in HTML onclick and dynamic innerHTML ━━
+const reservedFunctions = [
+  // HTML button onclick
+  'executeQuery', 'clearEditor', 'formatQuery', 'saveQuery',
+  // Theme & sidebar
+  'toggleTheme', 'toggleSection', 'toggleTable',
+  // Dynamic innerHTML onclick (sidebar tables)
+  'insertColumn',
+  // Dynamic innerHTML onclick (saved queries)
+  'loadSavedQuery', 'deleteSavedQuery',
+  // Dynamic innerHTML onclick (results tabs)
+  'switchTab', 'closeTab',
+  // Dynamic innerHTML onclick (result grid)
+  'sortByColumn', 'toggleRowSelection',
+  // Other buttons
+  'copyResult', 'exportCSV',
+  // Drag & drop
+  'handleDragStart', 'handleDragOver', 'handleDrop', 'onBodyClick',
+  // Resize
+  'startSidebarResize', 'startEditorResize', 'onMove', 'onUp',
 ];
+
+// ━━ ALL global variables shared between HTML and JS ━━
+const reservedGlobals = [
+  'db', 'editor',
+  'resultTabs', 'activeTabIdx', 'currentResult',
+  'sortCol', 'sortDir', 'selectedRow',
+  'SAVED_KEY', 'HR_DATA',
+];
+
+// ━━ ALL SQL-related constants (used by highlighter and preprocessor) ━━
+const reservedConstants = [
+  'SQL_KEYWORDS', 'SQL_KEYWORDS_UPPER', 'SQL_FUNCTIONS', 'TABLE_META',
+];
+
+const reservedNames = [...reservedFunctions, ...reservedGlobals, ...reservedConstants];
+const reservedStrings = [...reservedFunctions];
+
+console.log('Reserved names (' + reservedNames.length + '): ' + reservedNames.join(', '));
+console.log('Reserved strings (' + reservedStrings.length + '): ' + reservedStrings.join(', '));
 
 const result = JavaScriptObfuscator.obfuscate(rawJS, {
   compact: true,
@@ -43,10 +75,8 @@ const result = JavaScriptObfuscator.obfuscate(rawJS, {
   stringArrayWrappersCount: 2,
   transformObjectKeys: false,
   unicodeEscapeSequence: false,
-  reservedNames: reserved,
-  reservedStrings: ['runQuery','formatSql','clearEditor','loadSavedQueries','saveQuery','deleteQuery',
-    'toggleSidebar','toggleTable','copyResult','exportCSV','sortByColumn','reorderColumns',
-    'splitMultipleStatements','renderResultTabs','switchTab','closeTab']
+  reservedNames: reservedNames,
+  reservedStrings: reservedStrings,
 });
 
 const newHtml = html.replace(/<script>[\s\S]*?<\/script>/, '<script>' + result.getObfuscatedCode() + '</script>');

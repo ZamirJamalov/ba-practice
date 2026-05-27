@@ -1965,8 +1965,10 @@ function executeQuery() {
         var sql = statements[si].trim();
         if (!sql) continue;
         var sqlToRun = preprocessOracleSQL(sql);
+        alert('DEBUG SQL:\n' + sqlToRun + '\n\nLength: ' + sqlToRun.length);
         var t0 = performance.now();
         var sqlResults = db.exec(sqlToRun);
+        alert('DEBUG RESULT: sqlResults.length=' + sqlResults.length + (sqlResults.length > 0 ? '\ncolumns=' + sqlResults[0].columns.join(',') + '\nrows=' + sqlResults[0].values.length : ''));
         var elapsed = performance.now() - t0;
         totalElapsed += elapsed;
 

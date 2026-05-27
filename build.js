@@ -14,46 +14,20 @@ if (!match) {
 
 const rawJS = match[1];
 
-// ━━ ALL function names used in HTML onclick and dynamic innerHTML ━━
-const reservedFunctions = [
-  // HTML button onclick
+const reservedNames = [
   'executeQuery', 'clearEditor', 'formatQuery', 'saveQuery',
-  // Theme & sidebar
   'toggleTheme', 'toggleSection', 'toggleTable',
-  // Dynamic innerHTML onclick (sidebar tables)
-  'insertColumn',
-  // Dynamic innerHTML onclick (saved queries)
-  'loadSavedQuery', 'deleteSavedQuery',
-  // Dynamic innerHTML onclick (results tabs)
-  'switchTab', 'closeTab',
-  // Dynamic innerHTML onclick (result grid)
-  'sortByColumn', 'toggleRowSelection',
-  // Other buttons
+  'insertColumn', 'loadSavedQuery', 'deleteSavedQuery',
+  'switchTab', 'closeTab', 'sortByColumn', 'toggleRowSelection',
   'copyResult', 'exportCSV',
-  // Drag & drop
   'handleDragStart', 'handleDragOver', 'handleDrop', 'onBodyClick',
-  // Resize
   'startSidebarResize', 'startEditorResize', 'onMove', 'onUp',
-];
-
-// ━━ ALL global variables shared between HTML and JS ━━
-const reservedGlobals = [
   'db', 'editor',
   'resultTabs', 'activeTabIdx', 'currentResult',
   'sortCol', 'sortDir', 'selectedRow',
   'SAVED_KEY', 'HR_DATA',
-];
-
-// ━━ ALL SQL-related constants (used by highlighter and preprocessor) ━━
-const reservedConstants = [
   'SQL_KEYWORDS', 'SQL_KEYWORDS_UPPER', 'SQL_FUNCTIONS', 'TABLE_META',
 ];
-
-const reservedNames = [...reservedFunctions, ...reservedGlobals, ...reservedConstants];
-const reservedStrings = [...reservedFunctions];
-
-console.log('Reserved names (' + reservedNames.length + '): ' + reservedNames.join(', '));
-console.log('Reserved strings (' + reservedStrings.length + '): ' + reservedStrings.join(', '));
 
 const result = JavaScriptObfuscator.obfuscate(rawJS, {
   compact: true,
@@ -67,18 +41,25 @@ const result = JavaScriptObfuscator.obfuscate(rawJS, {
   renameGlobals: false,
   selfDefending: false,
   simplify: true,
-  splitStrings: true,
-  splitStringsChunkLength: 5,
-  stringArray: true,
-  stringArrayEncoding: ['rc4'],
-  stringArrayThreshold: 0.7,
-  stringArrayWrappersCount: 2,
+  splitStrings: false,
+  stringArray: false,
   transformObjectKeys: false,
   unicodeEscapeSequence: false,
   reservedNames: reservedNames,
-  reservedStrings: reservedStrings,
+  reservedStrings: reservedNames,
 });
 
-const newHtml = html.replace(/<script>[\s\S]*?<\/script>/, '<script>' + result.getObfuscatedCode() + '</script>');
+const obfuscatedCode = result.getObfuscatedCode();
+console.log('Obfuscated code length:', obfuscatedCode.length);
+
+try {
+  new Function(obfuscatedCode);
+  console.log('Syntax check: OK');
+} catch(e) {
+  console.error('Syntax check FAILED:', e.message);
+  process.exit(1);
+}
+
+const newHtml = html.replace(/<script>[\s\S]*?<\/script>/, '<script>' + obfuscatedCode + '</script>');
 fs.writeFileSync(outputFile, newHtml, 'utf8');
 console.log('Build complete: ' + outputFile);

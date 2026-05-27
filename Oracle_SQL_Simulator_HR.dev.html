@@ -132,6 +132,17 @@
   ::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
   .statusbar{display:flex;align-items:center;justify-content:space-between;padding:4px 16px;background:var(--surface);border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);flex-shrink:0}
   .statusbar .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:6px;display:inline-block}
+  .results-tabs{display:flex;align-items:center;gap:2px;padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;scrollbar-width:none;-ms-overflow-style:none}
+  .results-tabs::-webkit-scrollbar{display:none}
+  .results-tab{display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--border);border-radius:6px 6px 0 0;cursor:pointer;font-size:11px;color:var(--text-muted);background:var(--surface2);white-space:nowrap;transition:all .15s;user-select:none;border-bottom:1px solid transparent;margin-bottom:-1px}
+  .results-tab:hover{color:var(--text);border-color:var(--text-muted)}
+  .results-tab.active{color:var(--accent);border-color:var(--accent);background:var(--surface);border-bottom-color:var(--surface);font-weight:600}
+  .results-tab.error{border-color:var(--red)}
+  .results-tab.error .tab-label{color:var(--red)}
+  .results-tab .tab-label{max-width:200px;overflow:hidden;text-overflow:ellipsis}
+  .results-tab .tab-close{color:var(--text-muted);font-size:14px;line-height:1;padding:0 2px;border-radius:3px;transition:color .1s;flex-shrink:0}
+  .results-tab .tab-close:hover{color:var(--red)}
+  .results-tab.active .tab-close:hover{color:var(--red)}
   @media(max-width:768px){
     .sidebar{display:none}
     .sidebar-resizer{display:none}
@@ -205,6 +216,7 @@
       <span id="errorText"></span>
     </div>
     <div class="results-area" id="resultsArea">
+      <div class="results-tabs" id="resultsTabs" style="display:none"></div>
       <div class="empty-state" id="emptyState">
         <div class="es-icon">&#128450;</div>
         <div class="es-title">No Results Yet</div>
@@ -495,6 +507,8 @@ let currentResult = null;
 let sortCol = null;
 let sortDir = 'asc';
 let selectedRow = null;
+let resultTabs = [];
+let activeTabIdx = -1;
 
 // ============================================================
 // INIT - Load data into sql.js (SQLite)
@@ -1818,11 +1832,121 @@ function getStatementAtCursor() {
 }
 
 // ============================================================
-// EXECUTE QUERY
+// EXECUTE QUERY (multi-statement with tabs)
 // ============================================================
+function splitMultipleStatements(text) {
+  var statements = [];
+  var current = '';
+  var inSingleQuote = false;
+  var inDoubleQuote = false;
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i];
+    if (ch === "'" && !inDoubleQuote) { inSingleQuote = !inSingleQuote; current += ch; }
+    else if (ch === '"' && !inSingleQuote) { inDoubleQuote = !inDoubleQuote; current += ch; }
+    else if (ch === ';' && !inSingleQuote && !inDoubleQuote) {
+      var trimmed = current.trim();
+      if (trimmed.length > 0) { statements.push(trimmed); }
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  var remaining = current.trim();
+  if (remaining.length > 0) { statements.push(remaining); }
+  return statements;
+}
+
+function getStatementLabel(sql, index) {
+  var firstWord = sql.trim().split(/[\s\r\n]+/)[0] || '';
+  var shortSql = sql.trim().substring(0, 40).replace(/[\r\n]+/g, ' ').trim();
+  if (shortSql.length >= 40) shortSql += '...';
+  return 'Q' + (index + 1) + ': ' + shortSql;
+}
+
+function renderResultTabs() {
+  var tabsEl = document.getElementById('resultsTabs');
+  if (resultTabs.length <= 1) {
+    tabsEl.style.display = 'none';
+    tabsEl.innerHTML = '';
+    return;
+  }
+  tabsEl.style.display = 'flex';
+  var html = '';
+  for (var i = 0; i < resultTabs.length; i++) {
+    var tab = resultTabs[i];
+    var isActive = (i === activeTabIdx);
+    var classes = 'results-tab';
+    if (isActive) classes += ' active';
+    if (tab.error) classes += ' error';
+    var countStr = tab.error ? '&#9888;' : (tab.data ? tab.data.length + ' rows' : '');
+    html += '<div class="' + classes + '" onclick="switchTab(' + i + ')">';
+    html += '<span class="tab-label">' + tab.label + (countStr ? ' (' + countStr + ')' : '') + '</span>';
+    html += '<span class="tab-close" onclick="event.stopPropagation();closeTab(' + i + ')">&times;</span>';
+    html += '</div>';
+  }
+  tabsEl.innerHTML = html;
+}
+
+function switchTab(idx) {
+  if (idx < 0 || idx >= resultTabs.length) return;
+  var tab = resultTabs[idx];
+  activeTabIdx = idx;
+  if (tab.error) {
+    currentResult = null;
+    sortCol = null;
+    sortDir = 'asc';
+    selectedRow = null;
+    document.getElementById('emptyState').style.display = 'flex';
+    document.getElementById('emptyState').innerHTML = '<div class="es-icon">&#9888;</div><div class="es-title">Query Error</div><div class="es-desc" style="color:var(--red);max-width:600px;white-space:pre-wrap">' + tab.error + '</div>';
+    document.getElementById('resultsInfo').style.display = 'none';
+    document.getElementById('resultsGrid').style.display = 'none';
+  } else if (tab.data && tab.data.length > 0) {
+    currentResult = tab.data;
+    sortCol = tab.sortCol || null;
+    sortDir = tab.sortDir || 'asc';
+    selectedRow = tab.selectedRow || null;
+    renderResult(tab.data);
+  } else {
+    currentResult = null;
+    sortCol = null;
+    sortDir = 'asc';
+    selectedRow = null;
+    if (tab.affectedRows !== undefined) {
+      showAffectedRows(tab.affectedRows);
+    } else {
+      document.getElementById('emptyState').style.display = 'flex';
+      document.getElementById('emptyState').innerHTML = '<div class="es-icon">&#128270;</div><div class="es-title">No Results</div><div class="es-desc">The query executed successfully but returned 0 rows.</div>';
+      document.getElementById('resultsInfo').style.display = 'none';
+      document.getElementById('resultsGrid').style.display = 'none';
+    }
+  }
+  renderResultTabs();
+}
+
+function closeTab(idx) {
+  resultTabs.splice(idx, 1);
+  if (resultTabs.length === 0) {
+    activeTabIdx = -1;
+    renderResultTabs();
+    document.getElementById('emptyState').style.display = 'flex';
+    document.getElementById('emptyState').innerHTML = '<div class="es-icon">&#128450;</div><div class="es-title">No Results Yet</div><div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.</div>';
+    document.getElementById('resultsInfo').style.display = 'none';
+    document.getElementById('resultsGrid').style.display = 'none';
+    return;
+  }
+  if (activeTabIdx >= resultTabs.length) { activeTabIdx = resultTabs.length - 1; }
+  else if (activeTabIdx === idx) { activeTabIdx = Math.min(idx, resultTabs.length - 1); }
+  else if (activeTabIdx > idx) { activeTabIdx--; }
+  switchTab(activeTabIdx);
+}
+
 function executeQuery() {
-  var sql = getStatementAtCursor();
-  if (!sql) return;
+  var text = editor.value;
+  var selStart = editor.selectionStart;
+  var selEnd = editor.selectionEnd;
+  var isSelection = selEnd > selStart;
+  var sqlAtCursor = getStatementAtCursor();
+  if (!sqlAtCursor) return;
 
   hideError();
   var btn = document.getElementById('runBtn');
@@ -1832,45 +1956,69 @@ function executeQuery() {
   timeEl.textContent = '';
 
   setTimeout(function() {
-    try {
-      var sqlToRun = preprocessOracleSQL(sql);
-      var t0 = performance.now();
-      var sqlResults = db.exec(sqlToRun);
-      var elapsed = (performance.now() - t0).toFixed(1);
-      timeEl.textContent = elapsed + ' ms';
+    var statements = isSelection ? [sqlAtCursor] : splitMultipleStatements(text);
+    var newTabs = [];
+    var totalElapsed = 0;
 
-      // sql.js returns [{columns:[...], values:[[...],[...]]}] or [] for non-SELECT
-      if (sqlResults.length > 0) {
-        var res = sqlResults[sqlResults.length - 1]; // use last result set
-        var columns = res.columns;
-        var values = res.values;
-        // Convert to array of objects for renderResult
-        var data = values.map(function(row) {
-          var obj = {};
-          for (var c = 0; c < columns.length; c++) {
-            obj[columns[c]] = row[c];
-          }
-          return obj;
-        });
-        currentResult = data;
-        sortCol = null;
-        sortDir = 'asc';
-        selectedRow = null;
-        renderResult(data);
-        addQueryToHistory(sql);
-      } else {
-        // Non-SELECT statement (INSERT, UPDATE, DELETE, CREATE, etc.)
-        currentResult = null;
-        var changes = db.getRowsModified();
-        if (changes > 0) {
-          showAffectedRows(changes);
+    for (var si = 0; si < statements.length; si++) {
+      try {
+        var sql = statements[si].trim();
+        if (!sql) continue;
+        var sqlToRun = preprocessOracleSQL(sql);
+        var t0 = performance.now();
+        var sqlResults = db.exec(sqlToRun);
+        var elapsed = performance.now() - t0;
+        totalElapsed += elapsed;
+
+        if (sqlResults.length > 0) {
+          var res = sqlResults[sqlResults.length - 1];
+          var columns = res.columns;
+          var values = res.values;
+          var data = values.map(function(row) {
+            var obj = {};
+            for (var c = 0; c < columns.length; c++) { obj[columns[c]] = row[c]; }
+            return obj;
+          });
+          newTabs.push({
+            label: getStatementLabel(sql, si),
+            data: data,
+            sortCol: null,
+            sortDir: 'asc',
+            selectedRow: null,
+            error: null
+          });
         } else {
-          showAffectedRows(0);
+          var changes = db.getRowsModified();
+          newTabs.push({
+            label: getStatementLabel(sql, si),
+            data: null,
+            sortCol: null,
+            sortDir: 'asc',
+            selectedRow: null,
+            error: null,
+            affectedRows: changes
+          });
         }
-        addQueryToHistory(sql);
+      } catch(err) {
+        newTabs.push({
+          label: getStatementLabel(statements[si], si),
+          data: null,
+          sortCol: null,
+          sortDir: 'asc',
+          selectedRow: null,
+          error: err.message || String(err)
+        });
       }
-    } catch(err) {
-      showError(err.message || String(err));
+    }
+
+    if (newTabs.length === 0) {
+      showError('No valid SQL statements found.');
+    } else {
+      resultTabs = newTabs;
+      activeTabIdx = newTabs.length - 1;
+      timeEl.textContent = totalElapsed.toFixed(1) + ' ms';
+      switchTab(activeTabIdx);
+      addQueryToHistory(isSelection ? sqlAtCursor : text);
     }
     btn.classList.remove('running');
     btn.innerHTML = '&#9654; Run';
@@ -1938,6 +2086,9 @@ function renderResult(data) {
   document.getElementById('rowCount').textContent = data.length;
   document.getElementById('colCount').textContent = headers.length;
   document.getElementById('sortInfo').textContent = sortCol ? ('Sorted by: ' + sortCol + ' (' + (sortDir === 'asc' ? 'ASC' : 'DESC') + ')') : '';
+  if (resultTabs.length > 1) {
+    document.getElementById('sortInfo').textContent = 'Query ' + (activeTabIdx + 1) + ' of ' + resultTabs.length + (sortCol ? ' | Sorted by: ' + sortCol + ' (' + (sortDir === 'asc' ? 'ASC' : 'DESC') + ')' : '');
+  }
 
   var tableHtml = '<table class="results-table" id="resultsTable"><colgroup>';
   tableHtml += '<col style="width:40px">';
@@ -2168,6 +2319,11 @@ function reorderColumns(fromIdx, toIdx, insertBefore) {
   }
   currentResult = newData;
   renderResult(currentResult);
+
+  // Save column order to active tab
+  if (activeTabIdx >= 0 && resultTabs[activeTabIdx]) {
+    resultTabs[activeTabIdx].data = currentResult;
+  }
 }
 
 // ============================================================
@@ -2197,6 +2353,13 @@ function sortByColumn(col) {
 
   // Re-render without changing currentResult reference for sort state
   renderResult(currentResult);
+
+  // Save sort state to active tab
+  if (activeTabIdx >= 0 && resultTabs[activeTabIdx]) {
+    resultTabs[activeTabIdx].sortCol = sortCol;
+    resultTabs[activeTabIdx].sortDir = sortDir;
+    resultTabs[activeTabIdx].data = currentResult;
+  }
 }
 
 // ============================================================
@@ -2211,6 +2374,10 @@ function clearEditor() {
   sortCol = null;
   sortDir = 'asc';
   selectedRow = null;
+  resultTabs = [];
+  activeTabIdx = -1;
+  document.getElementById('resultsTabs').style.display = 'none';
+  document.getElementById('resultsTabs').innerHTML = '';
   document.getElementById('emptyState').style.display = 'flex';
   document.getElementById('emptyState').innerHTML = '<div class="es-icon">&#128450;</div><div class="es-title">No Results Yet</div><div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.<br>Select a sample query from the sidebar to get started.</div>';
   document.getElementById('resultsInfo').style.display = 'none';

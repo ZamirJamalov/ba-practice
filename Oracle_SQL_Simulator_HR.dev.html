@@ -1956,7 +1956,7 @@ function executeQuery() {
   timeEl.textContent = '';
 
   setTimeout(function() {
-    var statements = splitMultipleStatements(isSelection ? sqlAtCursor : text);
+    var statements = isSelection ? splitMultipleStatements(sqlAtCursor) : [sqlAtCursor];
     var newTabs = [];
     var totalElapsed = 0;
 

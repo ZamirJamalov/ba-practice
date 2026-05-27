@@ -1965,10 +1965,8 @@ function executeQuery() {
         var sql = statements[si].trim();
         if (!sql) continue;
         var sqlToRun = preprocessOracleSQL(sql);
-        alert('DEBUG SQL:\n' + sqlToRun + '\n\nLength: ' + sqlToRun.length);
         var t0 = performance.now();
         var sqlResults = db.exec(sqlToRun);
-        alert('DEBUG RESULT: sqlResults.length=' + sqlResults.length + (sqlResults.length > 0 ? '\ncolumns=' + sqlResults[0].columns.join(',') + '\nrows=' + sqlResults[0].values.length : ''));
         var elapsed = performance.now() - t0;
         totalElapsed += elapsed;
 
@@ -1990,16 +1988,31 @@ function executeQuery() {
             error: null
           });
         } else {
-          var changes = db.getRowsModified();
-          newTabs.push({
-            label: getStatementLabel(sql, si),
-            data: null,
-            sortCol: null,
-            sortDir: 'asc',
-            selectedRow: null,
-            error: null,
-            affectedRows: changes
-          });
+          // sql.js bug: db.exec() returns [] for SELECT with 0 matching rows
+          // Check if it was actually a SELECT by trying prepare()
+          var isSelect = /^\s*SELECT\s/i.test(sqlToRun);
+          if (isSelect) {
+            // It was a SELECT that returned 0 rows - show empty result
+            newTabs.push({
+              label: getStatementLabel(sql, si),
+              data: [],
+              sortCol: null,
+              sortDir: 'asc',
+              selectedRow: null,
+              error: null
+            });
+          } else {
+            var changes = db.getRowsModified();
+            newTabs.push({
+              label: getStatementLabel(sql, si),
+              data: null,
+              sortCol: null,
+              sortDir: 'asc',
+              selectedRow: null,
+              error: null,
+              affectedRows: changes
+            });
+          }
         }
       } catch(err) {
         newTabs.push({

@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oracle SQL Simulator - HR Schema</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0d1117;--surface:#161b22;--surface2:#1c2333;--border:#30363d;
+    --text:#c9d1d9;--text-muted:#8b949e;--accent:#58a6ff;
+    --green:#3fb950;--red:#f85149;--yellow:#d29922;--purple:#bc8cff;
+    --editor-bg:#0d1117;--grid-header:#1c2333;--grid-row1:#161b22;--grid-row2:#0d1117;
+    --editor-color:#e6edf3;--hover-row:rgba(56,139,253,.06);
+    --selection-bg:rgba(56,139,253,.3);--accent-hover:#79c0ff;
+    --sql-keyword:#569cd6;--sql-function:#dcdcaa;--sql-string:#ce9178;
+    --sql-number:#b5cea8;--sql-comment:#6a9955;
+    --row-selected:rgba(56,139,253,.15)
+  }
+  [data-theme="light"]{
+    --bg:#f6f8fa;--surface:#ffffff;--surface2:#f0f2f5;--border:#d0d7de;
+    --text:#1f2328;--text-muted:#656d76;--accent:#0969da;
+    --green:#1a7f37;--red:#d1242f;--yellow:#9a6700;--purple:#8250df;
+    --editor-bg:#ffffff;--grid-header:#f0f2f5;--grid-row1:#ffffff;--grid-row2:#f6f8fa;
+    --editor-color:#1f2328;--hover-row:rgba(9,105,218,.04);
+    --selection-bg:rgba(9,105,218,.15);--accent-hover:#0550ae;
+    --sql-keyword:#0000ff;--sql-function:#795e26;--sql-string:#a31515;
+    --sql-number:#098658;--sql-comment:#008000;
+    --row-selected:rgba(9,105,218,.12)
+  }
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+  .header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+  .header-left{display:flex;align-items:center;gap:12px}
+  .logo{font-size:18px;font-weight:700;color:var(--accent)}
+  .logo span{color:var(--text-muted);font-weight:400;font-size:13px;margin-left:6px}
+  .header-right{display:flex;align-items:center;gap:10px}
+  .schema-select{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer}
+  .theme-toggle{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;gap:5px;transition:all .15s}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .theme-toggle svg{width:16px;height:16px;flex-shrink:0}
+  .main{display:flex;flex:1;overflow:hidden}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+  .sidebar-resizer{width:4px;cursor:col-resize;background:var(--border);flex-shrink:0;transition:background .15s;position:relative;z-index:5}
+  .sidebar-resizer:hover,.sidebar-resizer.active{background:var(--accent)}
+  .sidebar-section{border-bottom:1px solid var(--border)}
+  .sidebar-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none}
+  .sidebar-header h3{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);font-weight:600}
+  .sidebar-header .arrow{color:var(--text-muted);font-size:10px;transition:transform .2s}
+  .sidebar-header .arrow.open{transform:rotate(180deg)}
+  .sidebar-body{padding:4px 8px 8px;overflow-y:auto}
+  .table-item{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;color:var(--text);transition:background .15s}
+  .table-item:hover{background:var(--surface2)}
+  .table-item .t-icon{color:var(--yellow);font-size:11px;flex-shrink:0}
+  .table-item .t-name{font-weight:600;color:var(--accent)}
+  .table-item .t-count{color:var(--text-muted);margin-left:auto;font-size:10px}
+  .col-list{padding:2px 0 4px 28px}
+  .col-item{padding:3px 10px;font-size:11px;color:var(--text-muted);border-radius:3px;cursor:pointer}
+  .col-item:hover{color:var(--text);background:var(--surface2)}
+  .col-item .col-pk{color:var(--yellow);margin-right:4px}
+  .col-item .col-fk{color:var(--green);margin-right:4px}
+  .saved-list{padding:4px 8px 8px;overflow-y:auto}
+  .saved-item{display:flex;align-items:center;gap:6px;padding:6px 10px;margin-bottom:3px;border-radius:4px;cursor:pointer;font-size:11px;color:var(--text);transition:background .15s;border:1px solid transparent;line-height:1.4}
+  .saved-item:hover{background:var(--surface2);border-color:var(--border)}
+  .saved-item .sq-name{color:var(--accent);font-weight:600;font-size:11px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .saved-item .sq-delete{color:var(--text-muted);font-size:13px;cursor:pointer;flex-shrink:0;padding:0 2px;border:none;background:none;line-height:1}
+  .saved-item .sq-delete:hover{color:var(--red)}
+  .saved-item .sq-sql{color:var(--text-muted);font-family:'Cascadia Code','Fira Code',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+  .saved-empty{padding:12px 10px;font-size:11px;color:var(--text-muted);text-align:center}
+  .editor-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .editor-toolbar{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+  .btn{display:flex;align-items:center;gap:6px;padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+  .btn-run{background:#238636;color:#fff}
+  .btn-run:hover{background:#2ea043}
+  .btn-run.running{opacity:.7;pointer-events:none}
+  .btn-clear{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
+  .btn-clear:hover{color:var(--text);border-color:var(--text-muted)}
+  .btn-format{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
+  .btn-format:hover{color:var(--text);border-color:var(--text-muted)}
+  .btn-save{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
+  .btn-save:hover{color:var(--accent);border-color:var(--accent)}
+  .exec-time{margin-left:auto;font-size:11px;color:var(--text-muted);font-family:monospace}
+  .font-size-group{display:flex;align-items:center;gap:4px;margin-left:4px}
+  .font-size-label{font-size:11px;color:var(--text-muted);white-space:nowrap}
+  .font-size-select{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:4px 6px;border-radius:4px;font-size:11px;cursor:pointer;outline:none}
+  .font-size-select:focus{border-color:var(--accent)}
+  .editor-wrap{flex:1;display:flex;position:relative;overflow:hidden;min-height:180px}
+  .editor-line-numbers{width:44px;background:var(--surface);padding:12px 0;text-align:right;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;color:var(--text-muted);overflow:hidden;user-select:none;flex-shrink:0;border-right:1px solid var(--border);scrollbar-width:none;-ms-overflow-style:none}
+  .editor-line-numbers::-webkit-scrollbar{display:none}
+  .editor-line-numbers div{padding-right:10px}
+  .sql-editor{position:absolute;top:0;left:0;width:100%;height:100%;background:transparent !important;color:transparent !important;border:none;outline:none;resize:none;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow-y:scroll;overflow-x:scroll;white-space:pre;overflow-wrap:normal;z-index:2;caret-color:var(--editor-color);scrollbar-width:none;-ms-overflow-style:none}
+  .sql-editor::-webkit-scrollbar{display:none}
+  .sql-editor::selection{background:var(--selection-bg)}
+  .sql-editor::placeholder{color:var(--text-muted)}
+  .sql-highlight-layer{position:absolute;top:0;left:0;width:100%;height:100%;padding:12px 16px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:13px;line-height:1.6;tab-size:2;overflow:hidden;white-space:pre;overflow-wrap:normal;pointer-events:none;z-index:1;color:var(--editor-color);background:transparent;border:none;margin:0}
+  .sql-highlight-layer code{display:block;font-family:inherit;font-size:inherit;line-height:inherit;tab-size:inherit;white-space:pre;overflow-wrap:normal}
+  .resizer{height:5px;background:var(--border);cursor:row-resize;flex-shrink:0;transition:background .15s}
+  .resizer:hover,.resizer.active{background:var(--accent)}
+  .error-bar{display:none;padding:8px 16px;background:rgba(248,81,73,.1);border-bottom:1px solid var(--red);color:var(--red);font-size:12px;font-family:monospace;flex-shrink:0;align-items:center;gap:8px}
+  .error-bar.show{display:flex}
+  .results-area{flex:1;overflow:auto;display:flex;flex-direction:column}
+  .results-info{display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;font-size:11px;color:var(--text-muted)}
+  .results-info .ri-count{color:var(--green);font-weight:600}
+  .results-grid{flex:1;overflow:auto;padding:0}
+  .results-table{border-collapse:collapse;font-size:12px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;table-layout:fixed}
+  .results-table thead{position:sticky;top:0;z-index:10}
+  .results-table th{background:var(--grid-header);color:var(--accent);padding:8px 12px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid var(--border);white-space:nowrap;position:relative;user-select:none;overflow:hidden}
+  .results-table th:hover{color:var(--accent-hover)}
+  .results-table th .th-content{display:flex;align-items:center;gap:4px;cursor:grab;min-width:0}
+  .results-table th .th-content:active{cursor:grabbing}
+  .results-table th .sort-icon{margin-left:auto;font-size:9px;opacity:.5;flex-shrink:0}
+  .results-table th.sorted .sort-icon{opacity:1;color:var(--accent)}
+  .results-table th .col-resize-handle{position:absolute;top:0;right:0;bottom:0;width:6px;cursor:col-resize;z-index:2}
+  .results-table th .col-resize-handle:hover,.results-table th .col-resize-handle.active{background:var(--accent);opacity:.5}
+  .results-table td{padding:6px 12px;border-bottom:1px solid var(--border);white-space:nowrap;max-width:300px;overflow:hidden;text-overflow:ellipsis}
+  .results-table tr:nth-child(odd) td{background:var(--grid-row1)}
+  .results-table tr:nth-child(even) td{background:var(--grid-row2)}
+  .results-table tr:hover td{background:var(--hover-row)}
+  .results-table tr.row-selected td{background:var(--row-selected) !important}
+  .results-table td.null-val{color:var(--text-muted);font-style:italic}
+  .results-table td.number-val{color:var(--green);text-align:right}
+  .results-table th.drag-over-left{box-shadow:inset 3px 0 0 var(--accent)}
+  .results-table th.drag-over-right{box-shadow:inset -3px 0 0 var(--accent)}
+  .results-table th.dragging{opacity:.4}
+  .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-muted);gap:12px;padding:40px}
+  .empty-state .es-icon{font-size:48px;opacity:.3}
+  .empty-state .es-title{font-size:16px;font-weight:600;color:var(--text)}
+  .empty-state .es-desc{font-size:13px;text-align:center;max-width:400px;line-height:1.6}
+  kbd{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;font-family:monospace;color:var(--text-muted)}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+  .statusbar{display:flex;align-items:center;justify-content:space-between;padding:4px 16px;background:var(--surface);border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);flex-shrink:0}
+  .statusbar .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:6px;display:inline-block}
+  @media(max-width:768px){
+    .sidebar{display:none}
+    .sidebar-resizer{display:none}
+    .main{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <div class="logo">Oracle SQL Simulator</div>
+  </div>
+  <div class="header-right">
+    <select class="schema-select" id="schemaSelect">
+      <option value="hr">HR Schema</option>
+    </select>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
+      <svg id="themeIconDark" viewBox="0 0 20 20" fill="currentColor" style="display:none"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/></svg>
+      <svg id="themeIconLight" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+    </button>
+  </div>
+</div>
+<div class="main">
+  <div class="sidebar" id="sidebar" style="width:260px">
+    <div class="sidebar-section">
+      <div class="sidebar-header" onclick="toggleSection('tables')">
+        <h3>Tables</h3>
+        <span class="arrow open" id="tablesArrow">&#9660;</span>
+      </div>
+      <div class="sidebar-body" id="tablesBody"></div>
+    </div>
+    <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div class="sidebar-header" onclick="toggleSection('saved')">
+        <h3>Query History</h3>
+        <span class="arrow open" id="savedArrow">&#9660;</span>
+      </div>
+      <div class="saved-list" id="savedBody" style="flex:1;overflow-y:auto"></div>
+    </div>
+  </div>
+  <div class="sidebar-resizer" id="sidebarResizer"></div>
+  <div class="editor-area">
+    <div class="editor-toolbar">
+      <button class="btn btn-run" id="runBtn" onclick="executeQuery()">&#9654; Run</button>
+      <button class="btn btn-clear" onclick="clearEditor()">&#10005; Clear</button>
+      <button class="btn btn-format" onclick="formatQuery()">&#8677; Format</button>
+      <button class="btn btn-save" onclick="saveQuery()">&#128190; Save</button>
+      <div class="font-size-group">
+        <span class="font-size-label">Font:</span>
+        <select class="font-size-select" id="fontSizeSelect" onchange="changeEditorFontSize(this.value)">
+          <option value="12">12px</option>
+          <option value="13" selected>13px</option>
+          <option value="14">14px</option>
+          <option value="16">16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+        </select>
+      </div>
+      <span style="font-size:11px;color:var(--text-muted)"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> to run</span>
+      <span class="exec-time" id="execTime"></span>
+    </div>
+    <div class="editor-wrap" id="editorWrap">
+      <div class="editor-line-numbers" id="lineNumbers"><div>1</div></div>
+      <div style="flex:1;position:relative;overflow:hidden;background:var(--editor-bg)">
+        <pre class="sql-highlight-layer" id="sqlHighlight"><code id="sqlHighlightCode"></code></pre>
+        <textarea class="sql-editor" id="sqlEditor" placeholder="Write your SQL query here...&#10;&#10;Example: SELECT * FROM employees" spellcheck="false"></textarea>
+      </div>
+    </div>
+    <div class="resizer" id="resizer"></div>
+    <div class="error-bar" id="errorBar">
+      <span>&#9888;</span>
+      <span id="errorText"></span>
+    </div>
+    <div class="results-area" id="resultsArea">
+      <div class="empty-state" id="emptyState">
+        <div class="es-icon">&#128450;</div>
+        <div class="es-title">No Results Yet</div>
+        <div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.</div>
+      </div>
+      <div class="results-info" id="resultsInfo" style="display:none">
+        <span>Rows: <span class="ri-count" id="rowCount">0</span></span>
+        <span>Columns: <span id="colCount">0</span></span>
+        <span id="sortInfo" style="margin-left:auto"></span>
+      </div>
+      <div class="results-grid" id="resultsGrid" style="display:none"></div>
+    </div>
+  </div>
+</div>
+<div class="statusbar">
+  <span><span class="status-dot"></span>Ready</span>
+  <span id="dbInfo"></span>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.js"></script>
+<script>
+
+const HR_DATA = {
+  regions: [
+    {region_id:1,region_name:'Europe'},
+    {region_id:2,region_name:'Americas'},
+    {region_id:3,region_name:'Asia'},
+    {region_id:4,region_name:'Middle East and Africa'}
+  ],
+  countries: [
+    {country_id:'IT',country_name:'Italy',region_id:1},
+    {country_id:'JP',country_name:'Japan',region_id:3},
+    {country_id:'US',country_name:'United States of America',region_id:2},
+    {country_id:'CA',country_name:'Canada',region_id:2},
+    {country_id:'DE',country_name:'Germany',region_id:1},
+    {country_id:'UK',country_name:'United Kingdom',region_id:1},
+    {country_id:'FR',country_name:'France',region_id:1},
+    {country_id:'CN',country_name:'China',region_id:3},
+    {country_id:'AU',country_name:'Australia',region_id:3},
+    {country_id:'BR',country_name:'Brazil',region_id:2},
+    {country_id:'IN',country_name:'India',region_id:3},
+    {country_id:'MX',country_name:'Mexico',region_id:2},
+    {country_id:'ZA',country_name:'South Africa',region_id:4},
+    {country_id:'NG',country_name:'Nigeria',region_id:4},
+    {country_id:'AR',country_name:'Argentina',region_id:2},
+    {country_id:'SA',country_name:'Saudi Arabia',region_id:4},
+    {country_id:'EG',country_name:'Egypt',region_id:4},
+    {country_id:'NL',country_name:'Netherlands',region_id:1},
+    {country_id:'SG',country_name:'Singapore',region_id:3},
+    {country_id:'KR',country_name:'South Korea',region_id:3},
+    {country_id:'SE',country_name:'Sweden',region_id:1},
+    {country_id:'CH',country_name:'Switzerland',region_id:1},
+    {country_id:'ES',country_name:'Spain',region_id:1},
+    {country_id:'PL',country_name:'Poland',region_id:1},
+    {country_id:'TR',country_name:'Turkey',region_id:4}
+  ],
+  locations: [
+    {location_id:1000,street_address:'1297 Via Cola di Rie',postal_code:'00984',city:'Roma',state_province:'',country_id:'IT'},
+    {location_id:1100,street_address:'93091 Calle della Testa',postal_code:'10934',city:'Venice',state_province:'',country_id:'IT'},
+    {location_id:1200,street_address:'2017 Shinjuku-ku',postal_code:'1689',city:'Tokyo',state_province:'Tokyo Prefecture',country_id:'JP'},
+    {location_id:1300,street_address:'9450 Kamiya-cho',postal_code:'6823',city:'Hiroshima',state_province:'',country_id:'JP'},
+    {location_id:1400,street_address:'2014 Jabberwocky Rd',postal_code:'26192',city:'Southlake',state_province:'Texas',country_id:'US'},
+    {location_id:1500,street_address:'2011 Interiors Blvd',postal_code:'99236',city:'South San Francisco',state_province:'California',country_id:'US'},
+    {location_id:1600,street_address:'2007 Zagora St',postal_code:'50090',city:'South Brunswick',state_province:'New Jersey',country_id:'US'},
+    {location_id:1700,street_address:'2004 Charade Rd',postal_code:'98199',city:'Seattle',state_province:'Washington',country_id:'US'},
+    {location_id:1800,street_address:'147 Spadina Ave',postal_code:'M5V 2L7',city:'Toronto',state_province:'Ontario',country_id:'CA'},
+    {location_id:1900,street_address:'1909 Avenida Republica',postal_code:'17011',city:'Mexico City',state_province:'Distrito Federal',country_id:'MX'},
+    {location_id:2000,street_address:'5400 Hamburg Way',postal_code:'10021',city:'Munich',state_province:'Bavaria',country_id:'DE'},
+    {location_id:2100,street_address:'Magdalen Centre, The Oxford Science Park',postal_code:'OX9 9ZB',city:'Oxford',state_province:'Oxford',country_id:'UK'},
+    {location_id:2200,street_address:'1st Floor, Optician House',postal_code:'NW1 8JR',city:'London',state_province:'England',country_id:'UK'},
+    {location_id:2300,street_address:'1366 Baring Blvd',postal_code:'93210',city:'Fresno',state_province:'California',country_id:'US'},
+    {location_id:2400,street_address:'8204 Arthur St',postal_code:'91032',city:'Los Angeles',state_province:'California',country_id:'US'},
+    {location_id:2500,street_address:'Schillerstrasse 10',postal_code:'40210',city:'Dusseldorf',state_province:'Nordrhein-Westfalen',country_id:'DE'},
+    {location_id:2600,street_address:'9702 Via Bologna',postal_code:'21020',city:'Milan',state_province:'',country_id:'IT'},
+    {location_id:2700,street_address:'Schwanthalerstr. 7031',postal_code:'80325',city:'Munich',state_province:'Bavaria',country_id:'DE'},
+    {location_id:2800,street_address:'Rua Frei Caneca 1365 ',postal_code:'01307-002',city:'Sao Paulo',state_province:'Sao Paulo',country_id:'BR'},
+    {location_id:2900,street_address:'20 Rue des Corps-Saints',postal_code:'17034',city:'Geneva',state_province:'Geneve',country_id:'CH'},
+    {location_id:3000,street_address:'Murtenstrasse 921',postal_code:'3008',city:'Bern',state_province:'BE',country_id:'CH'},
+    {location_id:3100,street_address:'7521 Marquette Ave',postal_code:'71210',city:'Paris',state_province:'Ile de France',country_id:'FR'},
+    {location_id:3200,street_address:'6854 Las Palmas Dr',postal_code:'85755',city:'Tucson',state_province:'Arizona',country_id:'US'}
+  ],
+  departments: [
+    {department_id:10,department_name:'Administration',manager_id:200,location_id:1700},
+    {department_id:20,department_name:'Marketing',manager_id:201,location_id:1800},
+    {department_id:30,department_name:'Purchasing',manager_id:114,location_id:1700},
+    {department_id:40,department_name:'Human Resources',manager_id:203,location_id:2400},
+    {department_id:50,department_name:'Shipping',manager_id:121,location_id:1500},
+    {department_id:60,department_name:'IT',manager_id:103,location_id:1400},
+    {department_id:70,department_name:'Public Relations',manager_id:204,location_id:2700},
+    {department_id:80,department_name:'Sales',manager_id:145,location_id:2500},
+    {department_id:90,department_name:'Executive',manager_id:100,location_id:1700},
+    {department_id:100,department_name:'Finance',manager_id:108,location_id:1700},
+    {department_id:110,department_name:'Accounting',manager_id:205,location_id:1700},
+    {department_id:120,department_name:'Treasury',manager_id:null,location_id:1700},
+    {department_id:130,department_name:'Corporate Tax',manager_id:null,location_id:1700},
+    {department_id:140,department_name:'Control And Credit',manager_id:null,location_id:1700},
+    {department_id:150,department_name:'Shareholder Services',manager_id:null,location_id:1700},
+    {department_id:160,department_name:'Benefits',manager_id:null,location_id:1700},
+    {department_id:170,department_name:'Manufacturing',manager_id:null,location_id:1800},
+    {department_id:180,department_name:'Construction',manager_id:null,location_id:1700},
+    {department_id:190,department_name:'Contracting',manager_id:null,location_id:1700},
+    {department_id:200,department_name:'Operations',manager_id:null,location_id:1800},
+    {department_id:210,department_name:'IT Support',manager_id:null,location_id:1700},
+    {department_id:220,department_name:'NOC',manager_id:null,location_id:1700},
+    {department_id:230,department_name:'IT Helpdesk',manager_id:null,location_id:1700},
+    {department_id:240,department_name:'Government Sales',manager_id:null,location_id:1700},
+    {department_id:250,department_name:'Retail Sales',manager_id:null,location_id:1700},
+    {department_id:260,department_name:'Recruiting',manager_id:null,location_id:1700},
+    {department_id:270,department_name:'Payroll',manager_id:null,location_id:1700}
+  ],
+  jobs: [
+    {job_id:'AD_PRES',job_title:'President',min_salary:20080,max_salary:40000},
+    {job_id:'AD_VP',job_title:'Administration Vice President',min_salary:15000,max_salary:30000},
+    {job_id:'AD_ASST',job_title:'Administration Assistant',min_salary:3000,max_salary:6000},
+    {job_id:'FI_MGR',job_title:'Finance Manager',min_salary:8200,max_salary:16000},
+    {job_id:'FI_ACCOUNT',job_title:'Accountant',min_salary:4200,max_salary:9000},
+    {job_id:'AC_MGR',job_title:'Accounting Manager',min_salary:8200,max_salary:16000},
+    {job_id:'AC_ACCOUNT',job_title:'Public Accountant',min_salary:4200,max_salary:9000},
+    {job_id:'SA_MAN',job_title:'Sales Manager',min_salary:10000,max_salary:20080},
+    {job_id:'SA_REP',job_title:'Sales Representative',min_salary:6000,max_salary:12008},
+    {job_id:'PU_MAN',job_title:'Purchasing Manager',min_salary:8000,max_salary:15000},
+    {job_id:'PU_CLERK',job_title:'Purchasing Clerk',min_salary:2500,max_salary:5500},
+    {job_id:'ST_MAN',job_title:'Stock Manager',min_salary:5500,max_salary:8500},
+    {job_id:'ST_CLERK',job_title:'Stock Clerk',min_salary:2008,max_salary:5000},
+    {job_id:'SH_CLERK',job_title:'Shipping Clerk',min_salary:2500,max_salary:5500},
+    {job_id:'IT_PROG',job_title:'Programmer',min_salary:4000,max_salary:10000},
+    {job_id:'MK_MAN',job_title:'Marketing Manager',min_salary:9000,max_salary:15000},
+    {job_id:'MK_REP',job_title:'Marketing Representative',min_salary:4000,max_salary:9000},
+    {job_id:'HR_REP',job_title:'Human Resources Representative',min_salary:4000,max_salary:9000},
+    {job_id:'PR_REP',job_title:'Public Relations Representative',min_salary:4500,max_salary:10500}
+  ],
+  employees: [
+    {employee_id:100,first_name:'Steven',last_name:'King',email:'SKING',phone_number:'515.123.4567',hire_date:'2003-06-17',job_id:'AD_PRES',salary:24000,commission_pct:null,manager_id:null,department_id:90},
+    {employee_id:101,first_name:'Neena',last_name:'Kochhar',email:'NKOCHHAR',phone_number:'515.123.4568',hire_date:'2005-09-21',job_id:'AD_VP',salary:17000,commission_pct:null,manager_id:100,department_id:90},
+    {employee_id:102,first_name:'Lex',last_name:'De Haan',email:'LDEHAAN',phone_number:'515.123.4569',hire_date:'2001-01-13',job_id:'AD_VP',salary:17000,commission_pct:null,manager_id:100,department_id:90},
+    {employee_id:103,first_name:'Alexander',last_name:'Hunold',email:'AHUNOLD',phone_number:'590.423.4567',hire_date:'2006-01-03',job_id:'IT_PROG',salary:9000,commission_pct:null,manager_id:102,department_id:60},
+    {employee_id:104,first_name:'Bruce',last_name:'Ernst',email:'BERNST',phone_number:'590.423.4568',hire_date:'2007-05-21',job_id:'IT_PROG',salary:6000,commission_pct:null,manager_id:103,department_id:60},
+    {employee_id:105,first_name:'David',last_name:'Austin',email:'DAUSTIN',phone_number:'590.423.4569',hire_date:'2005-06-25',job_id:'IT_PROG',salary:4800,commission_pct:null,manager_id:103,department_id:60},
+    {employee_id:106,first_name:'Valli',last_name:'Pataballa',email:'VPATABAL',phone_number:'590.423.4560',hire_date:'2006-02-05',job_id:'IT_PROG',salary:4800,commission_pct:null,manager_id:103,department_id:60},
+    {employee_id:107,first_name:'Diana',last_name:'Lorentz',email:'DLORENTZ',phone_number:'590.423.5567',hire_date:'2007-02-07',job_id:'IT_PROG',salary:4200,commission_pct:null,manager_id:103,department_id:60},
+    {employee_id:108,first_name:'Nancy',last_name:'Greenberg',email:'NGREENBE',phone_number:'515.124.4569',hire_date:'2002-08-17',job_id:'FI_MGR',salary:12008,commission_pct:null,manager_id:101,department_id:100},
+    {employee_id:109,first_name:'Daniel',last_name:'Faviet',email:'DFAVIET',phone_number:'515.124.4169',hire_date:'2002-08-16',job_id:'FI_ACCOUNT',salary:9000,commission_pct:null,manager_id:108,department_id:100},
+    {employee_id:110,first_name:'John',last_name:'Chen',email:'JCHEN',phone_number:'515.124.4269',hire_date:'2005-09-28',job_id:'FI_ACCOUNT',salary:8200,commission_pct:null,manager_id:108,department_id:100},
+    {employee_id:111,first_name:'Ismael',last_name:'Sciarra',email:'ISCIARRA',phone_number:'515.124.4369',hire_date:'2005-09-30',job_id:'FI_ACCOUNT',salary:7700,commission_pct:null,manager_id:108,department_id:100},
+    {employee_id:112,first_name:'Jose Manuel',last_name:'Urman',email:'JMURMAN',phone_number:'515.124.4469',hire_date:'2006-03-07',job_id:'FI_ACCOUNT',salary:7800,commission_pct:null,manager_id:108,department_id:100},
+    {employee_id:113,first_name:'Luis',last_name:'Popp',email:'LPOPP',phone_number:'515.124.4567',hire_date:'2007-12-07',job_id:'FI_ACCOUNT',salary:6900,commission_pct:null,manager_id:108,department_id:100},
+    {employee_id:114,first_name:'Den',last_name:'Raphaely',email:'DRAPHEAL',phone_number:'515.127.4561',hire_date:'2002-12-07',job_id:'PU_MAN',salary:11000,commission_pct:null,manager_id:100,department_id:30},
+    {employee_id:115,first_name:'Alexander',last_name:'Khoo',email:'AKHOO',phone_number:'515.127.4562',hire_date:'2003-05-18',job_id:'PU_CLERK',salary:3100,commission_pct:null,manager_id:114,department_id:30},
+    {employee_id:116,first_name:'Shelli',last_name:'Baida',email:'SBAIDA',phone_number:'515.127.4563',hire_date:'2005-12-24',job_id:'PU_CLERK',salary:2900,commission_pct:null,manager_id:114,department_id:30},
+    {employee_id:117,first_name:'Sigal',last_name:'Tobias',email:'STOBIAS',phone_number:'515.127.4564',hire_date:'2005-07-24',job_id:'PU_CLERK',salary:2800,commission_pct:null,manager_id:114,department_id:30},
+    {employee_id:118,first_name:'Guy',last_name:'Himuro',email:'GHIMURO',phone_number:'515.127.4565',hire_date:'2006-11-15',job_id:'PU_CLERK',salary:2600,commission_pct:null,manager_id:114,department_id:30},
+    {employee_id:119,first_name:'Karen',last_name:'Colmenares',email:'KCOLMENA',phone_number:'515.127.4566',hire_date:'2007-08-10',job_id:'PU_CLERK',salary:2500,commission_pct:null,manager_id:114,department_id:30},
+    {employee_id:120,first_name:'Matthew',last_name:'Weiss',email:'MWEISS',phone_number:'650.123.1234',hire_date:'2004-07-16',job_id:'ST_MAN',salary:8000,commission_pct:null,manager_id:100,department_id:50},
+    {employee_id:121,first_name:'Adam',last_name:'Fripp',email:'AFRIPP',phone_number:'650.123.2234',hire_date:'2005-04-10',job_id:'ST_MAN',salary:8200,commission_pct:null,manager_id:100,department_id:50},
+    {employee_id:122,first_name:'Payam',last_name:'Kaufling',email:'PKAUFLIN',phone_number:'650.123.3234',hire_date:'2003-05-01',job_id:'ST_MAN',salary:7900,commission_pct:null,manager_id:100,department_id:50},
+    {employee_id:123,first_name:'Shanta',last_name:'Vollman',email:'SVOLLMAN',phone_number:'650.123.4234',hire_date:'2005-10-10',job_id:'ST_MAN',salary:6500,commission_pct:null,manager_id:100,department_id:50},
+    {employee_id:124,first_name:'Kevin',last_name:'Mourgos',email:'KMOURGOS',phone_number:'650.123.5234',hire_date:'2007-11-16',job_id:'ST_MAN',salary:5800,commission_pct:null,manager_id:100,department_id:50},
+    {employee_id:125,first_name:'Julia',last_name:'Nayer',email:'JNAYER',phone_number:'650.124.1214',hire_date:'2005-07-16',job_id:'ST_CLERK',salary:3200,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:126,first_name:'Irene',last_name:'Mikkilineni',email:'IMIKKILI',phone_number:'650.124.1224',hire_date:'2006-09-28',job_id:'ST_CLERK',salary:2700,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:127,first_name:'James',last_name:'Landry',email:'JLANDRY',phone_number:'650.124.1334',hire_date:'2007-01-14',job_id:'ST_CLERK',salary:2400,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:128,first_name:'Steven',last_name:'Markle',email:'SMARKLE',phone_number:'650.124.1434',hire_date:'2008-03-08',job_id:'ST_CLERK',salary:2200,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:129,first_name:'Laura',last_name:'Bissot',email:'LBISSOT',phone_number:'650.124.5234',hire_date:'2005-08-20',job_id:'ST_CLERK',salary:3300,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:130,first_name:'Mozhe',last_name:'Atkinson',email:'MATKINSON',phone_number:'650.124.6234',hire_date:'2005-10-30',job_id:'ST_CLERK',salary:2800,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:131,first_name:'James',last_name:'Marlow',email:'JAMRLOW',phone_number:'650.124.7234',hire_date:'2005-02-16',job_id:'ST_CLERK',salary:2500,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:132,first_name:'TJ',last_name:'Olson',email:'TJOLSON',phone_number:'650.124.8234',hire_date:'2007-04-10',job_id:'ST_CLERK',salary:2100,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:133,first_name:'Jason',last_name:'Mallin',email:'JMALLIN',phone_number:'650.127.1934',hire_date:'2004-06-14',job_id:'ST_CLERK',salary:3300,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:134,first_name:'Michael',last_name:'Rogers',email:'MROGERS',phone_number:'650.127.1834',hire_date:'2006-08-26',job_id:'ST_CLERK',salary:2900,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:135,first_name:'Ki',last_name:'Gee',email:'KGEE',phone_number:'650.127.1734',hire_date:'2007-12-12',job_id:'ST_CLERK',salary:2400,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:136,first_name:'Hazel',last_name:'Philtanker',email:'HPHILTAN',phone_number:'650.127.1634',hire_date:'2008-02-06',job_id:'ST_CLERK',salary:2200,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:137,first_name:'Renske',last_name:'Ladwig',email:'RLADWIG',phone_number:'650.121.1234',hire_date:'2003-07-14',job_id:'ST_CLERK',salary:3600,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:138,first_name:'Stephen',last_name:'Stiles',email:'SSTILES',phone_number:'650.121.2034',hire_date:'2005-10-26',job_id:'ST_CLERK',salary:3200,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:139,first_name:'John',last_name:'Seo',email:'JSEO',phone_number:'650.121.2019',hire_date:'2006-02-12',job_id:'ST_CLERK',salary:2700,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:140,first_name:'Joshua',last_name:'Patel',email:'JPATEL',phone_number:'650.121.1834',hire_date:'2006-04-06',job_id:'ST_CLERK',salary:2500,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:141,first_name:'Trenna',last_name:'Rajs',email:'TRAJS',phone_number:'650.121.8009',hire_date:'2003-10-17',job_id:'ST_CLERK',salary:3500,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:142,first_name:'Curtis',last_name:'Davies',email:'CDAVIES',phone_number:'650.121.2994',hire_date:'2005-01-29',job_id:'ST_CLERK',salary:3100,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:143,first_name:'Randall',last_name:'Matos',email:'RMATOS',phone_number:'650.121.2874',hire_date:'2006-03-15',job_id:'ST_CLERK',salary:2600,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:144,first_name:'Peter',last_name:'Vargas',email:'PVARGAS',phone_number:'650.121.2004',hire_date:'2006-07-09',job_id:'ST_CLERK',salary:2500,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:145,first_name:'John',last_name:'Russell',email:'JRUSSEL',phone_number:'011.44.1344.429268',hire_date:'2004-10-01',job_id:'SA_MAN',salary:14000,commission_pct:0.4,manager_id:100,department_id:80},
+    {employee_id:146,first_name:'Karen',last_name:'Partners',email:'KPARTNER',phone_number:'011.44.1344.467268',hire_date:'2005-01-05',job_id:'SA_MAN',salary:13500,commission_pct:0.3,manager_id:145,department_id:80},
+    {employee_id:147,first_name:'Alberto',last_name:'Errazuriz',email:'AERRAZUR',phone_number:'011.44.1344.429278',hire_date:'2005-03-10',job_id:'SA_MAN',salary:12000,commission_pct:0.3,manager_id:145,department_id:80},
+    {employee_id:148,first_name:'Gerald',last_name:'Cambrault',email:'GCAMBRAU',phone_number:'011.44.1344.619268',hire_date:'2007-10-15',job_id:'SA_MAN',salary:11000,commission_pct:0.3,manager_id:145,department_id:80},
+    {employee_id:149,first_name:'Eleni',last_name:'Zlotkey',email:'EZLOTKEY',phone_number:'011.44.1344.429018',hire_date:'2008-01-29',job_id:'SA_MAN',salary:10500,commission_pct:0.2,manager_id:145,department_id:80},
+    {employee_id:150,first_name:'Peter',last_name:'Tucker',email:'PTUCKER',phone_number:'011.44.1344.129268',hire_date:'2005-01-30',job_id:'SA_REP',salary:10000,commission_pct:0.3,manager_id:145,department_id:80},
+    {employee_id:151,first_name:'David',last_name:'Bernstein',email:'DBERNSTE',phone_number:'011.44.1344.345268',hire_date:'2005-03-24',job_id:'SA_REP',salary:9500,commission_pct:0.25,manager_id:146,department_id:80},
+    {employee_id:152,first_name:'Peter',last_name:'Hall',email:'PHALL',phone_number:'011.44.1344.478968',hire_date:'2005-08-20',job_id:'SA_REP',salary:9000,commission_pct:0.25,manager_id:146,department_id:80},
+    {employee_id:153,first_name:'Christopher',last_name:'Olsen',email:'COLSEN',phone_number:'011.44.1344.498718',hire_date:'2006-03-30',job_id:'SA_REP',salary:8000,commission_pct:0.2,manager_id:146,department_id:80},
+    {employee_id:154,first_name:'Nanette',last_name:'Cambrault',email:'NCAMBRAU',phone_number:'011.44.1344.987668',hire_date:'2006-12-07',job_id:'SA_REP',salary:7500,commission_pct:0.2,manager_id:146,department_id:80},
+    {employee_id:155,first_name:'Oliver',last_name:'Tuvault',email:'OTUVAULT',phone_number:'011.44.1344.486508',hire_date:'2007-11-23',job_id:'SA_REP',salary:7000,commission_pct:0.15,manager_id:146,department_id:80},
+    {employee_id:156,first_name:'Janette',last_name:'King',email:'JKING',phone_number:'011.44.1345.429268',hire_date:'2004-01-30',job_id:'SA_REP',salary:10000,commission_pct:0.35,manager_id:146,department_id:80},
+    {employee_id:157,first_name:'Patrick',last_name:'Sully',email:'PSULLY',phone_number:'011.44.1345.929268',hire_date:'2004-03-04',job_id:'SA_REP',salary:9500,commission_pct:0.35,manager_id:146,department_id:80},
+    {employee_id:158,first_name:'Allan',last_name:'McEwen',email:'AMCEWEN',phone_number:'011.44.1345.829268',hire_date:'2004-08-01',job_id:'SA_REP',salary:9000,commission_pct:0.35,manager_id:146,department_id:80},
+    {employee_id:159,first_name:'Lindsey',last_name:'Smith',email:'LSMITH',phone_number:'011.44.1345.729268',hire_date:'2005-03-10',job_id:'SA_REP',salary:8000,commission_pct:0.3,manager_id:146,department_id:80},
+    {employee_id:160,first_name:'Louise',last_name:'Doran',email:'LDORAN',phone_number:'011.44.1345.629268',hire_date:'2005-12-15',job_id:'SA_REP',salary:7500,commission_pct:0.3,manager_id:146,department_id:80},
+    {employee_id:161,first_name:'Sarath',last_name:'Sewall',email:'SSEWALL',phone_number:'011.44.1345.529268',hire_date:'2006-11-03',job_id:'SA_REP',salary:7000,commission_pct:0.25,manager_id:146,department_id:80},
+    {employee_id:162,first_name:'Clara',last_name:'Vishney',email:'CVISHNEY',phone_number:'011.44.1346.129268',hire_date:'2005-11-11',job_id:'SA_REP',salary:10500,commission_pct:0.25,manager_id:147,department_id:80},
+    {employee_id:163,first_name:'Danielle',last_name:'Greene',email:'DGREENE',phone_number:'011.44.1346.229268',hire_date:'2007-03-19',job_id:'SA_REP',salary:9500,commission_pct:0.15,manager_id:147,department_id:80},
+    {employee_id:164,first_name:'Mattea',last_name:'Marvins',email:'MMARVINS',phone_number:'011.44.1346.329268',hire_date:'2008-01-24',job_id:'SA_REP',salary:7200,commission_pct:0.1,manager_id:147,department_id:80},
+    {employee_id:165,first_name:'David',last_name:'Lee',email:'DLEE',phone_number:'011.44.1346.529268',hire_date:'2008-02-23',job_id:'SA_REP',salary:6800,commission_pct:0.1,manager_id:147,department_id:80},
+    {employee_id:166,first_name:'Sundar',last_name:'Ande',email:'SANDE',phone_number:'011.44.1346.629268',hire_date:'2008-03-24',job_id:'SA_REP',salary:6400,commission_pct:0.1,manager_id:147,department_id:80},
+    {employee_id:167,first_name:'Amit',last_name:'Banda',email:'ABANDA',phone_number:'011.44.1346.729268',hire_date:'2008-04-21',job_id:'SA_REP',salary:6200,commission_pct:0.1,manager_id:147,department_id:80},
+    {employee_id:168,first_name:'Lisa',last_name:'Ozer',email:'LOZER',phone_number:'011.44.1343.929268',hire_date:'2005-03-11',job_id:'SA_REP',salary:11500,commission_pct:0.25,manager_id:148,department_id:80},
+    {employee_id:169,first_name:'Harrison',last_name:'Bloom',email:'HBLOOM',phone_number:'011.44.1343.829268',hire_date:'2006-03-23',job_id:'SA_REP',salary:10000,commission_pct:0.2,manager_id:148,department_id:80},
+    {employee_id:170,first_name:'Tayler',last_name:'Fox',email:'TFOX',phone_number:'011.44.1343.729268',hire_date:'2006-01-24',job_id:'SA_REP',salary:9600,commission_pct:0.2,manager_id:148,department_id:80},
+    {employee_id:171,first_name:'William',last_name:'Smith',email:'WSMITH',phone_number:'011.44.1343.629268',hire_date:'2007-02-23',job_id:'SA_REP',salary:7400,commission_pct:0.15,manager_id:148,department_id:80},
+    {employee_id:172,first_name:'Elizabeth',last_name:'Bates',email:'EBATES',phone_number:'011.44.1343.529268',hire_date:'2007-03-24',job_id:'SA_REP',salary:7300,commission_pct:0.15,manager_id:148,department_id:80},
+    {employee_id:173,first_name:'Sundita',last_name:'Kumar',email:'SKUMAR',phone_number:'011.44.1343.329268',hire_date:'2008-04-21',job_id:'SA_REP',salary:6100,commission_pct:0.1,manager_id:148,department_id:80},
+    {employee_id:174,first_name:'Ellen',last_name:'Abel',email:'EABEL',phone_number:'011.44.1644.429267',hire_date:'2004-05-11',job_id:'SA_REP',salary:11000,commission_pct:0.3,manager_id:149,department_id:80},
+    {employee_id:175,first_name:'Alyssa',last_name:'Hutton',email:'AHUTTON',phone_number:'011.44.1644.429017',hire_date:'2005-03-19',job_id:'SA_REP',salary:8800,commission_pct:0.25,manager_id:149,department_id:80},
+    {employee_id:176,first_name:'Jonathon',last_name:'Taylor',email:'JTAYLOR',phone_number:'011.44.1644.929268',hire_date:'2006-03-24',job_id:'SA_REP',salary:8600,commission_pct:0.2,manager_id:149,department_id:80},
+    {employee_id:177,first_name:'Jack',last_name:'Livingston',email:'JLIVINGS',phone_number:'011.44.1644.829268',hire_date:'2006-04-23',job_id:'SA_REP',salary:8400,commission_pct:0.2,manager_id:149,department_id:80},
+    {employee_id:178,first_name:'Kimberely',last_name:'Grant',email:'KGRANT',phone_number:'011.44.1643.429267',hire_date:'2007-05-24',job_id:'SA_REP',salary:7000,commission_pct:0.15,manager_id:149,department_id:null},
+    {employee_id:179,first_name:'Charles',last_name:'Johnson',email:'CJOHNSON',phone_number:'011.44.1644.292658',hire_date:'2008-01-02',job_id:'SA_REP',salary:6200,commission_pct:0.1,manager_id:149,department_id:80},
+    {employee_id:180,first_name:'Winston',last_name:'Taylor',email:'WTAYLOR',phone_number:'650.507.9876',hire_date:'2006-01-24',job_id:'SH_CLERK',salary:3200,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:181,first_name:'Jean',last_name:'Fleaur',email:'JFLEAUR',phone_number:'650.507.9877',hire_date:'2006-02-23',job_id:'SH_CLERK',salary:3100,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:182,first_name:'Martha',last_name:'Sullivan',email:'MSULLIVA',phone_number:'650.507.9878',hire_date:'2007-06-21',job_id:'SH_CLERK',salary:2500,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:183,first_name:'Girard',last_name:'Geoni',email:'GGEONI',phone_number:'650.507.9879',hire_date:'2008-02-03',job_id:'SH_CLERK',salary:2800,commission_pct:null,manager_id:120,department_id:50},
+    {employee_id:184,first_name:'Nandita',last_name:'Sarchand',email:'NSARCHAN',phone_number:'650.509.1876',hire_date:'2004-01-27',job_id:'SH_CLERK',salary:4200,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:185,first_name:'Alexis',last_name:'Bull',email:'ABULL',phone_number:'650.509.2876',hire_date:'2005-02-20',job_id:'SH_CLERK',salary:4100,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:186,first_name:'Julia',last_name:'Dellinger',email:'JDELLING',phone_number:'650.509.3876',hire_date:'2006-06-24',job_id:'SH_CLERK',salary:3400,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:187,first_name:'Anthony',last_name:'Cabrio',email:'ACABRIO',phone_number:'650.509.4876',hire_date:'2007-02-07',job_id:'SH_CLERK',salary:3000,commission_pct:null,manager_id:121,department_id:50},
+    {employee_id:188,first_name:'Kelly',last_name:'Chung',email:'KCHUNG',phone_number:'650.505.1876',hire_date:'2005-06-14',job_id:'SH_CLERK',salary:3800,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:189,first_name:'Jennifer',last_name:'Dilly',email:'JDILLY',phone_number:'650.505.2876',hire_date:'2005-08-13',job_id:'SH_CLERK',salary:3600,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:190,first_name:'Timothy',last_name:'Gates',email:'TGATES',phone_number:'650.505.3876',hire_date:'2006-07-11',job_id:'SH_CLERK',salary:2900,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:191,first_name:'Randall',last_name:'Perkins',email:'RPERKINS',phone_number:'650.505.4876',hire_date:'2007-12-19',job_id:'SH_CLERK',salary:2500,commission_pct:null,manager_id:122,department_id:50},
+    {employee_id:192,first_name:'Sarah',last_name:'Bell',email:'SBELL',phone_number:'650.501.1876',hire_date:'2004-02-04',job_id:'SH_CLERK',salary:4000,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:193,first_name:'Britney',last_name:'Everett',email:'BEVERETT',phone_number:'650.501.2876',hire_date:'2005-03-03',job_id:'SH_CLERK',salary:3900,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:194,first_name:'Samuel',last_name:'McCain',email:'SMCCAIN',phone_number:'650.501.3876',hire_date:'2006-07-01',job_id:'SH_CLERK',salary:3200,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:195,first_name:'Vance',last_name:'Jones',email:'VJONES',phone_number:'650.501.4876',hire_date:'2007-03-17',job_id:'SH_CLERK',salary:2800,commission_pct:null,manager_id:123,department_id:50},
+    {employee_id:196,first_name:'Alana',last_name:'Walsh',email:'AWALSH',phone_number:'650.507.9811',hire_date:'2006-04-24',job_id:'SH_CLERK',salary:3100,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:197,first_name:'Kevin',last_name:'Feeney',email:'KFEENEY',phone_number:'650.507.9822',hire_date:'2006-05-23',job_id:'SH_CLERK',salary:3000,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:198,first_name:'Donald',last_name:'OConnell',email:'DOCONNEL',phone_number:'650.507.9833',hire_date:'2007-06-21',job_id:'SH_CLERK',salary:2600,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:199,first_name:'Douglas',last_name:'Grant',email:'DGRANT',phone_number:'650.507.9844',hire_date:'2008-01-13',job_id:'SH_CLERK',salary:2600,commission_pct:null,manager_id:124,department_id:50},
+    {employee_id:200,first_name:'Jennifer',last_name:'Whalen',email:'JWHALEN',phone_number:'515.123.4444',hire_date:'2003-09-17',job_id:'AD_ASST',salary:4400,commission_pct:null,manager_id:101,department_id:10},
+    {employee_id:201,first_name:'Michael',last_name:'Hartstein',email:'MHARTSTE',phone_number:'515.123.5555',hire_date:'2004-02-17',job_id:'MK_MAN',salary:13000,commission_pct:null,manager_id:100,department_id:20},
+    {employee_id:202,first_name:'Pat',last_name:'Fay',email:'PFAY',phone_number:'603.123.6666',hire_date:'2005-08-17',job_id:'MK_REP',salary:6000,commission_pct:null,manager_id:201,department_id:20},
+    {employee_id:203,first_name:'Susan',last_name:'Mavris',email:'SMAVRIS',phone_number:'515.123.7777',hire_date:'2002-06-07',job_id:'HR_REP',salary:6500,commission_pct:null,manager_id:101,department_id:40},
+    {employee_id:204,first_name:'Hermann',last_name:'Baer',email:'HBAER',phone_number:'515.123.8888',hire_date:'2002-06-07',job_id:'PR_REP',salary:10000,commission_pct:null,manager_id:101,department_id:70},
+    {employee_id:205,first_name:'Shelley',last_name:'Higgins',email:'SHIGGINS',phone_number:'515.123.8080',hire_date:'2002-06-07',job_id:'AC_MGR',salary:12008,commission_pct:null,manager_id:101,department_id:110},
+    {employee_id:206,first_name:'William',last_name:'Gietz',email:'WGIETZ',phone_number:'515.123.8181',hire_date:'2002-06-07',job_id:'AC_ACCOUNT',salary:8300,commission_pct:null,manager_id:205,department_id:110}
+  ],
+  job_history: [
+    {employee_id:101,start_date:'1997-09-21',end_date:'2001-10-27',job_id:'AC_ACCOUNT',department_id:110},
+    {employee_id:101,start_date:'2001-10-28',end_date:'2005-03-15',job_id:'AC_MGR',department_id:110},
+    {employee_id:102,start_date:'2001-01-13',end_date:'2006-07-24',job_id:'IT_PROG',department_id:60},
+    {employee_id:114,start_date:'2006-03-24',end_date:'2007-12-31',job_id:'ST_CLERK',department_id:50},
+    {employee_id:122,start_date:'2007-01-01',end_date:'2007-12-31',job_id:'ST_CLERK',department_id:50},
+    {employee_id:176,start_date:'2006-03-24',end_date:'2006-12-31',job_id:'SA_REP',department_id:80},
+    {employee_id:200,start_date:'1995-09-17',end_date:'2001-06-17',job_id:'AD_ASST',department_id:90},
+    {employee_id:200,start_date:'2001-07-01',end_date:'2002-12-31',job_id:'AC_ACCOUNT',department_id:110},
+    {employee_id:201,start_date:'2004-02-17',end_date:'2007-12-19',job_id:'MK_REP',department_id:20}
+  ]
+};
+
+const TABLE_META = {
+  employees: {
+    pk:'employee_id', fks:{department_id:'departments.department_id', manager_id:'employees.employee_id', job_id:'jobs.job_id'},
+    columns:['employee_id','first_name','last_name','email','phone_number','hire_date','job_id','salary','commission_pct','manager_id','department_id']
+  },
+  departments: {
+    pk:'department_id', fks:{manager_id:'employees.employee_id', location_id:'locations.location_id'},
+    columns:['department_id','department_name','manager_id','location_id']
+  },
+  jobs: {
+    pk:'job_id', fks:{},
+    columns:['job_id','job_title','min_salary','max_salary']
+  },
+  locations: {
+    pk:'location_id', fks:{country_id:'countries.country_id'},
+    columns:['location_id','street_address','postal_code','city','state_province','country_id']
+  },
+  countries: {
+    pk:'country_id', fks:{region_id:'regions.region_id'},
+    columns:['country_id','country_name','region_id']
+  },
+  regions: {
+    pk:'region_id', fks:{},
+    columns:['region_id','region_name']
+  },
+  job_history: {
+    pk:'[employee_id, start_date]', fks:{employee_id:'employees.employee_id', job_id:'jobs.job_id', department_id:'departments.department_id'},
+    columns:['employee_id','start_date','end_date','job_id','department_id']
+  }
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let currentResult = null;
+let sortCol = null;
+let sortDir = 'asc';
+let selectedRow = null;
+
+// ============================================================
+// INIT - Load data into sql.js (SQLite)
+// ============================================================
+var db = null;
+
+function initDB() {
+  for (var tableName in HR_DATA) {
+    var rows = HR_DATA[tableName];
+    if (!rows || rows.length === 0) continue;
+    var cols = Object.keys(rows[0]);
+    // Determine SQLite types from first non-null values
+    var colDefs = cols.map(function(c) {
+      for (var r = 0; r < rows.length; r++) {
+        if (rows[r][c] !== null && rows[r][c] !== undefined) {
+          return typeof rows[r][c] === 'number' ? '"' + c + '" INTEGER' : '"' + c + '" TEXT';
+        }
+      }
+      return '"' + c + '" TEXT';
+    }).join(', ');
+    try { db.run('DROP TABLE IF EXISTS "' + tableName + '"'); } catch(e) {}
+    db.run('CREATE TABLE "' + tableName + '" (' + colDefs + ')');
+    // Bulk insert using parameterized query
+    var placeholders = cols.map(function() { return '?'; }).join(', ');
+    var quotedCols = cols.map(function(c) { return '"' + c + '"'; }).join(', ');
+    var insertSql = 'INSERT INTO "' + tableName + '" (' + quotedCols + ') VALUES (' + placeholders + ')';
+    var stmt = db.prepare(insertSql);
+    db.exec('BEGIN TRANSACTION');
+    for (var i = 0; i < rows.length; i++) {
+      var vals = cols.map(function(c) { return rows[i][c] === undefined ? null : rows[i][c]; });
+      stmt.run(vals);
+    }
+    db.exec('COMMIT');
+    stmt.free();
+  }
+  var info = Object.keys(HR_DATA).map(function(t) { return t + '(' + HR_DATA[t].length + ')'; }).join(' | ');
+  document.getElementById('dbInfo').textContent = info;
+}
+
+// ============================================================
+// ORACLE SQL PREPROCESSOR - Convert Oracle syntax to SQLite
+// ============================================================
+function preprocessOracleSQL(sql) {
+  // Strip single-line SQL comments (-- ...) before parsing
+  sql = sql.replace(/--[^\n]*/g, '');
+
+  // Strip Oracle schema prefix: hr.employees → employees (SQLite has no schemas)
+  sql = sql.replace(/\bhr\.\w+/gi, function(m) { return m.substring(3); });
+  sql = sql.replace(/\bscott\.\w+/gi, function(m) { return m.substring(6); });
+  sql = sql.replace(/\bsys\.\w+/gi, function(m) { return m.substring(4); });
+
+  // EXTRACT(YEAR FROM expr) → extract_year(expr)
+  sql = sql.replace(/EXTRACT\s*\(\s*(YEAR|MONTH|DAY|HOUR|MINUTE|SECOND|QUARTER|WEEK|DOW|DOY)\s+FROM\s+/gi,
+    function(match, part) {
+      return 'extract_' + part.toLowerCase() + '(';
+    }
+  );
+
+  // DATE 'YYYY-MM-DD' literal → 'YYYY-MM-DD'
+  sql = sql.replace(/DATE\s*'(\d{4}-\d{2}-\d{2})'/gi, "'$1'");
+
+  // TIMESTAMP 'YYYY-MM-DD HH:MI:SS' literal → 'YYYY-MM-DD HH:MI:SS'
+  sql = sql.replace(/TIMESTAMP\s*'([^']+)'/gi, "'$1'");
+
+  // FROM DUAL → remove (SQLite allows SELECT without FROM)
+  sql = sql.replace(/\s+FROM\s+DUAL\s*$/gi, '');
+  sql = sql.replace(/\s+FROM\s+DUAL\s*([);,])/gi, '$1');
+
+  // (+) old Oracle outer join syntax: WHERE a.id = b.id(+) → handled as LEFT JOIN hint
+  // Not auto-converted, but users can use standard LEFT JOIN instead
+
+  // LISTAGG(expr, delimiter) WITHIN GROUP (ORDER BY ...) → group_concat(expr, delimiter)
+  sql = sql.replace(/LISTAGG\s*\(/gi, 'group_concat(');
+  sql = sql.replace(/\s+WITHIN\s+GROUP\s*\(\s*ORDER\s+BY[^)]*\)/gi, '');
+
+  // REGEXP_LIKE(str, pattern) → (str LIKE pattern) approximation
+  // SQLite doesn't have built-in regex, but sql.js may support REGEXP
+
+  // ============================================================
+  // PIVOT → SUM(CASE WHEN ...) GROUP BY conversion
+  // ============================================================
+  // Pattern: ... ) PIVOT ( agg(expr) FOR col IN ('v1' AS a1, 'v2' AS a2, ...) )
+  var pivotRe = /\)\s*PIVOT\s*\(\s*/gi;
+  if (pivotRe.test(sql)) {
+    sql = convertPivot(sql);
+  }
+
+  // ============================================================
+  // UNPIVOT → UNION ALL conversion
+  // ============================================================
+  var unpivotRe = /\)\s*UNPIVOT\s*\(\s*/gi;
+  if (unpivotRe.test(sql)) {
+    sql = convertUnpivot(sql);
+  }
+
+  return sql;
+}
+
+// Split string by commas, respecting parenthesis nesting
+function splitTopLevelCommas(str) {
+  var parts = [];
+  var depth = 0;
+  var current = '';
+  for (var i = 0; i < str.length; i++) {
+    var ch = str.charAt(i);
+    if (ch === '(') depth++;
+    else if (ch === ')') depth--;
+    else if (ch === ',' && depth === 0) {
+      parts.push(current);
+      current = '';
+      continue;
+    }
+    current += ch;
+  }
+  if (current.trim()) parts.push(current);
+  return parts;
+}
+
+// ============================================================
+// PIVOT converter: Oracle PIVOT → SUM(CASE WHEN...) GROUP BY
+// Uses inline replacement to preserve CTE structure
+// ============================================================
+function convertPivot(sql) {
+  // Find PIVOT keyword at any level
+  var pivotIdx = sql.search(/\bPIVOT\s*\(/i);
+  if (pivotIdx < 0) return sql;
+
+  // Find PIVOT body opening paren and matching close paren
+  var pivotOpenParen = sql.indexOf('(', pivotIdx);
+  var pivotCloseParen = findMatchingCloseParen(sql, pivotOpenParen);
+  if (pivotCloseParen < 0) return sql;
+  var pivotBody = sql.substring(pivotOpenParen + 1, pivotCloseParen).trim();
+
+  // Find source subquery: ) right before PIVOT keyword
+  var pos = pivotIdx - 1;
+  while (pos >= 0 && /\s/.test(sql.charAt(pos))) pos--;
+  if (pos < 0 || sql.charAt(pos) !== ')') return sql;
+  var srcClosePos = pos;
+
+  // Find matching open paren for the source
+  var srcOpenPos = findMatchingOpenParen(sql, srcClosePos);
+  if (srcOpenPos < 0) return sql;
+  var sourceQuery = sql.substring(srcOpenPos, srcClosePos + 1);
+
+  // Find SELECT keyword before source (the outer SELECT feeding into PIVOT)
+  var selectStart = findLastTopLevelSelect(sql, srcOpenPos);
+  if (selectStart < 0) selectStart = srcOpenPos;
+
+  // Detect CTE context: is there content before our SELECT?
+  var beforeSelect = sql.substring(0, selectStart).trim();
+  var isCTE = beforeSelect.length > 0;
+
+  // Parse PIVOT body
+  var forMatch = pivotBody.match(/\bFOR\s+(\w+)\s+IN\s*\(([\s\S]*)\)\s*$/i);
+  if (!forMatch) return sql;
+  var pivotCol = forMatch[1];
+  var inList = forMatch[2].trim();
+
+  // Parse IN list
+  var inItems = [];
+  var itemRe = /(?:'([^']*)'|([\w.]+))\s*(?:AS\s+(\w+))?\s*,?/gi;
+  var m;
+  while ((m = itemRe.exec(inList)) !== null) {
+    var v = m[1] !== undefined ? m[1] : m[2];
+    var a = m[3];
+    if (!v) continue;
+    inItems.push({ value: v, alias: a || v, quoted: m[1] !== undefined });
+  }
+  if (inItems.length === 0) return sql;
+
+  // Parse multiple aggregates: SUM(x) AS a, COUNT(y) AS b, ...
+  var aggPart = pivotBody.substring(0, pivotBody.indexOf('FOR')).trim();
+  var aggregates = [];
+  var aggRe = /(\w+)\s*\(([^()]*)\)\s*(?:AS\s+(\w+))?\s*,?/gi;
+  var am;
+  while ((am = aggRe.exec(aggPart)) !== null) {
+    aggregates.push({
+      func: am[1].toUpperCase(),
+      expr: am[2].trim(),
+      alias: am[3] || (am[1].toUpperCase() + '_' + am[2].trim().replace(/[^a-zA-Z0-9_]/g, '_')),
+      isStar: am[2].trim() === '*'
+    });
+  }
+  if (aggregates.length === 0) return sql;
+
+  // Determine GROUP BY columns from source query
+  var aggExprs = [];
+  for (var ai = 0; ai < aggregates.length; ai++) {
+    if (!aggregates[ai].isStar) aggExprs.push(aggregates[ai].expr.toLowerCase());
+  }
+  var groupCols = [];
+  var selMatch = sourceQuery.match(/SELECT\s+([\s\S]*?)\s+FROM\s/i);
+  if (selMatch) {
+    var cols = splitTopLevelCommas(selMatch[1]);
+    for (var ci = 0; ci < cols.length; ci++) {
+      var c = cols[ci].trim();
+      if (!c) continue;
+      var colName = c.replace(/.*\./g, '').trim();
+      var am2 = colName.match(/(?:AS\s+)?(\w+)\s*$/i);
+      if (am2) colName = am2[1];
+      var bare = c.trim().replace(/.*\s+(\w+)\s*$/i, '$1');
+      var skip = (colName.toLowerCase() === pivotCol.toLowerCase() || bare.toLowerCase() === pivotCol.toLowerCase());
+      if (!skip && aggExprs.indexOf(colName.toLowerCase()) >= 0) skip = true;
+      if (!skip && aggExprs.indexOf(bare.toLowerCase()) >= 0) skip = true;
+      if (c.trim() === '*') skip = true;
+      if (!skip) groupCols.push(colName);
+    }
+  }
+  if (groupCols.length === 0) {
+    var tblMatch = sourceQuery.match(/FROM\s+(\w+)/i);
+    if (tblMatch) groupCols.push(pivotCol);
+  }
+
+  // Build CASE WHEN lines for each aggregate × IN value
+  var caseLines = [];
+  for (var ii = 0; ii < inItems.length; ii++) {
+    var valStr = inItems[ii].quoted ? "'" + inItems[ii].value + "'" : inItems[ii].value;
+    for (var ai2 = 0; ai2 < aggregates.length; ai2++) {
+      var thenExpr = aggregates[ai2].isStar ? '1' : aggregates[ai2].expr;
+      var colName = inItems[ii].alias + '_' + aggregates[ai2].alias.toUpperCase();
+      caseLines.push('    ' + aggregates[ai2].func + '(CASE WHEN ' + pivotCol + ' = ' + valStr + ' THEN ' + thenExpr + ' END) AS ' + colName);
+    }
+  }
+  var groupByStr = groupCols.length > 0 ? groupCols.join(', ') : pivotCol;
+
+  // Build the converted query
+  var converted = 'SELECT ' + groupByStr + ',\n' + caseLines.join(',\n') + '\nFROM ' + sourceQuery + '\nGROUP BY ' + groupByStr;
+
+  // Inline replacement: replace from SELECT start to PIVOT close paren
+  var afterPivot = sql.substring(pivotCloseParen + 1);
+
+  if (isCTE) {
+    // CTE context: just splice the converted query in place
+    return sql.substring(0, selectStart) + converted + afterPivot;
+  } else {
+    // Standalone query: handle trailing clauses (WHERE, ORDER BY, etc.)
+    var trailing = afterPivot.trim();
+    if (trailing) {
+      if (trailing.charAt(trailing.length - 1) === ';') trailing = trailing.substring(0, trailing.length - 1).trim();
+      var clauseMatch = trailing.match(/^(WHERE|ORDER\s+BY|GROUP\s+BY|HAVING|LIMIT)\s+([\s\S]*)$/i);
+      if (clauseMatch) {
+        converted = 'SELECT * FROM (' + converted + ')' + '\n' + clauseMatch[1] + ' ' + clauseMatch[2];
+      }
+      return sql.substring(0, selectStart) + converted + afterPivot;
+    }
+    return sql.substring(0, selectStart) + converted + afterPivot;
+  }
+}
+
+// Helper: find matching close paren for open paren at pos
+function findMatchingCloseParen(sql, openPos) {
+  var depth = 0;
+  for (var i = openPos; i < sql.length; i++) {
+    if (sql.charAt(i) === '(') depth++;
+    if (sql.charAt(i) === ')') { depth--; if (depth === 0) return i; }
+  }
+  return -1;
+}
+
+// Helper: find matching open paren for close paren at pos
+function findMatchingOpenParen(sql, closePos) {
+  var depth = 0;
+  for (var i = closePos; i >= 0; i--) {
+    if (sql.charAt(i) === ')') depth++;
+    if (sql.charAt(i) === '(') { depth--; if (depth === 0) return i; }
+  }
+  return -1;
+}
+
+// Helper: find the last SELECT keyword at the same paren depth as a given position
+function findLastTopLevelSelect(sql, limit) {
+  // First calculate the paren depth at limit position
+  var depthAtLimit = 0;
+  for (var i = 0; i < limit; i++) {
+    if (sql.charAt(i) === '(') depthAtLimit++;
+    if (sql.charAt(i) === ')') depthAtLimit--;
+  }
+  // Now search backward from limit for SELECT at depthAtLimit
+  var depth = 0;
+  var lastPos = -1;
+  for (var i = 0; i < limit; i++) {
+    if (sql.charAt(i) === '(') depth++;
+    if (sql.charAt(i) === ')') depth--;
+    if (depth === depthAtLimit && sql.substring(i, i + 6).toUpperCase() === 'SELECT' &&
+        (i === 0 || /[\s(,]/.test(sql.charAt(i - 1)))) {
+      lastPos = i;
+    }
+  }
+  return lastPos;
+}
+
+// ============================================================
+// UNPIVOT converter: Oracle UNPIVOT → UNION ALL
+// ============================================================
+function convertUnpivot(sql) {
+  // Pattern: ... ) UNPIVOT ( val_col FOR piv_col IN (col1 AS 'a1', col2 AS 'a2', ...) )
+  var unpivotIdx = sql.search(/\)\s*UNPIVOT\s*\(/i);
+  if (unpivotIdx < 0) return sql;
+
+  // Extract source (before ") UNPIVOT")
+  var sourceEnd = sql.lastIndexOf(')', unpivotIdx);
+  var parenCount = 0;
+  var sourceStart = sourceEnd;
+  for (var k = sourceEnd; k >= 0; k--) {
+    if (sql.charAt(k) === ')') parenCount++;
+    if (sql.charAt(k) === '(') parenCount--;
+    if (parenCount === 0) { sourceStart = k; break; }
+  }
+  var sourcePart = sql.substring(0, sourceStart).trim();
+  var sourceQuery = sql.substring(sourceStart, sourceEnd + 1);
+
+  // Extract outer SELECT column list (e.g., "SELECT employee_id, payment_category FROM")
+  var outerSelectCols = '*';
+  var outerSelMatch = sourcePart.match(/^SELECT\s+([\s\S]*?)\s+FROM\s*$/i);
+  if (outerSelMatch) {
+    var oc = outerSelMatch[1].trim();
+    if (oc && oc !== '*') outerSelectCols = oc;
+  }
+
+  // Extract UNPIVOT body
+  var unpivotContentStart = sql.indexOf('(', sql.indexOf('UNPIVOT', unpivotIdx)) + 1;
+  parenCount = 0;
+  var unpivotContentEnd = unpivotContentStart;
+  for (var k = unpivotContentStart; k < sql.length; k++) {
+    if (sql.charAt(k) === '(') parenCount++;
+    if (sql.charAt(k) === ')') parenCount--;
+    if (parenCount < 0) { unpivotContentEnd = k; break; }
+  }
+  var unpivotBody = sql.substring(unpivotContentStart, unpivotContentEnd).trim();
+
+  // Parse: value_col FOR pivot_col IN (col1 AS 'alias1', col2 AS 'alias2')
+  var forMatch = unpivotBody.match(/\bFOR\s+(\w+)\s+IN\s*\(([\s\S]*)\)\s*$/i);
+  if (!forMatch) return sql;
+
+  var firstPart = unpivotBody.substring(0, unpivotBody.indexOf('FOR')).trim();
+  // value_col may have optional INCLUDE/EXCLUDE NULLS
+  var valCol = firstPart.replace(/\s*(INCLUDE|EXCLUDE)\s+NULLS\s*/gi, '').trim();
+  var pivCol = forMatch[1];
+  var inList = forMatch[2].trim();
+
+  // Parse IN list: col1 AS 'a1', col2 AS 'a2', ...  (or without AS)
+  var inItems = [];
+  var itemRe = /(\w+)\s*(?:AS\s+'([^']*)')?\s*,?/gi;
+  var m;
+  while ((m = itemRe.exec(inList)) !== null) {
+    inItems.push({ column: m[1], alias: m[2] || m[1] });
+  }
+  if (inItems.length === 0) return sql;
+
+  // Build UNION ALL — each item selects its own column value
+  // Detect non-unpivoted columns from source SELECT to carry forward
+  var sourceSelMatch = sourceQuery.match(/SELECT\s+([\s\S]*?)\s+FROM\s/i);
+  var unpivotColNames = [];
+  for (var ii = 0; ii < inItems.length; ii++) unpivotColNames.push(inItems[ii].column.toLowerCase());
+  var carryCols = '';
+  if (sourceSelMatch) {
+    var srcCols = splitTopLevelCommas(sourceSelMatch[1]);
+    var carryParts = [];
+    for (var ci = 0; ci < srcCols.length; ci++) {
+      var cc = srcCols[ci].trim();
+      if (!cc) continue;
+      // Extract alias if present: "expr AS alias" or "expr alias"
+      var colName = cc.replace(/.*\./g, '').trim();
+      var aliasMatch = colName.match(/(?:AS\s+)?(\w+)\s*$/i);
+      if (aliasMatch) colName = aliasMatch[1];
+      // Also try the last word before potential alias
+      var bareName = cc.trim().replace(/.*\s+(\w+)\s*$/i, '$1');
+      if (unpivotColNames.indexOf(colName.toLowerCase()) < 0 && unpivotColNames.indexOf(bareName.toLowerCase()) < 0) {
+        carryParts.push(cc.trim());
+      }
+    }
+    carryCols = carryParts.join(', ') + ', ';
+  }
+  var unions = [];
+  for (var ii = 0; ii < inItems.length; ii++) {
+    unions.push('SELECT ' + carryCols + inItems[ii].column + ' AS ' + valCol + ', ' + "'" + inItems[ii].alias + "' AS " + pivCol + ' FROM ' + sourceQuery + ' WHERE ' + inItems[ii].column + ' IS NOT NULL');
+  }
+  var result = unions.join('\nUNION ALL\n');
+
+  // Handle trailing clauses (WHERE, ORDER BY, etc.) after UNPIVOT
+  // Wrap UNION ALL in a subquery and apply outer clause
+  var trailing = sql.substring(unpivotContentEnd + 1).trim();
+  if (trailing) {
+    // Remove trailing semicolon
+    if (trailing.charAt(trailing.length - 1) === ';') trailing = trailing.substring(0, trailing.length - 1).trim();
+    // Detect clause type (WHERE, ORDER BY, GROUP BY, HAVING, LIMIT)
+    var clauseMatch = trailing.match(/^(WHERE|ORDER\s+BY|GROUP\s+BY|HAVING|LIMIT)\s+([\s\S]*)$/i);
+    if (clauseMatch) {
+      result = 'SELECT ' + outerSelectCols + ' FROM (' + result + ')' + '\n' + clauseMatch[1] + ' ' + clauseMatch[2];
+    } else {
+      result += ' ' + trailing;
+    }
+  }
+
+  // If no trailing clause but outer SELECT had specific columns (not *), still wrap
+  if (!trailing && outerSelectCols !== '*') {
+    result = 'SELECT ' + outerSelectCols + ' FROM (' + result + ')';
+  }
+
+  return result;
+}
+
+// ============================================================
+// ORACLE UDFs - Custom functions for Oracle compatibility
+// ============================================================
+function registerOracleFunctions() {
+  // NVL(expr1, expr2) - return first non-null
+  db.create_function('nvl', function(a, b) { return (a === null || a === undefined) ? b : a; });
+  db.create_function('nvl2', function(a, b, c) { return (a !== null && a !== undefined) ? b : c; });
+
+  // EXTRACT_YEAR, EXTRACT_MONTH, EXTRACT_DAY etc. (from Oracle EXTRACT(part FROM expr))
+  db.create_function('extract_year', function(d) {
+    if (!d) return null;
+    return new Date(d).getFullYear();
+  });
+  db.create_function('extract_month', function(d) {
+    if (!d) return null;
+    return new Date(d).getMonth() + 1;
+  });
+  db.create_function('extract_day', function(d) {
+    if (!d) return null;
+    return new Date(d).getDate();
+  });
+  db.create_function('extract_hour', function(d) {
+    if (!d) return null;
+    return new Date(d).getHours();
+  });
+  db.create_function('extract_minute', function(d) {
+    if (!d) return null;
+    return new Date(d).getMinutes();
+  });
+  db.create_function('extract_second', function(d) {
+    if (!d) return null;
+    return new Date(d).getSeconds();
+  });
+
+  // SYSDATE - current date/time
+  db.create_function('sysdate', function() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
+  });
+
+  // TRUNC(date) - truncate date to start of day
+  db.create_function('trunc', function(d) {
+    if (!d) return null;
+    var dt = new Date(d);
+    if (isNaN(dt.getTime())) return d;
+    return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+  });
+
+  // TO_CHAR(expr [, fmt]) - Oracle-compatible string conversion
+  db.create_function('to_char', function(val, fmt) {
+    if (val === null || val === undefined) return null;
+    if (!fmt) return String(val);
+
+    // ---- NUMBER FORMATTING ----
+    if (typeof val === 'number' || (!isNaN(Number(val)) && val !== '' && val !== true && val !== false)) {
+      var num = Number(val);
+      var f = fmt.toUpperCase();
+      var fillMode = false;
+      if (f.indexOf('FM') === 0) { fillMode = true; f = f.substring(2); }
+      if (/[90$LCSPR,\.GD]/.test(f)) {
+        var isNegative = num < 0;
+        var absNum = Math.abs(num);
+        var pr = f.indexOf('PR') >= 0;
+        var hasSign = f.charAt(0) === 'S' || f.slice(-1) === 'S';
+        var hasCurrency = f.indexOf('L') >= 0 || f.indexOf('$') >= 0;
+        var prefix = '';
+        if (hasCurrency) prefix = '$';
+        var dotPos = f.indexOf('.');
+        var decPlaces = dotPos >= 0 ? (f.length - dotPos - 1) : 0;
+        var result = absNum.toFixed(decPlaces);
+        if (fillMode && decPlaces > 0) { result = result.replace(/\.?0+$/, ''); }
+        if (f.indexOf(',') >= 0 || f.indexOf('G') >= 0) {
+          var parts = result.split('.');
+          parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          result = parts.join('.');
+        }
+        if (pr && isNegative) { return '<' + prefix + result + '>'; }
+        if (hasSign && isNegative) prefix = '-' + prefix;
+        if (hasSign && !isNegative) prefix = '+' + prefix;
+        return prefix + result;
+      }
+      return String(val);
+    }
+
+    // ---- DATE FORMATTING ----
+    var dt = new Date(val);
+    if (isNaN(dt.getTime())) return String(val);
+    var fu = fmt.toUpperCase();
+    var fillMode = false;
+    if (fu.indexOf('FM') === 0) { fillMode = true; fu = fu.substring(2); }
+    var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var monthShort = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var dayShort = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    var result = '', i = 0;
+    while (i < fu.length) {
+      if (fu.substring(i, i+4) === 'YYYY') { result += dt.getFullYear(); i += 4; }
+      else if (fu.substring(i, i+2) === 'YY' && fu.substring(i, i+4) !== 'YYYY') { result += String(dt.getFullYear()).slice(-2); i += 2; }
+      else if (fu.substring(i, i+5) === 'MONTH' && fu.substring(i, i+3) !== 'MON') { result += fillMode ? monthNames[dt.getMonth()] : monthNames[dt.getMonth()].padEnd(9); i += 5; }
+      else if (fu.substring(i, i+3) === 'MON' && fu.substring(i, i+5) !== 'MONTH') { result += monthShort[dt.getMonth()]; i += 3; }
+      else if (fu.substring(i, i+2) === 'MM') { result += String(dt.getMonth()+1).padStart(2,'0'); i += 2; }
+      else if (fu.substring(i, i+3) === 'DDD') { var s0=new Date(dt.getFullYear(),0,0); result += String(Math.floor((dt-s0)/86400000)).padStart(3,'0'); i += 3; }
+      else if (fu.substring(i, i+2) === 'DD') { result += String(dt.getDate()).padStart(2,'0'); i += 2; }
+      else if (fu.substring(i, i+3) === 'DAY' && fu.substring(i, i+2) !== 'DA') { result += fillMode ? dayNames[dt.getDay()] : dayNames[dt.getDay()].padEnd(9); i += 3; }
+      else if (fu.substring(i, i+2) === 'DY') { result += dayShort[dt.getDay()]; i += 2; }
+      else if (fu.substring(i, i+3) === 'HH24') { result += String(dt.getHours()).padStart(2,'0'); i += 3; }
+      else if (fu.substring(i, i+3) === 'HH12') { var h12=dt.getHours()%12; if(!h12)h12=12; result+=String(h12).padStart(2,'0'); i+=3; }
+      else if (fu.substring(i, i+2) === 'HH' && fu.substring(i,i+3)!=='HH2' && fu.substring(i,i+3)!=='HH1') { var h12b=dt.getHours()%12; if(!h12b)h12b=12; result+=String(h12b).padStart(2,'0'); i+=2; }
+      else if (fu.substring(i, i+2) === 'MI') { result += String(dt.getMinutes()).padStart(2,'0'); i += 2; }
+      else if (fu.substring(i, i+2) === 'SS' && fu.substring(i,i+5)!=='SSSSS') { result += String(dt.getSeconds()).padStart(2,'0'); i += 2; }
+      else if (fu.substring(i, i+5) === 'SSSSS') { result += String(dt.getHours()*3600+dt.getMinutes()*60+dt.getSeconds()).padStart(5,'0'); i += 5; }
+      else if (fu.substring(i, i+4) === 'AMPM' || fu.substring(i, i+2) === 'AM' || fu.substring(i, i+2) === 'PM') { result += dt.getHours()>=12?'PM':'AM'; i += (fu.substring(i,i+4)==='AMPM'?4:2); }
+      else if (fu.substring(i, i+2) === 'WW') { var j1=new Date(dt.getFullYear(),0,1); result+=String(Math.ceil(((dt-j1)/86400000+j1.getDay()+1)/7)).padStart(2,'0'); i+=2; }
+      else if (fu.substring(i, i+2) === 'IW') { var dd=new Date(Date.UTC(dt.getFullYear(),dt.getMonth(),dt.getDate())); var dn=dd.getUTCDay()||7; dd.setUTCDate(dd.getUTCDate()+4-dn); var ys=new Date(Date.UTC(dd.getUTCFullYear(),0,1)); result+=String(Math.ceil(((dd-ys)/86400000+1)/7)).padStart(2,'0'); i+=2; }
+      else if (fu.charAt(i) === 'Q') { result += Math.ceil((dt.getMonth()+1)/3); i++; }
+      else if (fu.charAt(i) === 'D' && fu.substring(i,i+2)!=='DD' && fu.substring(i,i+3)!=='DAY' && fu.substring(i,i+2)!=='DY') { result += dt.getDay()+1; i++; }
+      else if (fu.substring(i, i+2) === 'TH') { var ln=result.match(/(\d+)(?!.*\d)/); if(ln){var nn=parseInt(ln[1]);var sx=(nn%10===1&&nn%100!==11)?'st':(nn%10===2&&nn%100!==12)?'nd':(nn%10===3&&nn%100!==13)?'rd':'th';result+=sx;} i+=2; }
+      else if (fu.substring(i, i+2) === 'SP') { var lsp=result.match(/(\d+)(?!.*\d)/); if(lsp){var ones=['','one','two','three','four','five','six','seven','eight','nine'];var teens=['ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];var tens=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];var ns=parseInt(lsp[1]);if(ns<10)result=result.replace(/(\d+)(?!.*\d)/,ones[ns]);else if(ns<20)result=result.replace(/(\d+)(?!.*\d)/,teens[ns-10]);else{var t=Math.floor(ns/10),o=ns%10;result=result.replace(/(\d+)(?!.*\d)/,tens[t]+(o?'-'+ones[o]:''));}} i+=2; }
+      else if (fu.substring(i, i+2) === 'DS') { result += dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); i += 2; }
+      else if (fu.substring(i, i+2) === 'TS') { result += String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0')+':'+String(dt.getSeconds()).padStart(2,'0'); i += 2; }
+      else if (fu.substring(i, i+4) === 'YEAR') { var yr=dt.getFullYear(); result += fillMode ? String(yr) : String(yr).split('').join(' ')+' '; i += 4; }
+      else { result += fmt.charAt(i); i++; }
+    }
+    return result;
+  });
+
+  // TO_DATE(str [, fmt]) - Oracle-compatible string to date conversion
+  // Supports: YYYY-MM-DD, DD/MM/YYYY, DD-MON-YYYY, MM/DD/YYYY, YYYYMMDD, YYYY/MM/DD, RR format
+  db.create_function('to_date', function(s, fmt) {
+    if (s === null || s === undefined) return null;
+    if (!s) return null;
+    var str = String(s).trim();
+    // Already a standard date string YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+      var d0 = new Date(str);
+      if (!isNaN(d0.getTime())) return d0.getFullYear()+'-'+String(d0.getMonth()+1).padStart(2,'0')+'-'+String(d0.getDate()).padStart(2,'0');
+    }
+    // Try native Date parse
+    var d = new Date(str);
+    if (!isNaN(d.getTime())) return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    // Parse using Oracle format string
+    if (fmt) {
+      var f = fmt.toUpperCase();
+      var year=null, month=null, day=null, hour=0, min=0, sec=0;
+      var monMap = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+      var parseYY = function(y) { return y < 100 ? (y > 49 ? 1900+y : 2000+y) : y; };
+      if (f.indexOf('DD-MON') >= 0) {
+        var p = str.replace(/[\/\.]/g,'-').split('-');
+        if (p.length===3) { day=parseInt(p[0]); month=monMap[p[1].toUpperCase()]; year=parseYY(parseInt(p[2])); }
+      } else if (f.indexOf('DD/MM') >= 0 || f === 'DD.MM.YYYY') {
+        var sep = f.indexOf('/')>=0?'/':'.';
+        var p2 = str.split(sep); if(p2.length>=3){day=parseInt(p2[0]);month=parseInt(p2[1])-1;year=parseYY(parseInt(p2[2]));}
+      } else if (f.indexOf('MM/DD') >= 0 || f === 'MM.DD.YYYY') {
+        var sep2 = f.indexOf('/')>=0?'/':'.';
+        var p3 = str.split(sep2); if(p3.length>=3){month=parseInt(p3[0])-1;day=parseInt(p3[1]);year=parseYY(parseInt(p3[2]));}
+      } else if (f.indexOf('YYYY/MM') >= 0 || f.indexOf('YYYY.MM') >= 0) {
+        var p4 = str.split(/[\/.]/); if(p4.length>=3){year=parseInt(p4[0]);month=parseInt(p4[1])-1;day=parseInt(p4[2]);}
+      } else if (f === 'YYYYMMDD' || f === 'RRRRMMDD') {
+        if(str.length>=8){year=parseInt(str.substring(0,4));month=parseInt(str.substring(4,6))-1;day=parseInt(str.substring(6,8));}
+      } else if (f.indexOf('YYYY-MM') >= 0 || f.indexOf('RRRR-MM') >= 0) {
+        var p5 = str.split('-'); if(p5.length>=3){year=parseInt(p5[0]);month=parseInt(p5[1])-1;day=parseInt(p5[2]);}
+      } else if (f.indexOf('MM-DD') >= 0 || f.indexOf('MM.DD') >= 0) {
+        var sep3 = f.indexOf('-')>=0?'-':'.';
+        var p6 = str.split(sep3); if(p6.length>=3){month=parseInt(p6[0])-1;day=parseInt(p6[1]);year=parseYY(parseInt(p6[2]));}
+      }
+      // Extract time if present
+      var tm = str.match(/(\d{1,2}):(\d{2}):(\d{2})/);
+      if (tm) { hour=parseInt(tm[1]); min=parseInt(tm[2]); sec=parseInt(tm[3]); }
+      if (year!==null && month!==null && day!==null) {
+        var pd = new Date(year, month, day, hour, min, sec);
+        if (!isNaN(pd.getTime())) return pd.getFullYear()+'-'+String(pd.getMonth()+1).padStart(2,'0')+'-'+String(pd.getDate()).padStart(2,'0');
+      }
+    }
+    return String(s);
+  });
+
+  // TO_NUMBER(expr [, fmt]) - Oracle-compatible convert to number
+  db.create_function('to_number', function(val, fmt) {
+    if (val === null || val === undefined) return null;
+    var s = String(val).trim();
+    s = s.replace(/[$\u20AC\u00A3\u00A5\u20BC]/g, '');
+    if (/^<.*>$/.test(s)) { s = '-' + s.replace(/[<>]/g, ''); }
+    if (fmt) {
+      var f = fmt.toUpperCase();
+      if (f.indexOf('FM') === 0) f = f.substring(2);
+      if (f.indexOf('G') >= 0 && f.indexOf('D') >= 0) { s = s.replace(/,/g, ''); }
+    } else {
+      s = s.replace(/,/g, '');
+    }
+    s = s.replace(/\s/g, '');
+    var num = Number(s);
+    return isNaN(num) ? null : num;
+  });
+
+  // ADD_MONTHS(date, n) - add months to date
+  db.create_function('add_months', function(d, n) {
+    if (!d) return null;
+    var dt = new Date(d);
+    if (isNaN(dt.getTime())) return d;
+    dt.setMonth(dt.getMonth() + (n || 0));
+    return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+  });
+
+  // MONTHS_BETWEEN(d1, d2) - months between two dates
+  db.create_function('months_between', function(d1, d2) {
+    if (!d1 || !d2) return null;
+    var a = new Date(d1), b = new Date(d2);
+    if (isNaN(a.getTime()) || isNaN(b.getTime())) return 0;
+    return (a.getFullYear() - b.getFullYear()) * 12 + (a.getMonth() - b.getMonth());
+  });
+
+  // LAST_DAY(date) - last day of month
+  db.create_function('last_day', function(d) {
+    if (!d) return null;
+    var dt = new Date(d);
+    if (isNaN(dt.getTime())) return d;
+    var last = new Date(dt.getFullYear(), dt.getMonth() + 1, 0);
+    return last.getFullYear() + '-' + String(last.getMonth()+1).padStart(2,'0') + '-' + String(last.getDate()).padStart(2,'0');
+  });
+
+  // ROUND(number, decimals) - for numbers
+  db.create_function('round', function(val, dec) {
+    if (val === null || val === undefined) return null;
+    var d = (dec === undefined || dec === null) ? 0 : dec;
+    var factor = Math.pow(10, d);
+    return Math.round(val * factor) / factor;
+  });
+
+  // INSTR(str, substr) - find position of substring (Oracle 1-based)
+  db.create_function('instr', function(str, sub, start, occ) {
+    if (!str || !sub) return 0;
+    var s = (start || 1) - 1; // convert to 0-based
+    if (s < 0) { str = str.split('').reverse().join(''); sub = sub.split('').reverse().join(''); s = -s - 1; }
+    var idx = str.indexOf(sub, s);
+    if (idx < 0) return 0;
+    if (occ && occ > 1) {
+      var count = 1;
+      while (count < occ) {
+        idx = str.indexOf(sub, idx + 1);
+        if (idx < 0) return 0;
+        count++;
+      }
+    }
+    return idx + 1; // 1-based
+  });
+
+  // SUBSTR(str, start, length) - Oracle-style substr (1-based, negative start from end)
+  db.create_function('substr', function(str, start, len) {
+    if (str === null || str === undefined) return null;
+    var s = String(str);
+    if (start < 0) { start = s.length + start + 1; }
+    else { start = start - 1; } // convert to 0-based
+    if (start < 0) start = 0;
+    if (len !== undefined && len !== null) {
+      return s.substring(start, start + len);
+    }
+    return s.substring(start);
+  });
+
+  // LENGTH(str) - Oracle LENGTH
+  db.create_function('length', function(s) {
+    return (s === null || s === undefined) ? null : String(s).length;
+  });
+
+  // UPPER / LOWER are built into SQLite, no need to add
+
+  // COALESCE is built into SQLite
+
+  // ============================================================
+  // ADDITIONAL ORACLE FUNCTIONS
+  // ============================================================
+
+  // CONCAT(str1, str2, ...) - Oracle CONCAT (also supports || operator natively in SQLite)
+  db.create_function('concat', function() {
+    var result = '';
+    for (var i = 0; i < arguments.length; i++) {
+      if (arguments[i] !== null && arguments[i] !== undefined) result += String(arguments[i]);
+    }
+    return result || null;
+  });
+
+  // LPAD(str, len, pad) - left pad string
+  db.create_function('lpad', function(str, len, pad) {
+    if (str === null || str === undefined) return null;
+    var s = String(str);
+    var p = (pad !== null && pad !== undefined) ? String(pad) : ' ';
+    var targetLen = len || 0;
+    while (s.length < targetLen) {
+      s = p + s;
+    }
+    return s.substring(0, targetLen);
+  });
+
+  // RPAD(str, len, pad) - right pad string
+  db.create_function('rpad', function(str, len, pad) {
+    if (str === null || str === undefined) return null;
+    var s = String(str);
+    var p = (pad !== null && pad !== undefined) ? String(pad) : ' ';
+    var targetLen = len || 0;
+    while (s.length < targetLen) {
+      s = s + p;
+    }
+    return s.substring(0, targetLen);
+  });
+
+  // INITCAP(str) - capitalize first letter of each word
+  db.create_function('initcap', function(str) {
+    if (str === null || str === undefined) return null;
+    return String(str).replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+  });
+
+  // GREATEST(val1, val2, ...) - return largest value
+  db.create_function('greatest', function() {
+    var max = null;
+    for (var i = 0; i < arguments.length; i++) {
+      if (arguments[i] !== null && arguments[i] !== undefined) {
+        if (max === null || arguments[i] > max) max = arguments[i];
+      }
+    }
+    return max;
+  });
+
+  // LEAST(val1, val2, ...) - return smallest value
+  db.create_function('least', function() {
+    var min = null;
+    for (var i = 0; i < arguments.length; i++) {
+      if (arguments[i] !== null && arguments[i] !== undefined) {
+        if (min === null || arguments[i] < min) min = arguments[i];
+      }
+    }
+    return min;
+  });
+
+  // FLOOR(number) - floor (SQLite has this natively but just in case)
+  db.create_function('floor', function(n) {
+    return (n === null || n === undefined) ? null : Math.floor(n);
+  });
+
+  // CEIL / CEILING(number) - ceiling
+  db.create_function('ceil', function(n) {
+    return (n === null || n === undefined) ? null : Math.ceil(n);
+  });
+  db.create_function('ceiling', function(n) {
+    return (n === null || n === undefined) ? null : Math.ceil(n);
+  });
+
+  // ABS(number) - absolute value
+  db.create_function('abs', function(n) {
+    return (n === null || n === undefined) ? null : Math.abs(n);
+  });
+
+  // MOD(a, b) - modulo
+  db.create_function('mod', function(a, b) {
+    if (a === null || b === null || b === undefined) return null;
+    return a % b;
+  });
+
+  // POWER(base, exp) - power
+  db.create_function('power', function(base, exp) {
+    if (base === null || exp === null) return null;
+    return Math.pow(base, exp);
+  });
+
+  // SQRT(n) - square root
+  db.create_function('sqrt', function(n) {
+    return (n === null || n === undefined) ? null : Math.sqrt(n);
+  });
+
+  // SIGN(n) - sign of number (-1, 0, 1)
+  db.create_function('sign', function(n) {
+    if (n === null || n === undefined) return null;
+    if (n > 0) return 1;
+    if (n < 0) return -1;
+    return 0;
+  });
+
+  // TRIM(str) / LTRIM(str) / RTRIM(str) - trim spaces (SQLite has these natively)
+
+  // REPLACE(str, old, new) - built into SQLite
+
+  // REVERSE(str) - reverse string
+  db.create_function('reverse', function(str) {
+    if (str === null || str === undefined) return null;
+    return String(str).split('').reverse().join('');
+  });
+
+  // NULLIF(a, b) - built into SQLite
+
+  // COALESCE - built into SQLite
+
+  // DECODE(expr, s1, r1, s2, r2, ..., default) - Oracle DECODE → handled by preprocessor
+}
+
+// ============================================================
+// UI - Build sidebar
+// ============================================================
+function buildSidebar() {
+  var body = document.getElementById('tablesBody');
+  var html = '';
+  var tables = Object.keys(TABLE_META);
+  for (var ti = 0; ti < tables.length; ti++) {
+    var table = tables[ti];
+    var meta = TABLE_META[table];
+    var count = (HR_DATA[table] && HR_DATA[table].length) || 0;
+    html += '<div class="table-item" onclick="toggleTable(\'' + table + '\', this)">';
+    html += '<span class="t-icon">&#9638;</span>';
+    html += '<span class="t-name">' + table + '</span>';
+    html += '<span class="t-count">' + count + '</span>';
+    html += '</div>';
+    html += '<div class="col-list" id="cols_' + table + '" style="display:none">';
+    for (var ci = 0; ci < meta.columns.length; ci++) {
+      var c = meta.columns[ci];
+      var badge = '';
+      if (c === meta.pk) badge = '<span class="col-pk">PK</span>';
+      else if (meta.fks[c]) badge = '<span class="col-fk">FK</span>';
+      html += '<div class="col-item" onclick="insertColumn(\'' + table + '\',\'' + c + '\')">' + badge + c + '</div>';
+    }
+    html += '</div>';
+  }
+  body.innerHTML = html;
+}
+
+function toggleTable(table, el) {
+  var cols = document.getElementById('cols_' + table);
+  if (cols.style.display === 'none') { cols.style.display = 'block'; }
+  else { cols.style.display = 'none'; }
+}
+
+function toggleSection(id) {
+  var body = document.getElementById(id + 'Body');
+  var arrow = document.getElementById(id + 'Arrow');
+  if (body.style.display === 'none') {
+    body.style.display = 'block';
+    arrow.classList.add('open');
+  } else {
+    body.style.display = 'none';
+    arrow.classList.remove('open');
+  }
+}
+
+function insertColumn(table, column) {
+  var ed = document.getElementById('sqlEditor');
+  var pos = ed.selectionStart;
+  var text = ed.value;
+  var insert = table + '.' + column;
+  ed.value = text.substring(0, pos) + insert + text.substring(pos);
+  ed.focus();
+  ed.setSelectionRange(pos + insert.length, pos + insert.length);
+  updateLineNumbers();
+  updateHighlight();
+}
+
+// ============================================================
+// SAVED QUERIES (Query History)
+// ============================================================
+var SAVED_KEY = 'sql-sim-saved-queries';
+
+function getSavedQueries() {
+  try {
+    return JSON.parse(localStorage.getItem(SAVED_KEY)) || [];
+  } catch(e) { return []; }
+}
+
+function saveQuery() {
+  var ed = document.getElementById('sqlEditor');
+  var sql = ed.value.trim();
+  if (!sql) return;
+
+  // Download as .sql file
+  var now = new Date();
+  var ts = now.getFullYear().toString() +
+    String(now.getMonth()+1).padStart(2,'0') +
+    String(now.getDate()).padStart(2,'0') + '_' +
+    String(now.getHours()).padStart(2,'0') +
+    String(now.getMinutes()).padStart(2,'0') +
+    String(now.getSeconds()).padStart(2,'0');
+  var filename = 'query_' + ts + '.sql';
+  var blob = new Blob([sql], { type: 'text/sql;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function addQueryToHistory(sql) {
+  var trimmed = sql.trim();
+  if (!trimmed) return;
+
+  var saved = getSavedQueries();
+
+  // Check for duplicates - remove existing one if found
+  var existingIdx = -1;
+  for (var i = 0; i < saved.length; i++) {
+    if (saved[i].sql === trimmed) {
+      existingIdx = i;
+      break;
+    }
+  }
+
+  // Remove duplicate if exists
+  if (existingIdx >= 0) {
+    saved.splice(existingIdx, 1);
+  }
+
+  // Generate name
+  var name = '';
+  var match = trimmed.match(/SELECT\s+(?:DISTINCT\s+)?(.+?)\s+FROM/i);
+  if (match) {
+    name = match[1].replace(/\s+/g,' ').substring(0, 40);
+  } else {
+    name = trimmed.substring(0, 40).replace(/\n/g,' ');
+  }
+
+  // Add at the beginning (most recent first)
+  saved.unshift({ id: Date.now(), name: name, sql: trimmed, date: new Date().toLocaleDateString() });
+
+  // Limit to 100 items
+  if (saved.length > 100) {
+    saved = saved.slice(0, 100);
+  }
+
+  localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
+  renderSavedQueries();
+}
+
+function deleteSavedQuery(id) {
+  var saved = getSavedQueries();
+  saved = saved.filter(function(q) { return q.id !== id; });
+  localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
+  renderSavedQueries();
+}
+
+function loadSavedQuery(id) {
+  var saved = getSavedQueries();
+  var q = saved.find(function(q) { return q.id === id; });
+  if (q) {
+    document.getElementById('sqlEditor').value = q.sql;
+    updateLineNumbers();
+    updateHighlight();
+  }
+}
+
+function renderSavedQueries() {
+  var body = document.getElementById('savedBody');
+  var saved = getSavedQueries();
+  if (saved.length === 0) {
+    body.innerHTML = '<div class="saved-empty">No query history yet</div>';
+    return;
+  }
+  var html = '';
+  // saved is already ordered most-recent first
+  for (var i = 0; i < saved.length; i++) {
+    var q = saved[i];
+    var sqlPreview = q.sql.replace(/\n/g,' ').substring(0, 50);
+    html += '<div class="saved-item" onclick="loadSavedQuery(' + q.id + ')">';
+    html += '<div style="width:100%;overflow:hidden">';
+    html += '<div class="sq-name">' + q.name + '</div>';
+    html += '<div class="sq-sql">' + sqlPreview + (q.sql.length > 50 ? '...' : '') + '</div>';
+    html += '</div>';
+    html += '<span class="sq-delete" onclick="event.stopPropagation();deleteSavedQuery(' + q.id + ')" title="Delete">&#10005;</span>';
+    html += '</div>';
+  }
+  body.innerHTML = html;
+}
+
+// ============================================================
+// THEME TOGGLE
+// ============================================================
+function initTheme() {
+  var saved = localStorage.getItem('sql-sim-theme');
+  if (saved === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.getElementById('themeIconDark').style.display = '';
+    document.getElementById('themeIconLight').style.display = 'none';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('themeIconDark').style.display = 'none';
+    document.getElementById('themeIconLight').style.display = '';
+  }
+}
+
+function toggleTheme() {
+  var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('sql-sim-theme', 'dark');
+    document.getElementById('themeIconDark').style.display = 'none';
+    document.getElementById('themeIconLight').style.display = '';
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+    localStorage.setItem('sql-sim-theme', 'light');
+    document.getElementById('themeIconDark').style.display = '';
+    document.getElementById('themeIconLight').style.display = 'none';
+  }
+}
+
+// ============================================================
+// FONT SIZE CONTROL
+// ============================================================
+function changeEditorFontSize(size) {
+  var sz = parseInt(size, 10);
+  var ed = document.getElementById('sqlEditor');
+  var ln = document.getElementById('lineNumbers');
+  var hl = document.getElementById('sqlHighlight');
+  ed.style.fontSize = sz + 'px';
+  ed.style.lineHeight = (sz * 1.6) + 'px';
+  ln.style.fontSize = sz + 'px';
+  ln.style.lineHeight = (sz * 1.6) + 'px';
+  hl.style.fontSize = sz + 'px';
+  hl.style.lineHeight = (sz * 1.6) + 'px';
+  document.getElementById('fontSizeSelect').value = String(sz);
+  localStorage.setItem('sql-sim-fontsize', String(sz));
+}
+
+function initFontSize() {
+  var saved = localStorage.getItem('sql-sim-fontsize');
+  if (saved) {
+    changeEditorFontSize(saved);
+  }
+}
+
+// ============================================================
+// SQL SYNTAX HIGHLIGHTING
+// ============================================================
+var SQL_KEYWORDS = [
+  'SELECT','FROM','WHERE','JOIN','LEFT','RIGHT','INNER','FULL','OUTER',
+  'ON','AND','OR','NOT','IN','BETWEEN','LIKE','IS','NULL','AS',
+  'ORDER','BY','GROUP','HAVING','DISTINCT','INSERT','UPDATE','DELETE',
+  'CREATE','DROP','TABLE','INTO','VALUES','SET','LIMIT','OFFSET',
+  'UNION','ALL','EXISTS','CASE','WHEN','THEN','ELSE','END',
+  'ASC','DESC','WITH','COUNT','SUM','AVG','MIN','MAX','ROUND'
+];
+
+var SQL_FUNCTIONS = [
+  'COUNT','SUM','AVG','MIN','MAX','ROUND','COALESCE','NULLIF','CAST',
+  'CONVERT','UPPER','LOWER','TRIM','SUBSTR','LENGTH','TO_DATE','TO_CHAR',
+  'NVL','DECODE'
+];
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightSQL(text) {
+  var result = '';
+  var i = 0;
+  var len = text.length;
+
+  // Build keyword regex pattern
+  var kwPattern = new RegExp('\\b(' + SQL_KEYWORDS.join('|') + ')\\b', 'i');
+  var funcPattern = new RegExp('\\b(' + SQL_FUNCTIONS.join('|') + ')\\b', 'i');
+
+  while (i < len) {
+    // Check for single-line comment --
+    if (text[i] === '-' && i + 1 < len && text[i + 1] === '-') {
+      var end = text.indexOf('\n', i);
+      if (end === -1) end = len;
+      result += '<span style="color:var(--sql-comment)">' + escapeHtml(text.substring(i, end)) + '</span>';
+      i = end;
+      continue;
+    }
+
+    // Check for multi-line comment /* */
+    if (text[i] === '/' && i + 1 < len && text[i + 1] === '*') {
+      var endC = text.indexOf('*/', i + 2);
+      if (endC === -1) endC = len;
+      else endC += 2;
+      result += '<span style="color:var(--sql-comment)">' + escapeHtml(text.substring(i, endC)) + '</span>';
+      i = endC;
+      continue;
+    }
+
+    // Check for string literal (single quotes)
+    if (text[i] === "'") {
+      var j = i + 1;
+      while (j < len) {
+        if (text[j] === "'" && j + 1 < len && text[j + 1] === "'") {
+          j += 2; // escaped quote
+        } else if (text[j] === "'") {
+          j++;
+          break;
+        } else {
+          j++;
+        }
+      }
+      result += '<span style="color:var(--sql-string)">' + escapeHtml(text.substring(i, j)) + '</span>';
+      i = j;
+      continue;
+    }
+
+    // Check for numbers
+    if (/\d/.test(text[i]) && (i === 0 || /[\s,;=<>+\-*/(]/.test(text[i-1]))) {
+      var numStart = i;
+      while (i < len && /[\d.]/.test(text[i])) i++;
+      // Check it's not part of an identifier (e.g. table name starting with digit)
+      if (i < len && /[a-zA-Z_]/.test(text[i])) {
+        // It's an identifier like 3M, backtrack
+        i = numStart;
+        result += escapeHtml(text[i]);
+        i++;
+        continue;
+      }
+      result += '<span style="color:var(--sql-number)">' + text.substring(numStart, i) + '</span>';
+      continue;
+    }
+
+    // Check for word (identifier or keyword)
+    if (/[a-zA-Z_]/.test(text[i])) {
+      var wordStart = i;
+      while (i < len && /[a-zA-Z0-9_]/.test(text[i])) i++;
+      var word = text.substring(wordStart, i);
+
+      // Check if it's a function (followed by '(')
+      var lookAhead = i;
+      while (lookAhead < len && text[lookAhead] === ' ') lookAhead++;
+      var isFunc = lookAhead < len && text[lookAhead] === '(';
+
+      if (isFunc && funcPattern.test(word)) {
+        result += '<span style="color:var(--sql-function)">' + escapeHtml(word) + '</span>';
+      } else if (kwPattern.test(word)) {
+        result += '<span style="color:var(--sql-keyword)">' + escapeHtml(word) + '</span>';
+      } else {
+        result += escapeHtml(word);
+      }
+      continue;
+    }
+
+    // Default: pass through character
+    result += escapeHtml(text[i]);
+    i++;
+  }
+
+  return result;
+}
+
+function updateHighlight() {
+  var code = document.getElementById('sqlHighlightCode');
+  code.innerHTML = highlightSQL(editor.value) + '\n';
+}
+
+// ============================================================
+// SQL EDITOR - Line numbers + shortcuts + highlighting + auto-uppercase
+// ============================================================
+var editor = document.getElementById('sqlEditor');
+var lineNums = document.getElementById('lineNumbers');
+var hlCode = document.getElementById('sqlHighlightCode');
+
+var SQL_KEYWORDS_UPPER = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','IS','NULL','AS','ON','JOIN',
+'LEFT','RIGHT','INNER','OUTER','FULL','CROSS','GROUP','BY','ORDER','ASC','DESC','HAVING',
+'INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','ALTER','DROP','INDEX',
+'VIEW','TRIGGER','PROCEDURE','FUNCTION','BETWEEN','LIKE','EXISTS','UNION','ALL','DISTINCT',
+'CASE','WHEN','THEN','ELSE','END','WITH','REPLACE','GRANT','REVOKE','COMMIT','ROLLBACK',
+'LIMIT','OFFSET','FETCH','NEXT','ROWS','ONLY','ROWNUM','CONNECT','PRIOR','START','NATURAL',
+'USING','OVER','PARTITION','ROW','RANGE','INTERVAL','YEAR','MONTH','DAY','HOUR','MINUTE','SECOND',
+'TABLESPACE','SEQUENCE','SYNONYM','CONSTRAINT','PRIMARY','KEY','FOREIGN','REFERENCES',
+'CHECK','DEFAULT','UNIQUE','CLUSTER','IF','BEGIN','DECLARE','CURSOR','FOR','WHILE','LOOP',
+'EXIT','RETURN','EXCEPTION','RAISE','NO_DATA_FOUND','TOO_MANY_ROWS','OTHERS','MERGE','MATCHED',
+'PIVOT','UNPIVOT','FLASHBACK','RENAME','TRUNCATE','EXPLAIN','PLAN','ANALYZE','VALIDATE'];
+
+function autoUppercase(val, cursorPos) {
+  if (cursorPos <= 0) return { value: val, cursor: cursorPos };
+  var lastChar = val[cursorPos - 1];
+  if (!/[\s;(),.\n\r]/.test(lastChar)) return { value: val, cursor: cursorPos };
+  var wordEnd = cursorPos - 1;
+  var wordStart = wordEnd;
+  while (wordStart > 0 && /[a-zA-Z_]/.test(val[wordStart - 1])) wordStart--;
+  var word = val.substring(wordStart, wordEnd);
+  if (word.length < 2) return { value: val, cursor: cursorPos };
+  var upper = word.toUpperCase();
+  if (SQL_KEYWORDS_UPPER.indexOf(upper) === -1) return { value: val, cursor: cursorPos };
+  var diff = upper.length - word.length;
+  return {
+    value: val.substring(0, wordStart) + upper + val.substring(wordEnd),
+    cursor: cursorPos + diff
+  };
+}
+
+function updateLineNumbers() {
+  var lines = editor.value.split('\n').length;
+  var html = '';
+  for (var i = 1; i <= lines; i++) html += '<div>' + i + '</div>';
+  lineNums.innerHTML = html;
+}
+
+editor.addEventListener('input', function() {
+  var pos = this.selectionStart;
+  var result = autoUppercase(this.value, pos);
+  if (result.value !== this.value) {
+    this.value = result.value;
+    this.selectionStart = this.selectionEnd = result.cursor;
+  }
+  updateLineNumbers();
+  updateHighlight();
+});
+
+editor.addEventListener('scroll', function() {
+  lineNums.scrollTop = editor.scrollTop;
+  hlCode.style.transform = 'translate(' + (-editor.scrollLeft) + 'px,' + (-editor.scrollTop) + 'px)';
+});
+
+editor.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    executeQuery();
+  }
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+    this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+    this.selectionStart = this.selectionEnd = start + 2;
+    updateLineNumbers();
+    updateHighlight();
+  }
+});
+
+// ============================================================
+// CURSOR-BASED SQL STATEMENT DETECTION
+// ============================================================
+function getStatementAtCursor() {
+  var text = editor.value;
+  var selStart = editor.selectionStart;
+  var selEnd = editor.selectionEnd;
+
+  // If user has selected/highlighted text, execute only the selection
+  if (selEnd > selStart) {
+    return text.substring(selStart, selEnd).trim();
+  }
+
+  // Check if there's only one statement (no semicolons)
+  var semicolonCount = (text.match(/;/g) || []).length;
+  if (semicolonCount <= 1) {
+    // Single statement or no semicolons - execute everything
+    return text.trim();
+  }
+
+  // Multiple statements - find which one the cursor is in
+  // Split by semicolons and track positions
+  var statements = [];
+  var lastPos = 0;
+  for (var i = 0; i < text.length; i++) {
+    if (text[i] === ';') {
+      var stmt = text.substring(lastPos, i);
+      statements.push({ text: stmt, start: lastPos, end: i });
+      lastPos = i + 1;
+    }
+  }
+  // Add any remaining text after last semicolon
+  if (lastPos < text.length) {
+    var remaining = text.substring(lastPos);
+    if (remaining.trim().length > 0) {
+      statements.push({ text: remaining, start: lastPos, end: text.length });
+    }
+  }
+
+  if (statements.length === 0) return text.trim();
+
+  // Find which statement contains the cursor
+  var containingStmt = null;
+  var nearestBefore = null;
+  var nearestAfter = null;
+
+  for (var j = 0; j < statements.length; j++) {
+    var s = statements[j];
+    if (selStart >= s.start && selStart <= s.end) {
+      containingStmt = s;
+      break;
+    }
+    // Track nearest statements for when cursor is between them
+    if (s.end <= selStart) {
+      nearestBefore = s;
+    }
+    if (s.start >= selStart && nearestAfter === null) {
+      nearestAfter = s;
+    }
+  }
+
+  var target;
+  if (containingStmt) {
+    target = containingStmt;
+  } else if (nearestBefore) {
+    // Cursor is after the semicolon of nearestBefore
+    // Check if there's a nearestAfter and which is closer
+    if (nearestAfter) {
+      var distBefore = selStart - nearestBefore.end;
+      var distAfter = nearestAfter.start - selStart;
+      target = distBefore <= distAfter ? nearestBefore : nearestAfter;
+    } else {
+      target = nearestBefore;
+    }
+  } else if (nearestAfter) {
+    target = nearestAfter;
+  } else {
+    // Fallback
+    return text.trim();
+  }
+
+  var result = target.text.trim();
+  if (!result) {
+    // Empty statement at cursor - try the next non-empty one
+    var idx = statements.indexOf(target);
+    for (var k = idx + 1; k < statements.length; k++) {
+      if (statements[k].text.trim()) {
+        return statements[k].text.trim();
+      }
+    }
+    for (var m = idx - 1; m >= 0; m--) {
+      if (statements[m].text.trim()) {
+        return statements[m].text.trim();
+      }
+    }
+    return '';
+  }
+  return result;
+}
+
+// ============================================================
+// EXECUTE QUERY
+// ============================================================
+function executeQuery() {
+  var sql = getStatementAtCursor();
+  if (!sql) return;
+
+  hideError();
+  var btn = document.getElementById('runBtn');
+  var timeEl = document.getElementById('execTime');
+  btn.classList.add('running');
+  btn.innerHTML = '&#8987; Running...';
+  timeEl.textContent = '';
+
+  setTimeout(function() {
+    try {
+      var sqlToRun = preprocessOracleSQL(sql);
+      var t0 = performance.now();
+      var sqlResults = db.exec(sqlToRun);
+      var elapsed = (performance.now() - t0).toFixed(1);
+      timeEl.textContent = elapsed + ' ms';
+
+      // sql.js returns [{columns:[...], values:[[...],[...]]}] or [] for non-SELECT
+      if (sqlResults.length > 0) {
+        var res = sqlResults[sqlResults.length - 1]; // use last result set
+        var columns = res.columns;
+        var values = res.values;
+        // Convert to array of objects for renderResult
+        var data = values.map(function(row) {
+          var obj = {};
+          for (var c = 0; c < columns.length; c++) {
+            obj[columns[c]] = row[c];
+          }
+          return obj;
+        });
+        currentResult = data;
+        sortCol = null;
+        sortDir = 'asc';
+        selectedRow = null;
+        renderResult(data);
+        addQueryToHistory(sql);
+      } else {
+        // Non-SELECT statement (INSERT, UPDATE, DELETE, CREATE, etc.)
+        currentResult = null;
+        var changes = db.getRowsModified();
+        if (changes > 0) {
+          showAffectedRows(changes);
+        } else {
+          showAffectedRows(0);
+        }
+        addQueryToHistory(sql);
+      }
+    } catch(err) {
+      showError(err.message || String(err));
+    }
+    btn.classList.remove('running');
+    btn.innerHTML = '&#9654; Run';
+  }, 50);
+}
+
+function showAffectedRows(count) {
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('resultsInfo').style.display = 'none';
+  document.getElementById('resultsGrid').style.display = 'none';
+  document.getElementById('emptyState').innerHTML = '<div class="es-icon">&#9989;</div><div class="es-title">Query Executed</div><div class="es-desc">Affected rows: <b>' + count + '</b></div>';
+}
+
+function showScalarResult(data) {
+  if (!data || data.length === 0) {
+    document.getElementById('emptyState').style.display = 'flex';
+    document.getElementById('emptyState').innerHTML = '<div class="es-icon">&#128270;</div><div class="es-title">No Results</div><div class="es-desc">The query executed successfully but returned 0 rows.</div>';
+    document.getElementById('resultsInfo').style.display = 'none';
+    document.getElementById('resultsGrid').style.display = 'none';
+    return;
+  }
+  // Convert scalar array into objects
+  var converted = data.map(function(v, i) {
+    var o = {};
+    o['result'] = v;
+    return o;
+  });
+  currentResult = converted;
+  sortCol = null;
+  sortDir = 'asc';
+  selectedRow = null;
+  renderResult(converted);
+}
+
+function showError(msg) {
+  document.getElementById('errorBar').classList.add('show');
+  document.getElementById('errorText').textContent = msg;
+}
+
+function hideError() {
+  document.getElementById('errorBar').classList.remove('show');
+}
+
+// ============================================================
+// RENDER RESULTS (with row selection)
+// ============================================================
+function renderResult(data) {
+  var empty = document.getElementById('emptyState');
+  var info = document.getElementById('resultsInfo');
+  var grid = document.getElementById('resultsGrid');
+
+  if (!data || data.length === 0) {
+    empty.style.display = 'flex';
+    empty.innerHTML = '<div class="es-icon">&#128270;</div><div class="es-title">No Results</div><div class="es-desc">The query executed successfully but returned 0 rows.</div>';
+    info.style.display = 'none';
+    grid.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  info.style.display = 'flex';
+  grid.style.display = 'block';
+
+  var headers = Object.keys(data[0]);
+  document.getElementById('rowCount').textContent = data.length;
+  document.getElementById('colCount').textContent = headers.length;
+  document.getElementById('sortInfo').textContent = sortCol ? ('Sorted by: ' + sortCol + ' (' + (sortDir === 'asc' ? 'ASC' : 'DESC') + ')') : '';
+
+  var tableHtml = '<table class="results-table" id="resultsTable"><colgroup>';
+  tableHtml += '<col style="width:40px">';
+
+  for (var ci = 0; ci < headers.length; ci++) {
+    var maxW = headers[ci].length * 9 + 30;
+    var sampleCount = Math.min(data.length, 50);
+    for (var ri = 0; ri < sampleCount; ri++) {
+      var val = data[ri][headers[ci]];
+      var displayVal;
+      if (val === null || val === undefined) {
+        displayVal = 'NULL';
+      } else if (typeof val === 'number') {
+        displayVal = Number.isInteger(val) ? val.toLocaleString() : val.toFixed(2);
+      } else {
+        displayVal = String(val);
+      }
+      maxW = Math.max(maxW, displayVal.length * 8 + 24);
+    }
+    tableHtml += '<col style="width:' + Math.min(Math.max(60, maxW), 350) + 'px" data-col-idx="' + ci + '">';
+  }
+
+  tableHtml += '</colgroup><thead><tr>';
+  tableHtml += '<th style="width:40px;text-align:center;cursor:default">#</th>';
+
+  for (var hi = 0; hi < headers.length; hi++) {
+    var h = headers[hi];
+    var safeH = h.replace(/'/g, "\\'");
+    var sortedClass = (sortCol === h) ? ' class="sorted"' : '';
+    var sortArrow = '';
+    if (sortCol === h) {
+      sortArrow = sortDir === 'asc' ? ' &#9650;' : ' &#9660;';
+    }
+    tableHtml += '<th data-col="' + hi + '" draggable="true"' + sortedClass + '>';
+    tableHtml += '<div class="th-content" onclick="sortByColumn(\'' + safeH + '\')">' + h + '<span class="sort-icon" id="sort_' + h + '">' + sortArrow + '</span></div>';
+    tableHtml += '<div class="col-resize-handle"></div>';
+    tableHtml += '</th>';
+  }
+
+  tableHtml += '</tr></thead><tbody>';
+
+  for (var rowIdx = 0; rowIdx < data.length; rowIdx++) {
+    tableHtml += '<tr onclick="toggleRowSelection(this)" data-row-idx="' + rowIdx + '">';
+    tableHtml += '<td style="color:var(--text-muted);text-align:center;font-size:10px">' + (rowIdx + 1) + '</td>';
+    for (var colIdx = 0; colIdx < headers.length; colIdx++) {
+      var cellVal = data[rowIdx][headers[colIdx]];
+      var cls = '';
+      var displayValue;
+      if (cellVal === null || cellVal === undefined) {
+        displayValue = 'NULL';
+        cls = 'null-val';
+      } else if (typeof cellVal === 'number') {
+        cls = 'number-val';
+        displayValue = Number.isInteger(cellVal) ? cellVal.toLocaleString() : cellVal.toFixed(2);
+      } else {
+        displayValue = String(cellVal);
+      }
+      var rawVal = (data[rowIdx][headers[colIdx]] === null || data[rowIdx][headers[colIdx]] === undefined) ? 'NULL' : String(data[rowIdx][headers[colIdx]]);
+      tableHtml += '<td class="' + cls + '" title="' + rawVal.replace(/"/g, '&quot;') + '">' + displayValue + '</td>';
+    }
+    tableHtml += '</tr>';
+  }
+
+  tableHtml += '</tbody></table>';
+  grid.innerHTML = tableHtml;
+
+  // Attach column resize and drag listeners
+  initColumnResize();
+  initColumnDragDrop();
+  initRowSelection();
+}
+
+// ============================================================
+// ROW SELECTION
+// ============================================================
+function initRowSelection() {
+  var table = document.getElementById('resultsTable');
+  if (!table) return;
+  var tbody = table.querySelector('tbody');
+  if (!tbody) return;
+}
+
+function toggleRowSelection(tr) {
+  // Check if this row is already selected
+  if (tr.classList.contains('row-selected')) {
+    tr.classList.remove('row-selected');
+    selectedRow = null;
+  } else {
+    // Deselect previously selected row
+    var prev = document.querySelector('.results-table tr.row-selected');
+    if (prev) prev.classList.remove('row-selected');
+    // Select this row
+    tr.classList.add('row-selected');
+    selectedRow = tr.getAttribute('data-row-idx');
+  }
+}
+
+// ============================================================
+// COLUMN RESIZE
+// ============================================================
+function initColumnResize() {
+  var table = document.getElementById('resultsTable');
+  if (!table) return;
+
+  var handles = table.querySelectorAll('.col-resize-handle');
+  for (var i = 0; i < handles.length; i++) {
+    (function(handle) {
+      var th = handle.parentElement;
+      if (!th || !th.getAttribute('data-col')) return;
+      var colIdx = parseInt(th.getAttribute('data-col'), 10);
+      var colgroup = table.querySelector('colgroup');
+      if (!colgroup) return;
+      // colIdx is 0-based for data columns, colgroup has row# col at index 0
+      var col = colgroup.children[colIdx + 1];
+      if (!col) return;
+
+      handle.addEventListener('mousedown', function(e) {
+        if (e.button !== 0) return;
+        e.stopPropagation();
+        e.preventDefault();
+        var startX = e.clientX;
+        var startW = col.offsetWidth;
+        handle.classList.add('active');
+
+        function onMove(ev) {
+          var delta = ev.clientX - startX;
+          var newW = Math.max(60, startW + delta);
+          col.style.width = newW + 'px';
+        }
+
+        function onUp() {
+          handle.classList.remove('active');
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    })(handles[i]);
+  }
+}
+
+// ============================================================
+// COLUMN DRAG & DROP REORDER
+// ============================================================
+var dragState = null;
+
+function initColumnDragDrop() {
+  var table = document.getElementById('resultsTable');
+  if (!table) return;
+
+  var ths = table.querySelectorAll('thead th[data-col]');
+  for (var i = 0; i < ths.length; i++) {
+    (function(th) {
+      th.addEventListener('dragstart', function(e) {
+        var colIdx = parseInt(this.getAttribute('data-col'), 10);
+        dragState = { fromIdx: colIdx, th: this };
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(colIdx));
+      });
+
+      th.addEventListener('dragend', function() {
+        this.classList.remove('dragging');
+        var allThs = document.querySelectorAll('.results-table th');
+        for (var j = 0; j < allThs.length; j++) {
+          allThs[j].classList.remove('drag-over-left', 'drag-over-right');
+        }
+        dragState = null;
+      });
+
+      th.addEventListener('dragover', function(e) {
+        if (!dragState) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        var toIdx = parseInt(this.getAttribute('data-col'), 10);
+        if (toIdx === dragState.fromIdx) return;
+        // Clean up all indicator classes
+        var allThs = document.querySelectorAll('.results-table th');
+        for (var j = 0; j < allThs.length; j++) {
+          allThs[j].classList.remove('drag-over-left', 'drag-over-right');
+        }
+        var rect = this.getBoundingClientRect();
+        var midX = rect.left + rect.width / 2;
+        if (e.clientX < midX) {
+          this.classList.add('drag-over-left');
+        } else {
+          this.classList.add('drag-over-right');
+        }
+      });
+
+      th.addEventListener('dragleave', function() {
+        this.classList.remove('drag-over-left', 'drag-over-right');
+      });
+
+      th.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (!dragState) return;
+        var toIdx = parseInt(this.getAttribute('data-col'), 10);
+        if (toIdx === dragState.fromIdx) { dragState = null; return; }
+        var rect = this.getBoundingClientRect();
+        var midX = rect.left + rect.width / 2;
+        var insertBefore = (e.clientX < midX);
+        reorderColumns(dragState.fromIdx, toIdx, insertBefore);
+        dragState = null;
+      });
+    })(ths[i]);
+  }
+}
+
+function reorderColumns(fromIdx, toIdx, insertBefore) {
+  if (!currentResult || currentResult.length === 0) return;
+  var origKeys = Object.keys(currentResult[0]);
+  var movedKey = origKeys.splice(fromIdx, 1)[0];
+  var insertAt = toIdx > fromIdx ? toIdx - 1 : toIdx;
+  if (!insertBefore) insertAt++;
+  origKeys.splice(insertAt, 0, movedKey);
+
+  var newData = [];
+  for (var i = 0; i < currentResult.length; i++) {
+    var row = currentResult[i];
+    var newRow = {};
+    for (var k = 0; k < origKeys.length; k++) {
+      newRow[origKeys[k]] = row[origKeys[k]];
+    }
+    newData.push(newRow);
+  }
+  currentResult = newData;
+  renderResult(currentResult);
+}
+
+// ============================================================
+// SORT
+// ============================================================
+function sortByColumn(col) {
+  if (!currentResult || currentResult.length === 0) return;
+  if (sortCol === col) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortCol = col;
+    sortDir = 'asc';
+  }
+
+  currentResult.sort(function(a, b) {
+    var va = a[col];
+    var vb = b[col];
+    if (va === null || va === undefined) va = sortDir === 'asc' ? Infinity : -Infinity;
+    if (vb === null || vb === undefined) vb = sortDir === 'asc' ? Infinity : -Infinity;
+    if (typeof va === 'number' && typeof vb === 'number') {
+      return sortDir === 'asc' ? va - vb : vb - va;
+    }
+    va = String(va);
+    vb = String(vb);
+    return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+
+  // Re-render without changing currentResult reference for sort state
+  renderResult(currentResult);
+}
+
+// ============================================================
+// TOOLBAR ACTIONS
+// ============================================================
+function clearEditor() {
+  editor.value = '';
+  updateLineNumbers();
+  updateHighlight();
+  hideError();
+  currentResult = null;
+  sortCol = null;
+  sortDir = 'asc';
+  selectedRow = null;
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('emptyState').innerHTML = '<div class="es-icon">&#128450;</div><div class="es-title">No Results Yet</div><div class="es-desc">Write a SQL query above and click <b>Run</b> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd>.<br>Select a sample query from the sidebar to get started.</div>';
+  document.getElementById('resultsInfo').style.display = 'none';
+  document.getElementById('resultsGrid').style.display = 'none';
+  document.getElementById('execTime').textContent = '';
+  editor.focus();
+}
+
+function formatQuery() {
+  var sql = editor.value.trim();
+  var keywords = [
+    'SELECT','FROM','WHERE','JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN',
+    'FULL OUTER JOIN','INNER JOIN','ON','AND','OR','GROUP BY','ORDER BY',
+    'HAVING','LIMIT','AS','DISTINCT','UNION','INSERT','UPDATE','DELETE',
+    'SET','INTO','VALUES','CREATE','DROP','TABLE','NOT','IN','BETWEEN',
+    'LIKE','IS NULL','IS NOT NULL','ASC','DESC','COUNT','SUM','AVG','MIN','MAX','ROUND'
+  ];
+  // Sort by length descending to match longer keywords first
+  keywords.sort(function(a, b) { return b.length - a.length; });
+  for (var i = 0; i < keywords.length; i++) {
+    var kw = keywords[i];
+    var regex = new RegExp('\\b' + kw.replace(/ /g, '\\s+') + '\\b', 'gi');
+    sql = sql.replace(regex, '\n' + kw);
+  }
+  sql = sql.replace(/\n\n+/g, '\n').trim();
+  sql = sql.replace(/^(\s*)(ON|AND|OR)/gm, '  $1$2');
+  editor.value = sql;
+  updateLineNumbers();
+  updateHighlight();
+}
+
+// ============================================================
+// SIDEBAR RESIZER
+// ============================================================
+(function() {
+  var resizer = document.getElementById('sidebarResizer');
+  var sidebar = document.getElementById('sidebar');
+  var startX, startW;
+
+  resizer.addEventListener('mousedown', function(e) {
+    if (e.button !== 0) return;
+    startX = e.clientX;
+    startW = sidebar.offsetWidth;
+    resizer.classList.add('active');
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    e.preventDefault();
+  });
+
+  function onMove(e) {
+    var delta = e.clientX - startX;
+    var newW = Math.max(150, Math.min(500, startW + delta));
+    sidebar.style.width = newW + 'px';
+  }
+
+  function onUp() {
+    resizer.classList.remove('active');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+})();
+
+// ============================================================
+// RESIZER (editor/results split)
+// ============================================================
+(function() {
+  var resizer = document.getElementById('resizer');
+  var editorWrap = document.getElementById('editorWrap');
+  var startY, startH;
+
+  resizer.addEventListener('mousedown', function(e) {
+    startY = e.clientY;
+    startH = editorWrap.offsetHeight;
+    resizer.classList.add('active');
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    e.preventDefault();
+  });
+
+  function onMove(e) {
+    var delta = e.clientY - startY;
+    var newH = Math.max(100, startH + delta);
+    var maxH = editorWrap.parentElement.offsetHeight - 150;
+    editorWrap.style.height = Math.min(newH, maxH) + 'px';
+  }
+
+  function onUp() {
+    resizer.classList.remove('active');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+})();
+
+// ============================================================
+// INIT - Async sql.js initialization
+// ============================================================
+initTheme();
+initFontSize();
+renderSavedQueries();
+updateLineNumbers();
+
+// Show loading state
+document.getElementById('dbInfo').textContent = 'Loading sql.js engine...';
+
+initSqlJs({
+  locateFile: function(file) {
+    return 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/' + file;
+  }
+}).then(function(SQL) {
+  db = new SQL.Database();
+  registerOracleFunctions();
+  initDB();
+  buildSidebar();
+  document.getElementById('dbInfo').textContent = Object.keys(HR_DATA).map(function(t) { return t + '(' + HR_DATA[t].length + ')'; }).join(' | ');
+  updateHighlight();
+}).catch(function(err) {
+  document.getElementById('dbInfo').textContent = 'Error: ' + err.message;
+  console.error('sql.js init failed:', err);
+});
+</script>
+</body>
+</html>

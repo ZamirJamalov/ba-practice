@@ -60,6 +60,24 @@ try {
   process.exit(1);
 }
 
-const newHtml = html.replace(/<script>[\s\S]*?<\/script>/, '<script>' + obfuscatedCode + '</script>');
+// Escape $ in obfuscatedCode to prevent replace() special patterns ($& $' $` $n)
+const safeCode = obfuscatedCode.replace(/\$/g, '$$$$');
+const newHtml = html.replace(/<script>[\s\S]*?<\/script>/, '<script>' + safeCode + '</script>');
+
+// Post-build verification: extract code from the new HTML and syntax-check it
+const verifyMatch = newHtml.match(/<script>([\s\S]*?)<\/script>/);
+if (verifyMatch) {
+  try {
+    new Function(verifyMatch[1]);
+    console.log('Post-build extraction check: OK');
+  } catch(e) {
+    console.error('Post-build extraction check FAILED:', e.message);
+    process.exit(1);
+  }
+} else {
+  console.error('Post-build: Could not extract <script> from output HTML');
+  process.exit(1);
+}
+
 fs.writeFileSync(outputFile, newHtml, 'utf8');
 console.log('Build complete: ' + outputFile);
